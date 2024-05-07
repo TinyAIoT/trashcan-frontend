@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-
+import { Sidebar } from "@/components/sidebar";
 
 export default function Home() {
 
@@ -20,7 +20,8 @@ export default function Home() {
   ];
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-left justify-between p-24">
+      <Sidebar className="w-[200px]"/>
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
         {cards.map((card, index) => (
           <Card key={index}>
