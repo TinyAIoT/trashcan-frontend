@@ -15,10 +15,12 @@
 
 import React, { useEffect, useRef } from "react";
 import PageTitle from "@/components/PageTitle";
+import { Button } from "@/components/ui/button";
 import "leaflet/dist/leaflet.css";
+import { LatLngTuple } from "leaflet";
 
 // Important Coordinates
-const laerCoordinates = [52.054653343935236, 7.356975282228671];
+const laerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
 
 // Trashbin coordinates
 const trashbinData = [
@@ -42,56 +44,58 @@ const MapPage = () => {
   const mapRef = useRef<null | L.Map>(null);
 
   useEffect(() => {
-    // Dynamically import leaflet
-    import("leaflet").then((L) => {
-      L.Icon.Default.mergeOptions({
-        iconUrl:  "/images/leaflet/bin_b.png",  // Bin icons based on: https://www.vecteezy.com/vector-art/7820754-recycle-icon-garbage-icon-vector-logo-design-template
-        shadowUrl: "/images/leaflet/bin_s.png",
-      });
+    // Dynamic imports
+    const L = require('leaflet');
+    require('leaflet-routing-machine');
 
-      // See: https://leafletjs.com/examples/custom-icons/
-      var BinIcon = L.Icon.extend({
-        options: {
-            shadowUrl: '/images/leaflet/bin_s.png',
-            iconSize:     [26, 33], // size of icon
-            shadowSize:   [26, 25], // size of shadow
-            iconAnchor:   [26/2, 33/2], // point of icon which will correspond to marker's location
-            shadowAnchor: [26/2 - 10, 25/2],  // the same for the shadow
-            popupAnchor:  [0, -33/4], // point from which popup should open relative to iconAnchor
-        }
-      });
-      var greenBin = new BinIcon({iconUrl: '/images/leaflet/bin_g.png'}),
-        yellowBin = new BinIcon({iconUrl: '/images/leaflet/bin_y.png'}),
-        redBin = new BinIcon({iconUrl: '/images/leaflet/bin_r.png'});
-
-      // Ensure window.L is available before trying to use it
-      if (!mapRef.current) {
-        mapRef.current = window.L.map("map").setView(laerCoordinates, 16);
-        window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          {attribution: "© OpenStreetMap contributors"}
-        ).addTo(mapRef.current);
-
-        for (let i = 0; i < trashbinData.length; i++) {
-          const trashbin = trashbinData[i];
-          // Assign color based on fill level and thresholds
-          const type = trashbin.fill <= thresholds[0] ? greenBin : (trashbin.fill <= thresholds[1] ? yellowBin : redBin);
-          const marker = window.L.marker([trashbin.lat, trashbin.lng], {icon: type})
-            .addTo(mapRef.current)
-            .bindPopup(trashbin.display +
-              "<hr>" +
-              "Fill Level: " + trashbin.fill + "%<br>" + 
-              "Battery: " + trashbin.battery + "%");
-        
-          marker.on("mouseover", () => {
-            marker.openPopup();
-          });
-        
-          marker.on("mouseout", () => {
-            marker.closePopup();
-          });
-        }
+    // See: https://leafletjs.com/examples/custom-icons/
+    var BinIcon = L.Icon.extend({
+      options: {
+          shadowUrl: '/images/leaflet/bin_s.png',  // Bin icons based on: https://www.vecteezy.com/vector-art/7820754-recycle-icon-garbage-icon-vector-logo-design-template
+          iconSize:     [26, 33], // size of icon
+          shadowSize:   [26, 25], // size of shadow
+          iconAnchor:   [26/2, 33/2], // point of icon which will correspond to marker's location
+          shadowAnchor: [26/2 - 10, 25/2],  // the same for the shadow
+          popupAnchor:  [0, -33/4], // point from which popup should open relative to iconAnchor
       }
     });
+    var greenBin = new BinIcon({iconUrl: '/images/leaflet/bin_g.png'}),
+      yellowBin = new BinIcon({iconUrl: '/images/leaflet/bin_y.png'}),
+      redBin = new BinIcon({iconUrl: '/images/leaflet/bin_r.png'});
+
+    // Ensure window.L is available before trying to use it
+    if (!mapRef.current) {
+      mapRef.current = window.L.map("map").setView(laerCoordinates, 16);
+      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {attribution: "© OpenStreetMap contributors"}
+      ).addTo(mapRef.current);
+
+      for (let i = 0; i < trashbinData.length; i++) {
+        const trashbin = trashbinData[i];
+        // Assign color based on fill level and thresholds
+        const type = trashbin.fill <= thresholds[0] ? greenBin : (trashbin.fill <= thresholds[1] ? yellowBin : redBin);
+        const marker = window.L.marker([trashbin.lat, trashbin.lng], {icon: type})
+          .addTo(mapRef.current)
+          .bindPopup(trashbin.display + "<hr>" +
+            "Fill Level: " + trashbin.fill + "%<br>" + 
+            "Battery: " + trashbin.battery + "%");
+        marker.on("mouseover", () => { marker.openPopup(); });
+        marker.on("mouseout", () => { marker.closePopup(); });
+
+        // // Show routes as lines between trashbins
+        // if (i > 0) {
+        //   const prev = trashbinData[i - 1];
+        //   window.L.Routing.control({
+        //     waypoints: [
+        //       window.L.latLng(prev.lat, prev.lng),
+        //       window.L.latLng(trashbin.lat, trashbin.lng)
+        //     ],
+        //     routeWhileDragging: false,
+        //     show: false
+        //   }).addTo(mapRef.current);
+        // }
+      }
+    };
   }, []);
 
   return (
@@ -103,11 +107,11 @@ const MapPage = () => {
         padding: "2px",
       }}
     >
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <PageTitle title="Map" />
-      <div
-        id="map"
-        style={{ flex: 1, margin: "2px", height: "calc(90% - 4px)" }}
-      ></div>
+      <Button>Plan Route</Button>
+    </div>
+    <div id="map" style={{ flex: 1, margin: "2px", height: "calc(90% - 4px)" }}></div>
       <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     </div>
   );
