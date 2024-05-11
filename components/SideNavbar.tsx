@@ -12,6 +12,7 @@ import {
   UsersRound,
   Settings,
   ChevronRight,
+  ChevronLeft,
   MapIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -28,59 +29,81 @@ export default function SideNavbar({}: Props) {
     setIsCollapsed(!isCollapsed);
   }
 
+  const navGroups = [
+    {
+      header: "Overview",
+      links: [
+        {
+          title: "Dashboard",
+          href: "/",
+          icon: LayoutDashboard,
+          variant: "default",
+        },
+        {
+          title: "Map",
+          href: "/map",
+          icon: MapIcon,
+          variant: "ghost",
+        },
+      ],
+    },
+    {
+      header: "Data",
+      links: [
+        {
+          title: "Trashbins",
+          href: "/trash-cans",
+          icon: ShoppingCart,
+          variant: "ghost",
+        },
+        {
+          title: "Collectors",
+          href: "/trash-collectors",
+          icon: UsersRound,
+          variant: "ghost",
+        },
+      ],
+    },
+  ];
+
+  // TODO: Display at the bottom of the sidebar
+  const settingsLink = {
+    title: "Settings",
+    href: "/settings",
+    icon: Settings,
+    variant: "ghost",
+  };
+
   return (
-    <div className="relative min-w-[80px] border-r px-3  pb-10 pt-24 ">
-      {!mobileWidth && (
-        <div className="absolute right-[-20px] top-7">
-          <Button
-            onClick={toggleSidebar}
-            variant="secondary"
-            className=" rounded-full p-2"
-          >
-            <ChevronRight />
-          </Button>
-        </div>
-      )}
+    <div className="relative min-w-[80px] border-r px-3 pb-10 pt-24 d-flex flex-column justify-content-between">
+      <div>
+        {!mobileWidth && (
+          <div className="absolute right-[-20px] top-7">
+            <Button
+              onClick={toggleSidebar}
+              variant="secondary"
+              className="rounded-full p-2"
+            >
+              {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+            </Button>
+          </div>
+        )}
+        {navGroups.map((group, index) => (
+          <div key={index}>
+            <div className="text-center text-lg mt-4">{group.header}</div>
+            <Nav
+              isCollapsed={mobileWidth ? true : isCollapsed}
+              links={group.links.map(link => ({
+                ...link,
+                variant: link.variant === "default" || link.variant === "ghost" ? link.variant : "default"
+              }))}
+            />
+          </div>
+        ))}
+      </div>
       <Nav
         isCollapsed={mobileWidth ? true : isCollapsed}
-        links={[
-          {
-            title: "Dashboard",
-            href: "/",
-            icon: LayoutDashboard,
-            variant: "default",
-          },
-          {
-            title: "Trash Collectors",
-            href: "/trash-collectors",
-            icon: UsersRound,
-            variant: "ghost",
-          },
-          {
-            title: "Trash Cans",
-            href: "/trash-cans",
-            icon: ShoppingCart,
-            variant: "ghost",
-          },
-          {
-            title: "Visual",
-            href: "/visual",
-            icon: MapIcon,
-            variant: "ghost",
-          },
-          {
-            title: "Map",
-            href: "/map",
-            icon: MapIcon,
-            variant: "ghost",
-          },
-          {
-            title: "Cities",
-            href: "/cities",
-            icon: Settings,
-            variant: "ghost",
-          },
-        ]}
+        links={[{ ...settingsLink, variant: "default" }]}
       />
     </div>
   );
