@@ -13,7 +13,8 @@
 /** @format */
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Link from 'next/link';
 import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import "leaflet/dist/leaflet.css";
@@ -41,7 +42,13 @@ const trashbinData = [
 const thresholds = [30, 70];
 
 const MapPage = () => {
+  const [routePlanning, setRoutePlanning] = useState(false);
+  const routePlanningRef = useRef(routePlanning);
   const mapRef = useRef<null | L.Map>(null);
+
+  useEffect(() => {
+    routePlanningRef.current = routePlanning;
+  }, [routePlanning]);
 
   useEffect(() => {
     // Dynamic imports
@@ -69,32 +76,23 @@ const MapPage = () => {
       window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {attribution: "© OpenStreetMap contributors"}
       ).addTo(mapRef.current);
-
-      for (let i = 0; i < trashbinData.length; i++) {
-        const trashbin = trashbinData[i];
-        // Assign color based on fill level and thresholds
+    
+      trashbinData.map(trashbin => {
         const type = trashbin.fill <= thresholds[0] ? greenBin : (trashbin.fill <= thresholds[1] ? yellowBin : redBin);
         const marker = window.L.marker([trashbin.lat, trashbin.lng], {icon: type})
-          .addTo(mapRef.current)
-          .bindPopup(trashbin.display + "<hr>" +
-            "Fill Level: " + trashbin.fill + "%<br>" + 
-            "Battery: " + trashbin.battery + "%");
-        marker.on("mouseover", () => { marker.openPopup(); });
-        marker.on("mouseout", () => { marker.closePopup(); });
-
-        // // Show routes as lines between trashbins
-        // if (i > 0) {
-        //   const prev = trashbinData[i - 1];
-        //   window.L.Routing.control({
-        //     waypoints: [
-        //       window.L.latLng(prev.lat, prev.lng),
-        //       window.L.latLng(trashbin.lat, trashbin.lng)
-        //     ],
-        //     routeWhileDragging: false,
-        //     show: false
-        //   }).addTo(mapRef.current);
-        // }
-      }
+          .addTo(mapRef.current);
+        const popupContent = `<div id="popup-${trashbin.id}">${trashbin.display}<hr>Fill Level: ${trashbin.fill}%<br>Battery: ${trashbin.battery}%</div>`;
+        marker.bindPopup(popupContent);
+        marker.on("mouseover", () => {marker.openPopup();});
+        marker.on("click", () => {routePlanningRef.current ? console.log(`Bin ${trashbin.id} clicked`) : null;});
+      
+        marker.on('popupopen', function(e) {
+          var popup = e.popup;
+          window.L.DomEvent.on(popup._contentNode, 'click', function() {
+            window.location.href = '/trashbins/' + trashbin.id;
+          });
+        });
+      });
     };
   }, []);
 
@@ -107,12 +105,21 @@ const MapPage = () => {
         padding: "2px",
       }}
     >
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <PageTitle title="Map" />
-      <Button>Plan Route</Button>
-    </div>
-    <div id="map" style={{ flex: 1, margin: "2px", height: "calc(90% - 4px)" }}></div>
-      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      <div className="flex flex-col h-screen p-1">
+        <div className="flex justify-between items-center">
+          <PageTitle title="Map" />
+          {routePlanning ? (
+            <div className="flex space-x-2">
+              <Button className="bg-red-600 text-white" onClick={() => setRoutePlanning(false)}>Abort</Button>
+              <Button className="bg-green-600 text-white">Export to Google Maps</Button>
+            </div>
+          ) : (
+            <Button onClick={() => setRoutePlanning(true)}>Plan Route</Button>
+          )}
+        </div>
+        <div id="map" className="flex-grow m-1 h-[calc(90%-4px)]"></div>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      </div>
     </div>
   );
 };

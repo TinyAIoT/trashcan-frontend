@@ -15,7 +15,7 @@ import SalesCard, { SalesProps } from "@/components/SalesCard";
 
 const cardData: CardProps[] = [
   {
-    label: "Total Trash Cans",
+    label: "Total Trashbins",
     amount: "2950",
     discription: "+20.1% from last year",
   },
@@ -39,23 +39,23 @@ const cardData: CardProps[] = [
 const uesrSalesData: SalesProps[] = [
   {
     name: "Olivia Martin",
-    TrashcanID: "8",
+    TrashbinID: "8",
   },
   {
     name: "Jackson Lee",
-    TrashcanID: "5",
+    TrashbinID: "5",
   },
   {
     name: "Isabella Nguyen",
-    TrashcanID: "4",
+    TrashbinID: "4",
   },
   {
     name: "William Kim",
-    TrashcanID: "4",
+    TrashbinID: "4",
   },
   {
     name: "Sofia Davis",
-    TrashcanID: "4",
+    TrashbinID: "4",
   },
 ];
 
@@ -75,7 +75,7 @@ export default function Home() {
       </section>
       <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
         <CardContent>
-          <p className="p-4 font-semibold">Trash Can Emptied</p>
+          <p className="p-4 font-semibold">Trashbin Emptied</p>
 
           <BarChart />
         </CardContent>
@@ -83,11 +83,11 @@ export default function Home() {
           <section>
             <p>Recent Trash Empty</p>
             <p className="text-sm text-gray-400">
-              265 Trash can were emptied in last hour
+              265 Trashbins were emptied in last hour
             </p>
           </section>
           {uesrSalesData.map((d, i) => (
-            <SalesCard key={i} name={d.name} TrashcanID={d.TrashcanID} />
+            <SalesCard key={i} name={d.name} TrashbinID={d.TrashbinID} />
           ))}
         </CardContent>
 

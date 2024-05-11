@@ -52,7 +52,7 @@ export default function SideNavbar({}: Props) {
       links: [
         {
           title: "Trashbins",
-          href: "/trash-cans",
+          href: "/trashbins",
           icon: ShoppingCart,
           variant: "ghost",
         },

@@ -23,7 +23,7 @@ type Props = {};
 
 interface Setting {
   city: string;
-  trashcans: string | number | boolean;
+  trashbins: string | number | boolean;
 }
 
 const columns: ColumnDef<Setting>[] = [
@@ -32,26 +32,26 @@ const columns: ColumnDef<Setting>[] = [
     header: "Cities",
   },
   {
-    accessorKey: "trashcans",
-    header: "Trash Cans",
+    accessorKey: "trashbins",
+    header: "Trashbins",
   },
 ];
 const data: Setting[] = [
   {
     city: "Münster",
-    trashcans: "50",
+    trashbins: "50",
   },
   {
     city: "Emsdetten",
-    trashcans: "55",
+    trashbins: "55",
   },
   {
     city: "Berlin",
-    trashcans: "1050",
+    trashbins: "1050",
   },
   {
     city: "Munich",
-    trashcans: "1000",
+    trashbins: "1000",
   },
 ];
 

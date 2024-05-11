@@ -16,7 +16,7 @@ type Props = {};
 type Payment = {
   name: string;
   id: string;
-  assignedtrashcans: string;
+  assignedtrashbins: string;
 };
 
 const columns: ColumnDef<Payment>[] = [
@@ -45,8 +45,8 @@ const columns: ColumnDef<Payment>[] = [
   },
 
   {
-    accessorKey: "assignedtrashcans",
-    header: "Assigned Trash Cans",
+    accessorKey: "assignedtrashbins",
+    header: "Assigned Trashbins",
   },
 ];
 
@@ -54,77 +54,77 @@ const data: Payment[] = [
   {
     name: "John Doe",
     id: "EMP12345",
-    assignedtrashcans: "17",
+    assignedtrashbins: "17",
   },
   {
     name: "Alice Smith",
     id: "EMP23456",
-    assignedtrashcans: "42",
+    assignedtrashbins: "42",
   },
   {
     name: "Bob Johnson",
     id: "EMP34567",
-    assignedtrashcans: "31",
+    assignedtrashbins: "31",
   },
   {
     name: "Emma Brown",
     id: "EMP45678",
-    assignedtrashcans: "29",
+    assignedtrashbins: "29",
   },
   {
     name: "Michael Davis",
     id: "EMP56789",
-    assignedtrashcans: "13",
+    assignedtrashbins: "13",
   },
   {
     name: "Sophia Wilson",
     id: "EMP67890",
-    assignedtrashcans: "58",
+    assignedtrashbins: "58",
   },
   {
     name: "Liam Garcia",
     id: "EMP78901",
-    assignedtrashcans: "25",
+    assignedtrashbins: "25",
   },
   {
     name: "Olivia Martinez",
     id: "EMP89012",
-    assignedtrashcans: "36",
+    assignedtrashbins: "36",
   },
   {
     name: "Noah Rodriguez",
     id: "EMP90123",
-    assignedtrashcans: "71",
+    assignedtrashbins: "71",
   },
   {
     name: "Ava Lopez",
     id: "EMP01234",
-    assignedtrashcans: "19",
+    assignedtrashbins: "19",
   },
   {
     name: "Elijah Hernandez",
     id: "EMP98765",
-    assignedtrashcans: "63",
+    assignedtrashbins: "63",
   },
   {
     name: "Mia Gonzalez",
     id: "EMP87654",
-    assignedtrashcans: "77",
+    assignedtrashbins: "77",
   },
   {
     name: "James Perez",
     id: "EMP76543",
-    assignedtrashcans: "85",
+    assignedtrashbins: "85",
   },
   {
     name: "Charlotte Carter",
     id: "EMP65432",
-    assignedtrashcans: "94",
+    assignedtrashbins: "94",
   },
   {
     name: "Benjamin Taylor",
     id: "EMP54321",
-    assignedtrashcans: "10",
+    assignedtrashbins: "10",
   },
 ];
 
