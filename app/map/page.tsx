@@ -1,16 +1,3 @@
-/**
- * eslint-disable @next/next/no-img-element
- *
- * @format
- */
-
-/**
- * eslint-disable @next/next/no-img-element
- *
- * @format
- */
-
-/** @format */
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -67,8 +54,8 @@ const MapPage = () => {
       }
     });
     var greenBin = new BinIcon({iconUrl: '/images/leaflet/bin_g.png'}),
-      yellowBin = new BinIcon({iconUrl: '/images/leaflet/bin_y.png'}),
-      redBin = new BinIcon({iconUrl: '/images/leaflet/bin_r.png'});
+        yellowBin = new BinIcon({iconUrl: '/images/leaflet/bin_y.png'}),
+        redBin = new BinIcon({iconUrl: '/images/leaflet/bin_r.png'});
 
     // Ensure window.L is available before trying to use it
     if (!mapRef.current) {
@@ -87,6 +74,7 @@ const MapPage = () => {
         marker.on("click", () => {routePlanningRef.current ? console.log(`Bin ${trashbin.id} clicked`) : null;});
       
         marker.on('popupopen', function(e) {
+          if(routePlanningRef.current) return;
           var popup = e.popup;
           window.L.DomEvent.on(popup._contentNode, 'click', function() {
             window.location.href = '/trashbins/' + trashbin.id;
