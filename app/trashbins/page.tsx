@@ -23,7 +23,7 @@ import {useState, useEffect} from 'react';
 
 type Props = {};
 type Payment = {
-  trashCanID: string;
+  trashbinID: string;
   status: string;
   lastPickup: string;
   assignedTo: string;
@@ -31,8 +31,8 @@ type Payment = {
 
 const columns: ColumnDef<Payment>[] = [
   {
-    accessorKey: "trashCanID",
-    header: "Trash Can ID",
+    accessorKey: "trashbinID",
+    header: "Trashbin ID",
   },
   {
     accessorKey: "filledStatus",
@@ -55,7 +55,7 @@ export default function OrdersPage({}: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/trashcan/all');
+        const response = await axios.get('http://localhost:3000/trashcbin/all');
 
 
         const transformedData = response.data.map((item : any) => {
@@ -65,26 +65,17 @@ export default function OrdersPage({}: Props) {
           }
         })
 
-        console.log('tt', transformedData);
-
-        // console.log('Transformed Data' , transformedData);
-
-        // console.log('Trasnformated Data' , transformedData);
-
         setData(transformedData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
   }, []);
 
-
-
   return (
     <div className="flex flex-col gap-5  w-full">
-      <PageTitle title="Trash Cans" />
+      <PageTitle title="Trashbins" />
       <DataTable columns={columns} data={data} />
     </div>
   );

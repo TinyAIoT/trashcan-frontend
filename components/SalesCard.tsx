@@ -12,7 +12,7 @@ import React from "react";
 export type SalesProps = {
   name: string;
 
-  TrashcanID: string;
+  TrashbinID: string;
 };
 
 export default function SalesCard(props: SalesProps) {
@@ -31,7 +31,7 @@ export default function SalesCard(props: SalesProps) {
           <p>{props.name}</p>
         </div>
       </section>
-      <p>{props.TrashcanID}</p>
+      <p>{props.TrashbinID}</p>
     </div>
   );
 }
