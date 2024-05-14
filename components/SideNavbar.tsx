@@ -45,11 +45,6 @@ export default function SideNavbar({}: Props) {
           icon: MapIcon,
           variant: "ghost",
         },
-      ],
-    },
-    {
-      header: "Data",
-      links: [
         {
           title: "Trashbins",
           href: "/trashbins",
@@ -93,9 +88,12 @@ export default function SideNavbar({}: Props) {
             <div className="text-center text-lg mt-4">{group.header}</div>
             <Nav
               isCollapsed={mobileWidth ? true : isCollapsed}
-              links={group.links.map(link => ({
+              links={group.links.map((link) => ({
                 ...link,
-                variant: link.variant === "default" || link.variant === "ghost" ? link.variant : "default"
+                variant:
+                  link.variant === "default" || link.variant === "ghost"
+                    ? link.variant
+                    : "default",
               }))}
             />
           </div>
