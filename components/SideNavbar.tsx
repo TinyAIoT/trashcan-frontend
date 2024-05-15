@@ -7,13 +7,14 @@ import { Nav } from "./ui/nav";
 type Props = {};
 
 import {
-  ShoppingCart,
-  LayoutDashboard,
-  UsersRound,
-  Settings,
   ChevronRight,
   ChevronLeft,
+  LayoutDashboard,
   MapIcon,
+  UsersRound,
+  Trash2Icon,
+  TrashIcon,
+  Settings,
 } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -53,7 +54,13 @@ export default function SideNavbar({}: Props) {
         {
           title: "Trashbins",
           href: "/trashbins",
-          icon: ShoppingCart,
+          icon: Trash2Icon,
+          variant: "ghost",
+        },
+        {
+          title: "Trashbins Detail",
+          href: "/trashbins-detail",
+          icon: TrashIcon,
           variant: "ghost",
         },
         {

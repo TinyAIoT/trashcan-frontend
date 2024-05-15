@@ -26,6 +26,7 @@ const trashbinData = [
   {id: 11, display: 'Mock 10', lat: 52.050934789062104, lng: 7.364132550516044, fill: 20, battery: 45},
 ];
 
+// TODO: Globally define thresholds and be able to set them in the Settings
 const thresholds = [30, 70];
 
 const MapPage = () => {

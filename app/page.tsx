@@ -76,7 +76,6 @@ export default function Home() {
       <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
         <CardContent>
           <p className="p-4 font-semibold">Trashbin Emptied</p>
-
           <BarChart />
         </CardContent>
         <CardContent className="flex justify-between gap-4">
@@ -90,8 +89,6 @@ export default function Home() {
             <SalesCard key={i} name={d.name} TrashbinID={d.TrashbinID} />
           ))}
         </CardContent>
-
-        {/*  */}
       </section>
     </div>
   );
