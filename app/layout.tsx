@@ -9,6 +9,7 @@ import { isLoginPage } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
+
 export default function RootLayout({
   children,
 }: {
@@ -39,8 +40,10 @@ export default function RootLayout({
         )}
       >
         {/* sidebar */}
+
         {/* <p className="border">Sidebar</p> */}
         {currentPageIsLogin ? <SideNavbar /> : <></>}
+
 
         {/* main page */}
         <div className="p-8 w-full">{children}</div>
