@@ -45,6 +45,11 @@ export default function SideNavbar({}: Props) {
           icon: MapIcon,
           variant: "ghost",
         },
+      ],
+    },
+    {
+      header: "Data",
+      links: [
         {
           title: "Trashbins",
           href: "/trashbins",
