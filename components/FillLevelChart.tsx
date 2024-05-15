@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 import ResizeObserver from 'resize-observer-polyfill';
@@ -21,11 +21,45 @@ for (let i = 1; i < fill_levels_prediction.length; i++) {
 
 const FillLevelChart = () => {
   const ref = useRef();
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const margin = { top: 0, right: 20, bottom: 30, left: 20 };
-    const width = 800 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const svgElement = ref.current;
+    const resizeObserver = new ResizeObserver(entries => {
+      if (!entries || entries.length === 0) {
+        return;
+      }
+      const { width, height } = entries[0].contentRect;
+      setDimensions({ width, height });
+    });
+
+    if (svgElement) {
+      resizeObserver.observe(svgElement);
+    }
+
+    return () => {
+      if (svgElement) {
+        resizeObserver.unobserve(svgElement);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (dimensions.width === 0 || dimensions.height === 0) {
+      return;
+    }
+
+    const margin = { top: 5, right: 5, bottom: 30, left: 20 };
+    const width = dimensions.width - margin.left - margin.right;
+    const height = dimensions.height - margin.top - margin.bottom;
+
+    d3.select(ref.current).selectAll('*').remove();
+
+    const svg = d3.select(ref.current)
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleLinear()
       .domain([Math.min(...hours), Math.max(...hours)])
@@ -42,12 +76,6 @@ const FillLevelChart = () => {
     const predictionLine = d3.line()
       .x((_d, i) => x(hours[i + 48]))
       .y(d => y(d.fill));
-
-    const svg = d3.select(ref.current)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const xAxis = d3.axisBottom(x)
       .tickValues([-48, -36, -24, -12, -4, 0, 4, 12, 24, 36, 48]);
@@ -190,10 +218,10 @@ const FillLevelChart = () => {
       .on('mouseover', tipPrediction.show)
       .on('mouseout', tipPrediction.hide);
 
-  }, []);
+  }, [dimensions]);
 
   return (
-    <svg ref={ref} style={{ width: '100%', height: '100%' }}></svg>
+    <svg ref={ref} style={{ width: '100%', height: '400px' }}></svg>
   );
 };
 

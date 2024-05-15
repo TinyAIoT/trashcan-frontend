@@ -11,11 +11,11 @@ const Home = () => {
       <PageTitle title="Trashbins Detail" />
       <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
         <CardContent>
-          <p className="p-4 font-semibold">Trashbin Emptied</p>
+          <p className="p-4 font-semibold">Fill Level</p>
           <FillLevelChart />
         </CardContent>
         <CardContent>
-          <p className="p-4 font-semibold">Trashbin Emptied</p>
+          <p className="p-4 font-semibold">Battery Level (TODO!)</p>
           <FillLevelChart />
         </CardContent>
       </section>
