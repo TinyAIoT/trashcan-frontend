@@ -78,7 +78,9 @@ const MapPage = () => {
           if(routePlanningRef.current) return;
           var popup = e.popup;
           window.L.DomEvent.on(popup._contentNode, 'click', function() {
-            window.location.href = '/trashbins/' + trashbin.id;
+            window.location.href = '/trashbins-detail/';
+            // TODO: Use correct route
+            // window.location.href = '/trashbins/' + trashbin.id;
           });
         });
       });

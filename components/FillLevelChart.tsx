@@ -69,6 +69,7 @@ const FillLevelChart = () => {
       .domain([0, 100])
       .range([height, 0]);
 
+    // ***** Define lines *****
     const pastLine = d3.line()
       .x((_d, i) => x(hours[i]))
       .y(d => y(d.fill));
@@ -77,20 +78,20 @@ const FillLevelChart = () => {
       .x((_d, i) => x(hours[i + 48]))
       .y(d => y(d.fill));
 
+    // ***** Add axes *****
     const xAxis = d3.axisBottom(x)
       .tickValues([-48, -36, -24, -12, -4, 0, 4, 12, 24, 36, 48]);
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis);
 
-    // Y-axis is centered
     const yAxis = d3.axisLeft(y)
       .tickValues([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
     svg.append('g')
-      .attr('transform', `translate(${width / 2},0)`)
+      .attr('transform', `translate(${width / 2},0)`) // Center the y-axis
       .call(yAxis);
 
-    // Add green background rectangle for y <= thresholds[0]
+    // ***** Add backgrounds *****
     svg.append('rect')
       .attr('x', 0)
       .attr('y', y(thresholds[0]))
@@ -98,8 +99,6 @@ const FillLevelChart = () => {
       .attr('height', height - y(thresholds[0]))
       .attr('fill', 'green')
       .attr('opacity', 0.15);
-
-    // Add yellow background rectangle for thresholds[0] < y <= thresholds[1]
     svg.append('rect')
       .attr('x', 0)
       .attr('y', y(thresholds[1]))
@@ -107,8 +106,6 @@ const FillLevelChart = () => {
       .attr('height', y(thresholds[0]) - y(thresholds[1]))
       .attr('fill', 'yellow')
       .attr('opacity', 0.15);
-
-    // Add red background rectangle for y > thresholds[1]
     svg.append('rect')
       .attr('x', 0)
       .attr('y', 0)
@@ -116,8 +113,7 @@ const FillLevelChart = () => {
       .attr('height', y(thresholds[1]))
       .attr('fill', 'red')
       .attr('opacity', 0.15);
-
-    // Add white rectangle for x > 0
+    // Make prediction area less colored
     svg.append('rect')
       .attr('x', x(0))
       .attr('y', 0)
@@ -126,7 +122,7 @@ const FillLevelChart = () => {
       .attr('fill', 'white')
       .attr('opacity', 0.3);
 
-    // Define color scale
+    // Define color scale for points
     const color = d3.scaleThreshold(thresholds, ["green", "yellow", "red"]);
 
     // Draw the past line
