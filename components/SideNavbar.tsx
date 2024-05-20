@@ -2,7 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { Nav } from "./ui/nav";
+import { Nav } from "@/components/ui/nav";
+import { Chip } from "@/components/ui/chip";
 
 type Props = {};
 
@@ -15,6 +16,7 @@ import {
   Trash2Icon,
   TrashIcon,
   Settings,
+  Settings2,
 } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -32,7 +34,7 @@ export default function SideNavbar({}: Props) {
 
   const navGroups = [
     {
-      header: "Overview",
+      header: isCollapsed ? null : "Overview",  // Hide header when collapsed
       links: [
         {
           title: "Dashboard",
@@ -49,7 +51,7 @@ export default function SideNavbar({}: Props) {
       ],
     },
     {
-      header: "Data",
+      header: isCollapsed ? null : "Data",
       links: [
         {
           title: "Trashbins",
@@ -71,15 +73,24 @@ export default function SideNavbar({}: Props) {
         },
       ],
     },
+    {
+      header: isCollapsed ? null : "Settings",
+      links: [
+        {
+          title: "Project",
+          href: "/project-settings",
+          icon: Settings2,
+          variant: "ghost",
+        },
+        {
+          title: "Account",
+          href: "/settings",
+          icon: Settings,
+          variant: "ghost",
+        },
+      ],
+    },
   ];
-
-  // TODO: Display at the bottom of the sidebar
-  const settingsLink = {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-    variant: "ghost",
-  };
 
   return (
     <div className="relative min-w-[80px] border-r px-3 pb-10 pt-24 d-flex flex-column justify-content-between">
@@ -95,6 +106,7 @@ export default function SideNavbar({}: Props) {
             </Button>
           </div>
         )}
+        <Chip size="md" radius="md">Laer - Trash</Chip>
         {navGroups.map((group, index) => (
           <div key={index}>
             <div className="text-center text-lg mt-4">{group.header}</div>
@@ -111,10 +123,6 @@ export default function SideNavbar({}: Props) {
           </div>
         ))}
       </div>
-      <Nav
-        isCollapsed={mobileWidth ? true : isCollapsed}
-        links={[{ ...settingsLink, variant: "default" }]}
-      />
     </div>
   );
 }
