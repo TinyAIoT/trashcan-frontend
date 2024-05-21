@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Nav } from "@/components/ui/nav";
-import { Chip } from "@/components/ui/chip";
+// import { Chip } from '@nextui-org/react';
 
 type Props = {};
 
@@ -106,7 +106,9 @@ export default function SideNavbar({}: Props) {
             </Button>
           </div>
         )}
-        <Chip size="md" radius="md">Laer - Trash</Chip>
+        {/* <Chip color="primary" size="md" radius="md">
+          Laer - Trash
+        </Chip> */}
         {navGroups.map((group, index) => (
           <div key={index}>
             <div className="text-center text-lg mt-4">{group.header}</div>

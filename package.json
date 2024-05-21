@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nextui-org/chip": "^2.0.28",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-radio-group": "^1.1.3",
     "@radix-ui/react-scroll-area": "^1.0.5",
