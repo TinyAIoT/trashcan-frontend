@@ -9,6 +9,11 @@ import { isLoginPage } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// TODO: Where to put metadata?
+// export const metadata: Metadata = {
+//   title: "TinyAIoT Dashboard",
+//   description: "Created by the project seminar \"TinyAIOT\" in summer term 2024.",
+// };
 
 export default function RootLayout({
   children,
