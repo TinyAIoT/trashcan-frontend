@@ -13,18 +13,15 @@ import {
 // import { useTheme } from "next-themes";  // https://github.com/pacocoursey/next-themes
 
 import { useLocalStorage } from "@uidotdev/usehooks";
-import { useRouter } from "next/navigation";
 
 export default function Component() {
   const [language, setLanguage] = useState('de');
   const [theme, setTheme] = useState('light');
-  const [token, setToken] = useLocalStorage("authToken");
-  const router = useRouter();
+  const [_token, setToken] = useLocalStorage("authToken");
 
+  // Logging out corresponds to deleting the "authToken" from local storage
   const handleLogout = () => {
-    // Delete the "authToken" from local storage
     setToken("");
-    router.push("/login");
   }
 
   return (
@@ -50,6 +47,9 @@ export default function Component() {
           </div>
         </header>
         <div className="space-y-8">
+        <div className="pt-6" onClick={handleLogout}>
+          <Button>Logout</Button>
+        </div>
           <Card>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -144,9 +144,6 @@ export default function Component() {
         </div>
         <div className="pt-6">
           <Button>Save</Button>
-        </div>
-        <div className="pt-6" onClick={handleLogout}>
-          <Button>Logout</Button>
         </div>
       </div>
     </div>

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 
 export default function Component() {
   const [token, setToken] = useLocalStorage("authToken");
+  const [errorMessage, setErrorMessage] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -35,11 +36,14 @@ export default function Component() {
         // Redirect to the home page
         router.push("/");
       }
-    } catch (error) {
-      // Login failed
-      console.error('Error logging in:', error);
-      // Reload the page to clear the form
-      location.reload();
+    } catch (error: any) {  // Login failed
+      // Show an error message for a few seconds
+      setErrorMessage(error.response.data.message);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 2000);
+      // Set the focus to the email input field
+      document.getElementById("email")?.focus();
     }
   };
 
@@ -54,6 +58,11 @@ export default function Component() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {errorMessage && (
+              <div className="p-2 text-red-500 bg-red-100 rounded">
+                {errorMessage}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

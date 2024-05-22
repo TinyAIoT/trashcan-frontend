@@ -5,10 +5,6 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
-// import useAuthPaths from "@/hooks";
-
-
-import { useRouter } from 'next/router';
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,24 +20,28 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentPageIsLogin, setCurrentPageIsLogin] = useState(false);
-  const router = useRouter();
-  const [token, _setToken] = useLocalStorage("authToken");
+  const [showNavigation, setShowNavigation] = useState(false);
+  const isBrowser = typeof window !== 'undefined';
+  const [token, _setToken] = isBrowser ? useLocalStorage("authToken") : [null, () => {}];
 
-  // Check if window is defined (client side)
-  if (typeof window !== "undefined") {
+  useEffect(() => {
+    // Check if the current page is not the login page
+    const path = window.location.pathname;
+    if (!token && path !== '/login') {
+      window.location.href = '/login'; // Redirect to login page
+    }
+  }, [token]);
 
-    // Paths which do not require authentication
-    const nonAuthenticatedPaths = ['/login', '/signup'];
-  
-    useEffect(() => {
-      // We are not authenticated, but try to access an authenticated route
-      if (!token && !nonAuthenticatedPaths.includes(router.pathname)) {
-        // Redirect user to login page
-        router.push('/login');
-      }
-    }, [token, router]); // Add dependencies here
-  }
+  useEffect(() => {
+    // Check if window is defined (client side)
+    if (typeof window !== "undefined") {
+      // Get the current pathname when the component mounts
+      const pathname = window.location.pathname;
+      const noNavigationPaths = ["/login", "/signup"];
+      // Hide the navigation if the current path is in the noNavigationPaths array
+      setShowNavigation(!noNavigationPaths.includes(pathname));
+    }
+  }, []);
 
   return (
     <html lang="en">
@@ -57,7 +57,7 @@ export default function RootLayout({
         {/* sidebar */}
 
         {/* <p className="border">Sidebar</p> */}
-        {currentPageIsLogin ? <SideNavbar /> : <></>}
+        {showNavigation ? <SideNavbar /> : <></>}
 
 
         {/* main page */}
