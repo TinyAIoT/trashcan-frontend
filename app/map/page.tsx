@@ -4,8 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from 'next/link';
 import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
-import "leaflet/dist/leaflet.css";
 import { LatLngTuple } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 // Important Coordinates
 const laerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
@@ -26,6 +28,11 @@ const trashbinData = [
   {id: 11, display: 'Mock 10', lat: 52.050934789062104, lng: 7.364132550516044, fill: 20, battery: 45},
 ];
 
+var trashbinMarkers: any[] = [];
+// Selected bins for route planning
+var selectedBins: boolean[] = Array(trashbinData.length).fill(false);
+
+// TODO: Globally define thresholds and be able to set them in the Settings
 const thresholds = [30, 70];
 
 const MapPage = () => {
@@ -40,7 +47,8 @@ const MapPage = () => {
   useEffect(() => {
     // Dynamic imports
     const L = require('leaflet');
-    require('leaflet-routing-machine');
+    // require('leaflet-routing-machine');
+    require('leaflet.markercluster');
 
     // See: https://leafletjs.com/examples/custom-icons/
     var BinIcon = L.Icon.extend({
@@ -64,23 +72,38 @@ const MapPage = () => {
         {attribution: "© OpenStreetMap contributors"}
       ).addTo(mapRef.current);
     
-      trashbinData.map(trashbin => {
-        const type = trashbin.fill <= thresholds[0] ? greenBin : (trashbin.fill <= thresholds[1] ? yellowBin : redBin);
-        const marker = window.L.marker([trashbin.lat, trashbin.lng], {icon: type})
-          .addTo(mapRef.current);
+      // Make the clustering a bit less aggressive
+      const markers = L.markerClusterGroup(
+        {maxClusterRadius: 40}
+      );
+
+      // Add trashbin markers by iterating over the trashbin data in a for loop
+      trashbinData.forEach(trashbin => {
+        var marker = window.L.marker(
+          [trashbin.lat, trashbin.lng],
+          {icon: trashbin.fill < thresholds[0] ? greenBin : trashbin.fill < thresholds[1] ? yellowBin : redBin});
         const popupContent = `<div id="popup-${trashbin.id}">${trashbin.display}<hr>Fill Level: ${trashbin.fill}%<br>Battery: ${trashbin.battery}%</div>`;
         marker.bindPopup(popupContent);
         marker.on("mouseover", () => {marker.openPopup();});
-        marker.on("click", () => {routePlanningRef.current ? console.log(`Bin ${trashbin.id} clicked`) : null;});
-      
+        marker.on("click", () => {
+          if (!routePlanningRef.current) return;
+          console.log(`Bin ${trashbin.id} clicked`);
+          selectedBins[trashbin.id - 1] = !selectedBins[trashbin.id - 1];
+          marker.setOpacity(Number(selectedBins[trashbin.id - 1]));
+        });
         marker.on('popupopen', function(e) {
           if(routePlanningRef.current) return;
           var popup = e.popup;
           window.L.DomEvent.on(popup._contentNode, 'click', function() {
-            window.location.href = '/trashbins/' + trashbin.id;
+            window.location.href = '/trashbins-detail/';
+            // TODO: Use correct route
+            // window.location.href = '/trashbins/' + trashbin.id;
           });
         });
+        trashbinMarkers.push(marker);
+        markers.addLayer(marker);
       });
+      mapRef.current.addLayer(markers);
     };
   }, []);
 
