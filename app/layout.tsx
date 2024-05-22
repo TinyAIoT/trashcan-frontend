@@ -5,7 +5,11 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
-import { isLoginPage } from "@/lib/utils";
+// import useAuthPaths from "@/hooks";
+
+
+import { useRouter } from 'next/router';
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,17 +25,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [currentPageIsLogin, setCurrentPageIsLogin] = useState(false);
+  const router = useRouter();
+  const [token, _setToken] = useLocalStorage("authToken");
 
-  useEffect(() => {
-    // Check if window is defined (client side)
-    if (typeof window !== "undefined") {
-      // Get the current pathname when the component mounts
-      const pathname = window.location.pathname;
+  // Check if window is defined (client side)
+  if (typeof window !== "undefined") {
 
-      // Check if the current page is "/login"
-      setCurrentPageIsLogin(!isLoginPage(pathname));
-    }
-  }, []);
+    // Paths which do not require authentication
+    const nonAuthenticatedPaths = ['/login', '/signup'];
+  
+    useEffect(() => {
+      // We are not authenticated, but try to access an authenticated route
+      if (!token && !nonAuthenticatedPaths.includes(router.pathname)) {
+        // Redirect user to login page
+        router.push('/login');
+      }
+    }, [token, router]); // Add dependencies here
+  }
 
   return (
     <html lang="en">
