@@ -24,24 +24,30 @@ export default function RootLayout({
   const isBrowser = typeof window !== 'undefined';
   const [token, _setToken] = isBrowser ? useLocalStorage("authToken") : [null, () => {}];
 
+  // Enforce login on all pages except the login and signup pages
   useEffect(() => {
-    // Check if the current page is not the login page
-    const path = window.location.pathname;
-    if (!token && path !== '/login') {
+    const pathname = window.location.pathname;
+    const noAuthPaths = ["/login", "/signup"];
+    if (!token && !noAuthPaths.includes(pathname)) {
       window.location.href = '/login'; // Redirect to login page
     }
   }, [token]);
 
+  // Show the navigation bar on all pages except the login and signup pages
   useEffect(() => {
-    // Check if window is defined (client side)
-    if (typeof window !== "undefined") {
-      // Get the current pathname when the component mounts
+    if (!isBrowser) return;
+    
+    const noNavigationPaths = ["/login", "/signup"];
+
+    // TODO: This is a hacky. Fix later.
+    const checkPathname = () => {
       const pathname = window.location.pathname;
-      const noNavigationPaths = ["/login", "/signup"];
-      // Hide the navigation if the current path is in the noNavigationPaths array
       setShowNavigation(!noNavigationPaths.includes(pathname));
-    }
-  }, []);
+    };
+    const interval = setInterval(checkPathname, 100);
+
+    return () => clearInterval(interval);
+  }, [token, isBrowser]);
 
   return (
     <html lang="en">
@@ -54,13 +60,10 @@ export default function RootLayout({
           }
         )}
       >
-        {/* sidebar */}
-
-        {/* <p className="border">Sidebar</p> */}
+        {/* Only show the navigation bar on certain pages */}
         {showNavigation ? <SideNavbar /> : <></>}
 
-
-        {/* main page */}
+        {/* Main page */}
         <div className="p-8 w-full">{children}</div>
       </body>
     </html>
