@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CardTitle,
   CardDescription,
@@ -6,11 +8,45 @@ import {
   Card,
 } from "@/components/ui/card";
 
+import axios from "axios";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
+  const [token, setToken] = useLocalStorage("authToken");
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/login', {
+        email,
+        password,
+      });
+  
+      if (response.status === 200) {  // Login was successful
+        // Save the token in local storage for future requests
+        setToken(response.data.token);
+        // Redirect to the home page
+        router.push("/");
+      }
+    } catch (error: any) {  // Login failed
+      // Show an error message for a few seconds
+      setErrorMessage(error.response.data.message);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 2000);
+      // Set the focus to the email input field
+      document.getElementById("email")?.focus();
+    }
+  };
+
   return (
     <div className="min-h-screen flex justify-center items-center">
       <Card className="mx-auto max-w-sm">
@@ -22,20 +58,31 @@ export default function Component() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {errorMessage && (
+              <div className="p-2 text-red-500 bg-red-100 rounded">
+                {errorMessage}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="m@example.com"
+                placeholder="superadmin@tinyaiot.com"
                 required
                 type="email"
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" required type="password" />
+              <Input
+                id="password"
+                required
+                type="password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-            <Button className="w-full" type="submit">
+            <Button className="w-full" type="submit" onClick={handleLogin}>
               Login
             </Button>
           </div>

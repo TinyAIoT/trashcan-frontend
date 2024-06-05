@@ -15,36 +15,40 @@
 
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
 import PageTitle from "@/components/PageTitle";
-import { cn } from "@/lib/utils";
+import React from "react";
 import axios from 'axios';
 import {useState, useEffect} from 'react';
 
 type Props = {};
 type Payment = {
-  trashbinID: string;
-  status: string;
-  lastPickup: string;
-  assignedTo: string;
+  id: string;
+  name: string;
+  fillLevel: number;
+  batteryLevel: number;
+  lastEmptied: Date;
 };
 
 const columns: ColumnDef<Payment>[] = [
   {
-    accessorKey: "trashbinID",
-    header: "Trashbin ID",
+    accessorKey: "id",
+    header: "ID",
   },
   {
-    accessorKey: "filledStatus",
-    header: "Filled Status"
+    accessorKey: "name",
+    header: "Name"
   },
   {
-    accessorKey: "lastPickup",
-    header: "Last Picked",
+    accessorKey: "fillLevel",
+    header: "Fill Level",
   },
   {
-    accessorKey: "assignedTo",
-    header: "Assigned To",
+    accessorKey: "batteryLevel",
+    header: "BatteryLevel",
+  },
+  {
+    accessorKey: "lastEmptied",
+    header: "Last Emptied",
   },
 ];
 
@@ -55,13 +59,11 @@ export default function OrdersPage({}: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/trashcbin/all');
-
+        const response = await axios.get('http://localhost:5001/trashbins/all');
 
         const transformedData = response.data.map((item : any) => {
           return {
             ...item,
-            assignedTo: item?.assignedTrashCollector?.name,
           }
         })
 

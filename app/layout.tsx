@@ -5,7 +5,7 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
-import { isLoginPage } from "@/lib/utils";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,18 +20,34 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentPageIsLogin, setCurrentPageIsLogin] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
+  const isBrowser = typeof window !== 'undefined';
+  const [token, _setToken] = isBrowser ? useLocalStorage("authToken") : [null, () => {}];
 
+  // Enforce login on all pages except the login and signup pages
   useEffect(() => {
-    // Check if window is defined (client side)
-    if (typeof window !== "undefined") {
-      // Get the current pathname when the component mounts
-      const pathname = window.location.pathname;
-
-      // Check if the current page is "/login"
-      setCurrentPageIsLogin(!isLoginPage(pathname));
+    const pathname = window.location.pathname;
+    const noAuthPaths = ["/login", "/signup"];
+    if (!token && !noAuthPaths.includes(pathname)) {
+      window.location.href = '/login'; // Redirect to login page
     }
-  }, []);
+  }, [token]);
+
+  // Show the navigation bar on all pages except the login and signup pages
+  useEffect(() => {
+    if (!isBrowser) return;
+    
+    const noNavigationPaths = ["/login", "/signup"];
+
+    // TODO: This is a hacky. Fix later.
+    const checkPathname = () => {
+      const pathname = window.location.pathname;
+      setShowNavigation(!noNavigationPaths.includes(pathname));
+    };
+    const interval = setInterval(checkPathname, 100);
+
+    return () => clearInterval(interval);
+  }, [token, isBrowser]);
 
   return (
     <html lang="en">
@@ -44,13 +60,10 @@ export default function RootLayout({
           }
         )}
       >
-        {/* sidebar */}
+        {/* Only show the navigation bar on certain pages */}
+        {showNavigation ? <SideNavbar /> : <></>}
 
-        {/* <p className="border">Sidebar</p> */}
-        {currentPageIsLogin ? <SideNavbar /> : <></>}
-
-
-        {/* main page */}
+        {/* Main page */}
         <div className="p-8 w-full">{children}</div>
       </body>
     </html>
