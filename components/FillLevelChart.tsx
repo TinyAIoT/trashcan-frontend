@@ -2,8 +2,26 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 import ResizeObserver from 'resize-observer-polyfill';
+import { mock } from 'node:test';
 
 const thresholds = [30, 70];
+
+// const generateMockData = (length: number) => {
+//   // Create an array hours of length "length" and fill it with numbers from -length+1 to 0
+//   const hours = Array.from({ length }, (_, i) => i - length + 1);
+//   const fill_levels = new Array(length).fill({ hour: hours[0], fill: 0 });
+
+//   for (let i = 1; i < fill_levels.length; i++) {
+//     const prev = fill_levels[i - 1].fill || 0;
+//     let newFill = prev + Math.random() * 2;
+//     if (newFill >= 100) newFill = 0;
+//     fill_levels[i] = { hour: hours[i], fill: Math.round(newFill) };
+//   }
+
+//   return fill_levels;
+// };
+
+// const mockData = generateMockData(300);
 
 const hours = Array.from({ length: 97 }, (_, i) => i - 48);
 // Create mock data for the chart
@@ -31,6 +49,10 @@ const FillLevelChart = () => {
       }
       const { width, height } = entries[0].contentRect;
       setDimensions({ width, height });
+      // Scroll to the right-most part
+      if (svgElement && svgElement.parentElement) {
+        svgElement.parentElement.scrollLeft = svgElement.scrollWidth;
+      }
     });
 
     if (svgElement) {
@@ -49,21 +71,22 @@ const FillLevelChart = () => {
       return;
     }
 
-    const margin = { top: 5, right: 5, bottom: 30, left: 20 };
-    const width = dimensions.width - margin.left - margin.right;
+    const margin = { top: 5, right: 5, bottom: 30, left: 40 };
+    // const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
+    const fullWidth = 10 * hours.length; // 10 pixels per data point
 
     d3.select(ref.current).selectAll('*').remove();
 
     const svg = d3.select(ref.current)
-      .attr('width', width + margin.left + margin.right)
+      .attr('width', fullWidth + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleLinear()
       .domain([Math.min(...hours), Math.max(...hours)])
-      .range([0, width]);
+      .range([0, fullWidth]);
 
     const y = d3.scaleLinear()
       .domain([0, 100])
@@ -80,7 +103,7 @@ const FillLevelChart = () => {
 
     // ***** Add axes *****
     const xAxis = d3.axisBottom(x)
-      .tickValues([-48, -36, -24, -12, -4, 0, 4, 12, 24, 36, 48]);
+      .tickValues(hours.filter(h => h % 2 === 0));
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis);
@@ -88,28 +111,29 @@ const FillLevelChart = () => {
     const yAxis = d3.axisLeft(y)
       .tickValues([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
     svg.append('g')
-      .attr('transform', `translate(${width / 2},0)`) // Center the y-axis
       .call(yAxis);
+      //   .attr('transform', `translate(${width / 2},0)`) // Center the y-axis
+
 
     // ***** Add backgrounds *****
     svg.append('rect')
       .attr('x', 0)
       .attr('y', y(thresholds[0]))
-      .attr('width', width)
+      .attr('width', fullWidth)
       .attr('height', height - y(thresholds[0]))
       .attr('fill', 'green')
       .attr('opacity', 0.15);
     svg.append('rect')
       .attr('x', 0)
       .attr('y', y(thresholds[1]))
-      .attr('width', width)
+      .attr('width', fullWidth)
       .attr('height', y(thresholds[0]) - y(thresholds[1]))
       .attr('fill', 'yellow')
       .attr('opacity', 0.15);
     svg.append('rect')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('width', width)
+      .attr('width', fullWidth)
       .attr('height', y(thresholds[1]))
       .attr('fill', 'red')
       .attr('opacity', 0.15);
@@ -117,7 +141,7 @@ const FillLevelChart = () => {
     svg.append('rect')
       .attr('x', x(0))
       .attr('y', 0)
-      .attr('width', width - x(0))
+      .attr('width', fullWidth - x(0))
       .attr('height', height)
       .attr('fill', 'white')
       .attr('opacity', 0.3);
@@ -143,7 +167,7 @@ const FillLevelChart = () => {
       .attr('d', predictionLine);
 
     svg.append('text')
-      .attr('x', width / 2)
+      .attr('x', fullWidth / 2)
       .attr('y', height + margin.bottom)
       .style('text-anchor', 'middle')
       .text('Hours');
@@ -217,7 +241,9 @@ const FillLevelChart = () => {
   }, [dimensions]);
 
   return (
-    <svg ref={ref} style={{ width: '100%', height: '400px' }}></svg>
+    <div style={{ width: '100%', overflowX: 'scroll', position: 'relative' }}>
+      <svg ref={ref} style={{ display: 'block', marginLeft: 'auto', height: '400px' }}></svg>
+    </div>
   );
 };
 
