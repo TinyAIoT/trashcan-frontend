@@ -23,11 +23,15 @@ import { Button } from "./ui/button";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRowClick?: (row: TData) => void;
+  selectedBins?: TData[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
+  selectedBins,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -37,6 +41,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
+    
     <div>
       <div className="rounded-md border">
         <Table>
@@ -64,6 +69,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick(row.original)}
+                  className={selectedBins.includes(row.original) ? 'bg-gray-200' : ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

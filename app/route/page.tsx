@@ -66,12 +66,21 @@ const RoutePlanning = () => {
         </TabsList>
         <TabsContent value="map">
           <div className="w-full h-[70vh]">
-            <Map trashbinData={trashbinData} isRoutePlanning={true} onTrashbinClick={handleTrashbinClick} selectedBins={selectedBins} />
+            <Map 
+              trashbinData={trashbinData}
+              isRoutePlanning={true}
+              onTrashbinClick={handleTrashbinClick}
+              selectedBins={selectedBins} />
           </div>
         </TabsContent>
         <TabsContent value="table">
           <div className="w-full h-[70vh] overflow-auto">
-            <DataTable columns={columns} data={trashbinData} />
+          <DataTable
+            columns={columns}
+            data={trashbinData}
+            onRowClick={handleTrashbinClick}
+            selectedBins={selectedBins}
+          />
           </div>
         </TabsContent>
       </Tabs>
