@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PageTitle from "@/components/PageTitle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Map from "@/components/Map";
@@ -9,6 +9,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner"
+import debounce from 'lodash.debounce';
 
 interface Trashbin {
     lat: number;
@@ -45,14 +47,30 @@ const columns: ColumnDef<Trashbin>[] = [
 const RoutePlanning = () => {
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
 
-  const handleTrashbinClick = (trashbin: Trashbin) => {
+  const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
     // Add or remove the trashbin from the selected bins
-    setSelectedBins((prevSelected) =>
-      prevSelected.some((bin) => bin.id === trashbin.id)
-        ? prevSelected.filter((bin) => bin.id !== trashbin.id)
-        : [...prevSelected, trashbin]
-    );
-  };
+    setSelectedBins((prevSelected) => {
+        if (prevSelected.some((bin) => bin.id === trashbin.id)) {
+            showToast(`Trashbin ${trashbin.display} removed from selection.`);
+            return prevSelected.filter((bin) => bin.id !== trashbin.id);
+        }
+        else {
+            showToast(`Trashbin ${trashbin.display} added to selection.`);
+            return [...prevSelected, trashbin];
+        }
+    });
+  }, []);
+
+  // Use a debounced function to show the toast message
+  const showToast = useCallback(debounce((message: string) => {
+    toast(message);
+  }, 300), []);
+
+  useEffect(() => {
+    return () => {
+      showToast.cancel();
+    };
+  }, [showToast]);
 
   return (
     <div className="flex flex-col gap-5  w-full">

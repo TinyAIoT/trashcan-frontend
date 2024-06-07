@@ -6,6 +6,7 @@ import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
 import { isLoginPage } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,6 +15,7 @@ const inter = Inter({ subsets: ["latin"] });
 //   title: "TinyAIoT Dashboard",
 //   description: "Created by the project seminar \"TinyAIOT\" in summer term 2024.",
 // };
+
 
 export default function RootLayout({
   children,
@@ -52,6 +54,7 @@ export default function RootLayout({
 
         {/* main page */}
         <div className="p-8 w-full">{children}</div>
+        <Toaster />
       </body>
     </html>
   );
