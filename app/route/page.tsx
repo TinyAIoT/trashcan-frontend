@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import debounce from 'lodash.debounce';
 import axios from 'axios';
+import { LatLngTuple } from 'leaflet';
 
 interface Trashbin {
     lat: number;
@@ -90,19 +91,19 @@ const RoutePlanning = () => {
           const optimizedWaypoints = response.data.waypoints; // Use waypoints directly from the response
 
           // Extract waypoint_index values
-          const waypointIndices = optimizedWaypoints.map(wp => wp.waypoint_index);
-          // console.log('Waypoint Indices:', waypointIndices);
+          const waypointIndices = optimizedWaypoints.map(wp => wp.waypoint_index - 1).slice(1, -1);
+          console.log('Waypoint Indices:', waypointIndices);
 
-          // Store the optimized bins in the order of the waypoints as a permutation of the selected bins
-          const orderedBins = waypointIndices.map(index => selectedBins[index]);
-          // console.log('Ordered Bins:', orderedBins);
+          // The waypoint index at a given position is the new index of the bin in the selectedBins array
+          const orderedBins = new Array(waypointIndices.length);
+          for (let i = 0; i < waypointIndices.length; i++) {
+            orderedBins[waypointIndices[i]] = selectedBins[i];
+          }
 
-          // Filter undefined bins
-          const filteredBins = orderedBins.filter(bin => bin !== undefined);
           console.log('Selected Bins:', selectedBins);
-          console.log('Filtered Bins:', filteredBins);
+          console.log('Ordered Bins:', orderedBins);
 
-          setOptimizedBins(filteredBins); // Update the bins order based on optimized route
+          setOptimizedBins(orderedBins); // Update the bins order based on optimized route
           setShowRoute(true); // Show the optimized route on the map
 
           // Additional step: Use the geometry to display the route on the map
