@@ -2,23 +2,13 @@
 
 import React from 'react';
 import PageTitle from "@/components/PageTitle";
-import { CardContent } from '@/components/Card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Map from "@/components/Map";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select"
-  
-
-// import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // type Props = {};
 type Trashbin = {
@@ -127,19 +117,24 @@ const RoutePlanning = () => {
   return (
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Route Planning" />
-      <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
-        <CardContent>
-          <div className="w-full h-[400px]">
+      <h1 className="text-2xl font-bold">Trashbin Selection</h1>
+      <p>Select the trashbins to be considered for a route by clicking on the trashbins on the map or table.</p>
+      <Tabs defaultValue="map" className="w-full">
+        <TabsList className="w-full">
+        <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
+        <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
+        </TabsList>
+        <TabsContent value="map">
+          <div className="w-full h-[70vh]">
             <Map />
           </div>
-        </CardContent>
-        <CardContent>
-           <div className="w-full h-[400px] overflow-auto">
+        </TabsContent>
+        <TabsContent value="table">
+          <div className="w-full h-[70vh] overflow-auto">
             <DataTable columns={columns} data={data} />
-        </div>
-        </CardContent>
-      </section>
-
+          </div>
+        </TabsContent>
+      </Tabs>
       <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
@@ -178,7 +173,6 @@ const RoutePlanning = () => {
             </Select>
         </div>
       </div>
-
       <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
         <Button className="bg-green-600 text-white">Show Route</Button>
         <Button className="bg-green-600 text-white">Export to Maps</Button>
