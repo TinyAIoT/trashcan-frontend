@@ -6,6 +6,7 @@ import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "@uidotdev/usehooks";
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -40,7 +41,7 @@ export default function RootLayout({
     
     const noNavigationPaths = ["/login", "/signup"];
 
-    // TODO: This is a hacky. Fix later.
+    // TODO: This is hacky. Fix later.
     const checkPathname = () => {
       const pathname = window.location.pathname;
       setShowNavigation(!noNavigationPaths.includes(pathname));
