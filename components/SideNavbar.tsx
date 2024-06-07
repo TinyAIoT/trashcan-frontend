@@ -3,7 +3,8 @@
 
 import { useState } from "react";
 import { Nav } from "@/components/ui/nav";
-// import { Chip } from '@nextui-org/react';
+import { Button } from "@/components/ui/button";
+import { useWindowWidth } from "@react-hook/window-size";
 
 type Props = {};
 
@@ -18,10 +19,25 @@ import {
   TrashIcon,
   Settings,
   Settings2,
+  PanelsTopLeft,
 } from "lucide-react";
-import { Button } from "./ui/button";
 
-import { useWindowWidth } from "@react-hook/window-size";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const selectedProject = "Laer - Trash";
+const furtherProjects = [
+  "Emsdetten - Trash",
+  "Emsdetten - Noise",
+  "Muenster - Trash",
+]
+  
 
 export default function SideNavbar({}: Props) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -113,9 +129,20 @@ export default function SideNavbar({}: Props) {
             </Button>
           </div>
         )}
-        {/* <Chip color="primary" size="md" radius="md">
-          Laer - Trash
-        </Chip> */}
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            { isCollapsed ? <PanelsTopLeft/> : selectedProject }
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Other Projects</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {
+              furtherProjects.map((project) => (
+              < DropdownMenuItem key={project}>{project}</DropdownMenuItem>
+              ))
+            }
+          </DropdownMenuContent>
+        </DropdownMenu>
         {navGroups.map((group, index) => (
           <div key={index}>
             <div className="text-center text-lg mt-4">{group.header}</div>

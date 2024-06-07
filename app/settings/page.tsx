@@ -12,10 +12,17 @@ import {
 } from "lucide-react";
 // import { useTheme } from "next-themes";  // https://github.com/pacocoursey/next-themes
 
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 export default function Component() {
   const [language, setLanguage] = useState('de');
   const [theme, setTheme] = useState('light');
+  const [_token, setToken] = useLocalStorage("authToken");
+
+  // Logging out corresponds to deleting the "authToken" from local storage
+  const handleLogout = () => {
+    setToken("");
+  }
 
   return (
     <div>
@@ -40,6 +47,9 @@ export default function Component() {
           </div>
         </header>
         <div className="space-y-8">
+        <div className="pt-6" onClick={handleLogout}>
+          <Button>Logout</Button>
+        </div>
           <Card>
             <CardContent className="space-y-6">
               <div className="space-y-2">
