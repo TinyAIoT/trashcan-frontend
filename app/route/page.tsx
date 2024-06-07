@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner"
 import debounce from 'lodash.debounce';
+import axios from 'axios';
 
 interface Trashbin {
     lat: number;
@@ -44,8 +45,13 @@ const columns: ColumnDef<Trashbin>[] = [
     { accessorKey: "fillLevelChange", header: "Fill Level Change" },
 ];
 
+const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
+
 const RoutePlanning = () => {
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
+  const [optimizedBins, setOptimizedBins] = useState<Trashbin[]>([]);
+  const [showRoute, setShowRoute] = useState(false);
+  const [activeTab, setActiveTab] = useState('map');
 
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
     // Add or remove the trashbin from the selected bins
@@ -61,38 +67,102 @@ const RoutePlanning = () => {
     });
   }, []);
 
+
+    // Function to fetch optimized route from OSRM Trip Service
+    const fetchOptimizedRoute = async () => {
+      if (selectedBins.length === 0) return;
+      
+      const coordinates = [
+        `${tripStartEnd[1]},${tripStartEnd[0]}`,
+        ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
+        `${tripStartEnd[1]},${tripStartEnd[0]}`
+      ];
+  
+      const url = `http://router.project-osrm.org/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
+  
+      try {
+        const response = await axios.get(url);
+        // console.log('OSRM Response:', response.data);
+
+        // Only handle case where we get exactly one trip
+        if (response.data.trips.length === 1) {
+          const { geometry } = response.data.trips[0]; // Extract route geometry
+          const optimizedWaypoints = response.data.waypoints; // Use waypoints directly from the response
+
+          // Extract waypoint_index values
+          const waypointIndices = optimizedWaypoints.map(wp => wp.waypoint_index);
+          // console.log('Waypoint Indices:', waypointIndices);
+
+          // Store the optimized bins in the order of the waypoints as a permutation of the selected bins
+          const orderedBins = waypointIndices.map(index => selectedBins[index]);
+          // console.log('Ordered Bins:', orderedBins);
+
+          // Filter undefined bins
+          const filteredBins = orderedBins.filter(bin => bin !== undefined);
+          console.log('Selected Bins:', selectedBins);
+          console.log('Filtered Bins:', filteredBins);
+
+          setOptimizedBins(filteredBins); // Update the bins order based on optimized route
+          setShowRoute(true); // Show the optimized route on the map
+
+          // Additional step: Use the geometry to display the route on the map
+          // This step depends on how your application renders maps and routes
+        }
+      } catch (error) {
+        console.error('Error fetching optimized route:', error);
+        showToast('Failed to optimize route. Please try again.');
+      }
+    };
+
+  const handleShowRoute = () => {
+    setActiveTab('map');
+    fetchOptimizedRoute();
+  };
+  useEffect(() => {
+      if (activeTab !== 'map') {
+          setShowRoute(false);
+      }
+  }, [activeTab]);
+  useEffect(() => {
+    setShowRoute(false);
+  }, [selectedBins]);
+
+
   // Use a debounced function to show the toast message
   const showToast = useCallback(debounce((message: string) => {
     toast(message);
   }, 300), []);
-
+  
   useEffect(() => {
     return () => {
       showToast.cancel();
     };
   }, [showToast]);
-
+  
   return (
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Route Planning" />
       <h1 className="text-2xl font-bold">Trashbin Selection</h1>
       <p>Select the trashbins to be considered for a route by clicking on the trashbins on the map or table.</p>
-      <Tabs defaultValue="map" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full">
           <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          <div className="w-full h-[70vh]">
+          <div className="w-full h-[60vh]">
             <Map 
               trashbinData={trashbinData}
               isRoutePlanning={true}
               onTrashbinClick={handleTrashbinClick}
-              selectedBins={selectedBins} />
+              selectedBins={selectedBins}
+              optimizedBins={optimizedBins}
+              showRoute={showRoute}
+            />
           </div>
         </TabsContent>
         <TabsContent value="table">
-          <div className="w-full h-[70vh] overflow-auto">
+          <div className="w-full h-[60vh] overflow-auto">
           <DataTable
             columns={columns}
             data={trashbinData}
@@ -103,14 +173,18 @@ const RoutePlanning = () => {
         </TabsContent>
       </Tabs>
       <div className="flex-col">
-        {/* Show the Identifiers of all the selected bins */}
-        <h1 className="text-2xl font-bold">Selected Bins</h1>
+        <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4 mb-4">
+          <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
+          <Button className="bg-green-600 text-white">Export to Maps</Button>
+          <Button className="bg-green-600 text-white">Assign Route</Button>
+          <Button className="bg-red-600 text-white" onClick={() => setSelectedBins([])}>Unassign All Bins</Button>
+        </section>
+        {/* <h1 className="text-2xl font-bold">Selected Bins</h1>
         <ul className="list-disc pl-5">
           {selectedBins.map((bin) => (
             <li key={bin.id}>{bin.display}</li>
           ))}
-        </ul>
-        
+        </ul> */}
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
             <p>Driver: </p>
@@ -148,12 +222,6 @@ const RoutePlanning = () => {
             </Select>
         </div>
       </div>
-      <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
-        <Button className="bg-green-600 text-white">Show Route</Button>
-        <Button className="bg-green-600 text-white">Export to Maps</Button>
-        <Button className="bg-green-600 text-white">Assign Route</Button>
-        <Button className="bg-red-600 text-white" onClick={() => setSelectedBins([])}>Unassign All Bins</Button>
-      </section>
     </div>
   );
 };

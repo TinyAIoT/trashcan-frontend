@@ -21,23 +21,27 @@ interface MapProps {
   isRoutePlanning?: boolean;
   onTrashbinClick?: (trashbin: Trashbin) => void;
   selectedBins?: Trashbin[];
+  optimizedBins?: Trashbin[];
+  showRoute?: boolean;
 }
 
 // Important Coordinates
 const laerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
+const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 // TODO: Globally define thresholds and be able to set them in the Settings
 const thresholds = [30, 70];
 
-const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins }: MapProps) => {
+const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
   const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
+  const routingControlRef = useRef<null | L.Routing.Control>(null);
 
   useEffect(() => {
     // Load the leaflet library and the marker cluster plugin
     const L = require('leaflet');
     require('leaflet.markercluster');
-    // require('leaflet-routing-machine');
+    require('leaflet-routing-machine');
 
     // See: https://leafletjs.com/examples/custom-icons/
     var BinIcon = L.Icon.extend({
@@ -102,7 +106,26 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins }: M
       markersRef.current.addLayer(marker);
     });
 
-  }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins]);
+    if (routingControlRef.current) {
+      mapRef.current.removeControl(routingControlRef.current);
+      routingControlRef.current = null;
+    }
+  
+    // Itinerary instructions are disabled via css
+    if (showRoute && optimizedBins && optimizedBins.length > 0) {
+      const waypoints = [L.latLng(tripStartEnd[0], tripStartEnd[1]), ...optimizedBins.map(bin => L.latLng(bin.lat, bin.lng)), L.latLng(tripStartEnd[0], tripStartEnd[1])];
+  
+      routingControlRef.current = L.Routing.control({
+        waypoints: waypoints,
+        routeWhileDragging: true,
+        createMarker: function() { return null; },
+        show: false,
+        lineOptions : {
+          addWaypoints: false
+        }
+      }).addTo(mapRef.current);
+    }
+  }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute]);
 
   return <div id="map" className="flex-grow h-full"></div>;
 };
