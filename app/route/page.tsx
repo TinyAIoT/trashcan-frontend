@@ -2,16 +2,16 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import PageTitle from "@/components/PageTitle";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import axios from 'axios';
 import Map from "@/components/Map";
-import { DataTable } from "@/components/DataTable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/DataTable";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import axios from 'axios';
-import { LatLngTuple } from 'leaflet';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy } from 'lucide-react';
 
@@ -47,77 +47,95 @@ const columns: ColumnDef<Trashbin>[] = [
     { accessorKey: "fillLevelChange", header: "Fill Level Change" },
 ];
 
+// Location of the 
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 const RoutePlanning = () => {
+  // Bins selected by user by clicking on map or table-row
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
+  // Optimized order of bins based on route optimization
   const [optimizedBins, setOptimizedBins] = useState<Trashbin[]>([]);
+  // Whether to show the optimized route on the map
   const [showRoute, setShowRoute] = useState(false);
+  // Active tab in the tabs component
   const [activeTab, setActiveTab] = useState('map');
+  // GoogleMaps link to be exported
   const [googleMapsLink, setGoogleMapsLink] = useState('');
+  // Dialog state for showing the GoogleMaps link
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-
+  // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
-    // Add or remove the trashbin from the selected bins
     setSelectedBins((prevSelected) => {
         if (prevSelected.some((bin) => bin.id === trashbin.id)) return prevSelected.filter((bin) => bin.id !== trashbin.id);
         else return [...prevSelected, trashbin];
     });
   }, []);
 
-    // Fetch optimized route from OSRM Trip Service
-    const fetchOptimizedRoute = async () => {
-      if (selectedBins.length === 0) return;
-      
-      // The roundtrip starts and ends at the location indicated by `tripStartEnd`
-      const coordinates = [
-        `${tripStartEnd[1]},${tripStartEnd[0]}`,
-        ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
-        `${tripStartEnd[1]},${tripStartEnd[0]}`
-      ];
-      const url = `http://router.project-osrm.org/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
-  
-      try {
-        const response = await axios.get(url);
+  // Fetch optimized route from OSRM Trip Service
+  const fetchOptimizedRoute = async () => {
+    // If no bins are selected, we cannot plan a route
+    if (selectedBins.length === 0) return;
+    
+    // The roundtrip starts and ends at the location indicated by `tripStartEnd`
+    const coordinates = [
+      `${tripStartEnd[1]},${tripStartEnd[0]}`,
+      ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
+      `${tripStartEnd[1]},${tripStartEnd[0]}`
+    ];
 
-        // Only handle case where we get exactly one trip
-        if (response.data.trips.length === 1) {
-          // The waypoint index at a given position is the new index of the bin in the selectedBins array
-          const optimizedWaypoints = response.data.waypoints;
-          const waypointIndices = optimizedWaypoints.map((wp: { waypoint_index: number; }) => wp.waypoint_index - 1).slice(1, -1);
-          const orderedBins = new Array(waypointIndices.length);
-          for (let i = 0; i < waypointIndices.length; i++) {
-            orderedBins[waypointIndices[i]] = selectedBins[i];
-            }
-            
-          // console.log('Waypoint Indices:', waypointIndices);
-          // console.log('Selected Bins:', selectedBins);
-          // console.log('Ordered Bins:', orderedBins);
+    // OSRM Trip Service API URL
+    const url = `http://router.project-osrm.org/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
 
-          setOptimizedBins(orderedBins); // Update the bins order based on optimized route
-          setShowRoute(true); // Show the optimized route on the map
+    try {
+      const response = await axios.get(url);
+
+      // Only handle case where we get exactly one trip
+      if (response.data.trips.length === 1) {
+        // The waypoint index at a given position is the new index of the bin in the selectedBins array
+        const optimizedWaypoints = response.data.waypoints;
+        const waypointIndices = optimizedWaypoints.map((wp: { waypoint_index: number; }) => wp.waypoint_index - 1).slice(1, -1);
+        const orderedBins = new Array(waypointIndices.length);
+        for (let i = 0; i < waypointIndices.length; i++) {
+          orderedBins[waypointIndices[i]] = selectedBins[i];
         }
-      } catch (error) {
-        console.error('Error fetching optimized route:', error);
+        
+        // Logging for debugging purposes
+        // console.log('Waypoint Indices:', waypointIndices);
+        // console.log('Selected Bins:', selectedBins);
+        // console.log('Ordered Bins:', orderedBins);
+
+        // Update the optimized order of bins
+        setOptimizedBins(orderedBins);
+        // Show the optimized route on the map
+        setShowRoute(true);
       }
-    };
+    } catch (error) {
+      console.error('Error while fetching optimized route:', error);
+    }
+  };
 
   const handleShowRoute = () => {
+    // To show the route, we need to focus on the map tab
     setActiveTab('map');
+    // Then we fetch the new optimized route
     fetchOptimizedRoute();
   };
+
+  // If the active tab is not the map, we do not show the route
   useEffect(() => {
-      if (activeTab !== 'map') {
-          setShowRoute(false);
-      }
+    if (activeTab !== 'map') {
+      setShowRoute(false);
+    }
   }, [activeTab]);
+
+  // If the selected bins change, we do not show the route
   useEffect(() => {
     setShowRoute(false);
   }, [selectedBins]);
 
-
-  const exportToMaps = () => {
+  // Generate GoogleMaps link for the route and show it in a dialog
+  const showGoogleMapsLink = () => {
     const coordinates = [
       `${tripStartEnd[0]},${tripStartEnd[1]}`,
       ...optimizedBins.map(bin => `${bin.lat},${bin.lng}`),
@@ -129,6 +147,7 @@ const RoutePlanning = () => {
     setIsDialogOpen(true);
   };
   
+  // Handle the animation for the copy button
   const handleCopy = () => {
     // Find the button by its ID and add the effect class
     const copyButton = document.getElementById('copyLink');
@@ -137,7 +156,6 @@ const RoutePlanning = () => {
     setTimeout(() => {
       copyButton?.classList.remove('button-click-effect');
     }, 500); // Duration has to match with CSS animation duration
-
   };
 
   return (
@@ -176,7 +194,7 @@ const RoutePlanning = () => {
       <div className="flex-col">
         <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4 mb-4">
           <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
-          <Button className="bg-green-600 text-white" onClick={exportToMaps}>Export to Maps</Button>
+          <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
           <Button className="bg-green-600 text-white">Assign Route</Button>
           <Button className="bg-red-600 text-white" onClick={() => setSelectedBins([])}>Unassign All Bins</Button>
         </section>
