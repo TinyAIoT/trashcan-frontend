@@ -6,7 +6,6 @@ import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "@uidotdev/usehooks";
-import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -67,7 +66,6 @@ export default function RootLayout({
 
         {/* Main page */}
         <div className="p-8 w-full">{children}</div>
-        <Toaster />
       </body>
     </html>
   );

@@ -9,10 +9,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner"
-import debounce from 'lodash.debounce';
 import axios from 'axios';
 import { LatLngTuple } from 'leaflet';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { Copy } from 'lucide-react';
 
 interface Trashbin {
     lat: number;
@@ -53,18 +54,15 @@ const RoutePlanning = () => {
   const [optimizedBins, setOptimizedBins] = useState<Trashbin[]>([]);
   const [showRoute, setShowRoute] = useState(false);
   const [activeTab, setActiveTab] = useState('map');
+  const [googleMapsLink, setGoogleMapsLink] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
     // Add or remove the trashbin from the selected bins
     setSelectedBins((prevSelected) => {
-        if (prevSelected.some((bin) => bin.id === trashbin.id)) {
-            showToast(`Trashbin ${trashbin.display} removed from selection.`);
-            return prevSelected.filter((bin) => bin.id !== trashbin.id);
-        }
-        else {
-            showToast(`Trashbin ${trashbin.display} added to selection.`);
-            return [...prevSelected, trashbin];
-        }
+        if (prevSelected.some((bin) => bin.id === trashbin.id)) return prevSelected.filter((bin) => bin.id !== trashbin.id);
+        else return [...prevSelected, trashbin];
     });
   }, []);
 
@@ -102,7 +100,6 @@ const RoutePlanning = () => {
         }
       } catch (error) {
         console.error('Error fetching optimized route:', error);
-        showToast('Failed to optimize route. Please try again.');
       }
     };
 
@@ -120,17 +117,29 @@ const RoutePlanning = () => {
   }, [selectedBins]);
 
 
-  // Use a debounced function to show the toast message
-  const showToast = useCallback(debounce((message: string) => {
-    toast(message);
-  }, 300), []);
+  const exportToMaps = () => {
+    const coordinates = [
+      `${tripStartEnd[0]},${tripStartEnd[1]}`,
+      ...optimizedBins.map(bin => `${bin.lat},${bin.lng}`),
+      `${tripStartEnd[0]},${tripStartEnd[1]}`
+    ];
   
-  useEffect(() => {
-    return () => {
-      showToast.cancel();
-    };
-  }, [showToast]);
+    const googleMapsUrl = `https://www.google.com/maps/dir/${coordinates.join('/')}`;
+    setGoogleMapsLink(googleMapsUrl);
+    setIsDialogOpen(true);
+  };
   
+  const handleCopy = () => {
+    // Find the button by its ID and add the effect class
+    const copyButton = document.getElementById('copyLink');
+    copyButton?.classList.add('button-click-effect');
+    // Remove the effect class after the animation duration
+    setTimeout(() => {
+      copyButton?.classList.remove('button-click-effect');
+    }, 500); // Duration has to match with CSS animation duration
+
+  };
+
   return (
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Route Planning" />
@@ -142,7 +151,7 @@ const RoutePlanning = () => {
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          <div className="w-full h-[60vh]">
+          <div className="w-full h-[60vh] relative z-0">
             <Map 
               trashbinData={trashbinData}
               isRoutePlanning={true}
@@ -167,16 +176,10 @@ const RoutePlanning = () => {
       <div className="flex-col">
         <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4 mb-4">
           <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
-          <Button className="bg-green-600 text-white">Export to Maps</Button>
+          <Button className="bg-green-600 text-white" onClick={exportToMaps}>Export to Maps</Button>
           <Button className="bg-green-600 text-white">Assign Route</Button>
           <Button className="bg-red-600 text-white" onClick={() => setSelectedBins([])}>Unassign All Bins</Button>
         </section>
-        {/* <h1 className="text-2xl font-bold">Selected Bins</h1>
-        <ul className="list-disc pl-5">
-          {selectedBins.map((bin) => (
-            <li key={bin.id}>{bin.display}</li>
-          ))}
-        </ul> */}
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
             <p>Driver: </p>
@@ -214,6 +217,28 @@ const RoutePlanning = () => {
             </Select>
         </div>
       </div>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="z-50">
+          <DialogHeader>
+            <DialogTitle>Google Maps Link</DialogTitle>
+            <DialogDescription>
+              <div className="flex items-center justify-between">
+              <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" className="break-all text-blue-500 underline">
+              {googleMapsLink}
+            </a>
+            <div className="tooltip">
+            <CopyToClipboard text={googleMapsLink} onCopy={handleCopy}>
+              <Button id="copyLink" className="bg-blue-600 text-white ml-2">
+                <Copy />
+              </Button>
+            </CopyToClipboard>
+            <span className="tooltiptext">Copy</span>
+          </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
