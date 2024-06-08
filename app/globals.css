@@ -86,3 +86,54 @@
   border-radius: 10px;
   pointer-events: all;
 }
+
+/* Do not show itinerary instructions when using leaflet routing */
+.leaflet-control-container .leaflet-routing-container-hide {
+  display: none;
+}
+
+
+
+.button-click-effect {
+  animation: clickEffectAnimation 0.25s ease;
+}
+
+@keyframes clickEffectAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* Tooltip for showing information about what a button does */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  color: #000;
+  text-align: center;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  /* animation-delay: 2s; */
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.5s;
+}

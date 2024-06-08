@@ -15,6 +15,7 @@ const inter = Inter({ subsets: ["latin"] });
 //   description: "Created by the project seminar \"TinyAIOT\" in summer term 2024.",
 // };
 
+
 export default function RootLayout({
   children,
 }: {
@@ -39,7 +40,7 @@ export default function RootLayout({
     
     const noNavigationPaths = ["/login", "/signup"];
 
-    // TODO: This is a hacky. Fix later.
+    // TODO: This is hacky. Fix later.
     const checkPathname = () => {
       const pathname = window.location.pathname;
       setShowNavigation(!noNavigationPaths.includes(pathname));
