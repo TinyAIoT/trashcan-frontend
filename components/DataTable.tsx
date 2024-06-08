@@ -24,14 +24,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
-  selectedBins?: TData[];
+  selectedRows?: TData[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
-  selectedBins,
+  selectedRows,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -68,9 +68,9 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={() => onRowClick(row.original)}
-                  className={selectedBins.includes(row.original) ? 'bg-gray-200' : ''}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  onClick={() => onRowClick ? onRowClick(row.original) : undefined}
+                  className={selectedRows && selectedRows.includes(row.original) ? "bg-gray-200": undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -68,46 +68,37 @@ const RoutePlanning = () => {
     });
   }, []);
 
-
-    // Function to fetch optimized route from OSRM Trip Service
+    // Fetch optimized route from OSRM Trip Service
     const fetchOptimizedRoute = async () => {
       if (selectedBins.length === 0) return;
       
+      // The roundtrip starts and ends at the location indicated by `tripStartEnd`
       const coordinates = [
         `${tripStartEnd[1]},${tripStartEnd[0]}`,
         ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
         `${tripStartEnd[1]},${tripStartEnd[0]}`
       ];
-  
       const url = `http://router.project-osrm.org/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
   
       try {
         const response = await axios.get(url);
-        // console.log('OSRM Response:', response.data);
 
         // Only handle case where we get exactly one trip
         if (response.data.trips.length === 1) {
-          const { geometry } = response.data.trips[0]; // Extract route geometry
-          const optimizedWaypoints = response.data.waypoints; // Use waypoints directly from the response
-
-          // Extract waypoint_index values
-          const waypointIndices = optimizedWaypoints.map(wp => wp.waypoint_index - 1).slice(1, -1);
-          console.log('Waypoint Indices:', waypointIndices);
-
           // The waypoint index at a given position is the new index of the bin in the selectedBins array
+          const optimizedWaypoints = response.data.waypoints;
+          const waypointIndices = optimizedWaypoints.map((wp: { waypoint_index: number; }) => wp.waypoint_index - 1).slice(1, -1);
           const orderedBins = new Array(waypointIndices.length);
           for (let i = 0; i < waypointIndices.length; i++) {
             orderedBins[waypointIndices[i]] = selectedBins[i];
-          }
-
-          console.log('Selected Bins:', selectedBins);
-          console.log('Ordered Bins:', orderedBins);
+            }
+            
+          // console.log('Waypoint Indices:', waypointIndices);
+          // console.log('Selected Bins:', selectedBins);
+          // console.log('Ordered Bins:', orderedBins);
 
           setOptimizedBins(orderedBins); // Update the bins order based on optimized route
           setShowRoute(true); // Show the optimized route on the map
-
-          // Additional step: Use the geometry to display the route on the map
-          // This step depends on how your application renders maps and routes
         }
       } catch (error) {
         console.error('Error fetching optimized route:', error);
@@ -168,7 +159,7 @@ const RoutePlanning = () => {
             columns={columns}
             data={trashbinData}
             onRowClick={handleTrashbinClick}
-            selectedBins={selectedBins}
+            selectedRows={selectedBins}
           />
           </div>
         </TabsContent>
