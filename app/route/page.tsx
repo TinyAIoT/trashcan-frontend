@@ -47,8 +47,9 @@ const columns: ColumnDef<Trashbin>[] = [
     { accessorKey: "fillLevelChange", header: "Fill Level Change" },
 ];
 
-// Location of the 
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
+
+const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
 const RoutePlanning = () => {
   // Bins selected by user by clicking on map or table-row
@@ -73,19 +74,19 @@ const RoutePlanning = () => {
   }, []);
 
   // Fetch optimized route from OSRM Trip Service
-  const fetchOptimizedRoute = async () => {
+  const fetchOptimizedRoute = async (): Promise<Trashbin[]> => {
     // If no bins are selected, we cannot plan a route
-    if (selectedBins.length === 0) return;
+    if (selectedBins.length === 0) return [];
     
     // The roundtrip starts and ends at the location indicated by `tripStartEnd`
-    const coordinates = [
+    const coordinates: string[] = [
       `${tripStartEnd[1]},${tripStartEnd[0]}`,
       ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
       `${tripStartEnd[1]},${tripStartEnd[0]}`
     ];
 
     // OSRM Trip Service API URL
-    const url = `http://router.project-osrm.org/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
+    const url = `${OSRM_SERVER_URL}/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
 
     try {
       const response = await axios.get(url);
@@ -105,40 +106,51 @@ const RoutePlanning = () => {
         // console.log('Selected Bins:', selectedBins);
         // console.log('Ordered Bins:', orderedBins);
 
-        // Update the optimized order of bins
-        setOptimizedBins(orderedBins);
-        // Show the optimized route on the map
-        setShowRoute(true);
+        // Returns the bins in the optimized order
+        return orderedBins;
       }
     } catch (error) {
       console.error('Error while fetching optimized route:', error);
     }
+    return [];
   };
 
-  const handleShowRoute = () => {
-    // To show the route, we need to focus on the map tab
+  const handleShowRoute = async () => {
+    // To show the route, we need to show the map tab
     setActiveTab('map');
-    // Then we fetch the new optimized route
-    fetchOptimizedRoute();
+    // Fetch optimized route
+    const orderedBins = await fetchOptimizedRoute();
+    setOptimizedBins(orderedBins);
+    // Show the route
+    setShowRoute(true);
   };
 
-  // If the active tab is not the map, we do not show the route
+  // If map tab is deselected, don't show the route anymore
   useEffect(() => {
     if (activeTab !== 'map') {
       setShowRoute(false);
     }
   }, [activeTab]);
 
-  // If the selected bins change, we do not show the route
+  // If selected bins change, don't show the route anymore
   useEffect(() => {
     setShowRoute(false);
   }, [selectedBins]);
 
   // Generate GoogleMaps link for the route and show it in a dialog
-  const showGoogleMapsLink = () => {
-    const coordinates = [
+  const showGoogleMapsLink = async () => {
+    // Fetch optimized route, if not already done
+    var orderedBins: Trashbin[] = [];
+    if (showRoute) orderedBins = optimizedBins;
+    else {
+      orderedBins = await fetchOptimizedRoute();
+      setOptimizedBins(orderedBins);
+    }
+
+    // Use orderedBins here instead of optimizedBins, as optimizedBins might not be updated yet
+    const coordinates: string[] = [
       `${tripStartEnd[0]},${tripStartEnd[1]}`,
-      ...optimizedBins.map(bin => `${bin.lat},${bin.lng}`),
+      ...orderedBins.map(bin => `${bin.lat},${bin.lng}`),
       `${tripStartEnd[0]},${tripStartEnd[1]}`
     ];
   
@@ -196,7 +208,7 @@ const RoutePlanning = () => {
           <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
           <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
           <Button className="bg-green-600 text-white">Assign Route</Button>
-          <Button className="bg-red-600 text-white" onClick={() => setSelectedBins([])}>Unassign All Bins</Button>
+          <Button className="bg-red-600 text-white">Unassign All Bins</Button>
         </section>
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
@@ -241,19 +253,19 @@ const RoutePlanning = () => {
             <DialogTitle>Google Maps Link</DialogTitle>
             <DialogDescription>
               <div className="flex items-center justify-between">
-              <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" className="break-all text-blue-500 underline">
-              {googleMapsLink}
-            </a>
-            <div className="tooltip">
-            <CopyToClipboard text={googleMapsLink} onCopy={handleCopy}>
-              <Button id="copyLink" className="bg-blue-600 text-white ml-2">
-                <Copy />
-              </Button>
-            </CopyToClipboard>
-            <span className="tooltiptext">Copy</span>
-          </div>
+                <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" className="break-all text-blue-500 underline">
+                  {googleMapsLink}
+                </a>
+                <div className="tooltip">
+                  <CopyToClipboard text={googleMapsLink} onCopy={handleCopy}>
+                    <Button id="copyLink" className="bg-blue-600 text-white ml-2">
+                      <Copy />
+                    </Button>
+                  </CopyToClipboard>
+                  <span className="tooltiptext">Copy</span>
+                </div>
               </div>
-            </DialogDescription>
+              </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
