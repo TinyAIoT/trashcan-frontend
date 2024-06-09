@@ -15,8 +15,8 @@ interface Trashbin {
 }
 
 const trashbinData: Trashbin[] = [
-  {id: 'laer-bin-0001', display: '<b>Rathaus</b>', lat: 52.05564102823898, lng: 7.360054548481379, fill: 10, fillLevelChange: -50, battery: 100},
-  {id: 'laer-bin-0002', display: '<b>Eisdiele</b>', lat: 52.054446369474086, lng: 7.357900783032656, fill: 20, fillLevelChange: -40,  battery: 95},
+  {id: 'laer-bin-0001', display: 'Rathaus', lat: 52.05564102823898, lng: 7.360054548481379, fill: 10, fillLevelChange: -50, battery: 100},
+  {id: 'laer-bin-0002', display: 'Eisdiele', lat: 52.054446369474086, lng: 7.357900783032656, fill: 20, fillLevelChange: -40,  battery: 95},
   {id: 'laer-bin-0003', display: 'Mock 1', lat: 52.05740200167625, lng: 7.358153181917018, fill: 30, fillLevelChange: -30,  battery: 90},
   {id: 'laer-bin-0004', display: 'Mock 2', lat: 52.05984470069173, lng: 7.354508167781202, fill: 40, fillLevelChange: -20,  battery: 85},
   {id: 'laer-bin-0005', display: 'Mock 3', lat: 52.05858758029923, lng: 7.348339576126552, fill: 50, fillLevelChange: -10,  battery: 80},
