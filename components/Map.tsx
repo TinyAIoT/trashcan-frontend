@@ -5,6 +5,8 @@ import { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { Trash2, BatteryFull, Signal } from "lucide-react";
+import { createRoot } from 'react-dom/client';
 
 interface Trashbin {
   lat: number;
@@ -30,7 +32,42 @@ const laerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 // TODO: Globally define thresholds and be able to set them in the Settings
-const thresholds = [30, 70];
+const binThresholds = [30, 70];
+const batteryThresholds = [50, 20];
+
+function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePlanning?: boolean }) {  return (
+    <div id={`popup-${trashbin.id}`}>
+      <div className="text-base font-semibold flex justify-center items-center">
+        {trashbin.display}
+      </div>
+      <hr />
+      <div className="flex flex-row items-center justify-between mt-1">
+        <div className="flex items-center mr-3">
+          <Trash2 size="16px" className={`mr-1 ${trashbin.fill < binThresholds[0] ? 'text-green-500' : trashbin.fill < binThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`} />
+          <span className={`${trashbin.fill < binThresholds[0] ? 'text-green-500' : trashbin.fill < binThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`}>{trashbin.fill}%</span>
+        </div>
+        {routePlanning === undefined && (
+          <div className="flex items-center mr-3">
+          <BatteryFull size="16px" className={`mr-1 ${trashbin.battery > batteryThresholds[0] ? 'text-green-500' : trashbin.battery > batteryThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`} />
+          <span className={`mr-1 ${trashbin.battery > batteryThresholds[0] ? 'text-green-500' : trashbin.battery > batteryThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`}>{trashbin.battery}%</span>
+        </div>
+        )}
+        {routePlanning === undefined && (
+        <div className="flex items-center">
+          <Signal size="16px" className="mr-1" />
+          <span>100%</span>
+        </div>
+        )}
+      </div>
+      {/* Do not render the image in route planning mode */}
+      {routePlanning === undefined && (
+        <div className="flex justify-center items-center h-full mt-1">
+          <img src="/temp/trashbin.png" alt="Trashbin image" className="max-h-[150px]" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
   const mapRef = useRef<null | L.Map>(null);
@@ -54,10 +91,21 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
           popupAnchor:  [0, -33/4], // point from which popup should open relative to iconAnchor
       }
     });
+    var BinIconSelected = L.Icon.extend({
+      options: {
+          iconSize:     [35, 35], // size of icon
+          popupAnchor:  [0, -35/4], // point from which popup should open relative to iconAnchor
+      }
+    });
     var greenBin = new BinIcon({iconUrl: '/images/leaflet/bin_g.png'}),
+        greenBinSelected = new BinIconSelected({iconUrl: '/images/leaflet/bin_g_b.png'}),
         yellowBin = new BinIcon({iconUrl: '/images/leaflet/bin_y.png'}),
+        yellowBinSelected = new BinIconSelected({iconUrl: '/images/leaflet/bin_y_b.png'}),
         redBin = new BinIcon({iconUrl: '/images/leaflet/bin_r.png'}),
-        blackBin = new BinIcon({iconUrl: '/images/leaflet/bin_b.png'});
+        redBinSelected = new BinIconSelected({iconUrl: '/images/leaflet/bin_r_b.png'});
+        // blueBin = new BinIcon({iconUrl: '/images/leaflet/bin_bl.png'}),
+        // blueBinSelected = new BinIconSelected({iconUrl: '/images/leaflet/bin_bl_b.png'}),
+        // blackBin = new BinIcon({iconUrl: '/images/leaflet/Trashbin_green_black.svg'}),
 
     if (!mapRef.current) {
       mapRef.current = window.L.map("map").setView(laerCoordinates, 16);
@@ -78,11 +126,19 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
     trashbinData.forEach(trashbin => {
       var marker = window.L.marker(
         [trashbin.lat, trashbin.lng],
-        // The bin appears black, if it is selected, otherwise it is colored according to the fill level
-        {icon: (selectedBins && selectedBins.some((bin) => bin.id === trashbin.id)) ? blackBin : trashbin.fill < thresholds[0] ? greenBin : trashbin.fill < thresholds[1] ? yellowBin : redBin}
       );
-      const popupContent = `<div id="popup-${trashbin.id}">${trashbin.display}<hr>Fill Level: ${trashbin.fill}%<br>Battery: ${trashbin.battery}%</div>`;
-      marker.bindPopup(popupContent);
+      // Set the color of the marker according to fill level and selection
+      if (selectedBins && selectedBins.some((bin) => bin.id === trashbin.id)) {
+        marker.setIcon(trashbin.fill < binThresholds[0] ? greenBinSelected : trashbin.fill < binThresholds[1] ? yellowBinSelected : redBinSelected);
+      } else {
+        marker.setIcon(trashbin.fill < binThresholds[0] ? greenBin : trashbin.fill < binThresholds[1] ? yellowBin : redBin);
+      }
+
+      const container = document.createElement('div');
+      const popupElement = <PopupContent trashbin={trashbin} routePlanning={isRoutePlanning}/>;
+      createRoot(container).render(popupElement);
+      marker.bindPopup(container);
+
       marker.on("mouseover", () => {marker.openPopup();});
       marker.on('popupopen', function(e) {
         var popup = e.popup;
