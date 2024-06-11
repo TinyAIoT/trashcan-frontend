@@ -25,19 +25,25 @@ export default function Component() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5001/api/v1/login', {
-        email,
-        password,
-      });
-  
-      if (response.status === 200) {  // Login was successful
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      if (response.status === 200) {
+        // Login was successful
         // Save the token in local storage for future requests
         setToken(response.data.token);
         // Redirect to the home page
         router.push("/");
       }
-    } catch (error: any) {  // Login failed
+    } catch (error: any) {
+      // Login failed
       // Show an error message for a few seconds
+      console.log(error.response.data.message);
       setErrorMessage(error.response.data.message);
       setTimeout(() => {
         setErrorMessage(null);

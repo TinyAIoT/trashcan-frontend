@@ -17,41 +17,58 @@ import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import PageTitle from "@/components/PageTitle";
 import React from "react";
-import axios from 'axios';
-import {useState, useEffect} from 'react';
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 type Props = {};
-type Payment = {
+type Trashbin = {
   id: string;
-  name: string;
-  fillLevel: number;
-  batteryLevel: number;
-  lastEmptied: Date;
+  identifier: string;
+  coordinates: [number, number];
+  location: string;
+  project: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-const columns: ColumnDef<Payment>[] = [
+const columns: ColumnDef<Trashbin>[] = [
   {
     accessorKey: "id",
     header: "ID",
+    cell: ({ row }) => (
+      <a
+        href={`/trashbins/${row.original.id}`}
+        className="text-blue-500 underline"
+      >
+        {row.original.id}
+      </a>
+    ),
   },
   {
-    accessorKey: "name",
-    header: "Name"
+    accessorKey: "identifier",
+    header: "Identifier",
   },
   {
-    accessorKey: "fillLevel",
-    header: "Fill Level",
+    accessorKey: "coordinates",
+    header: "Coordinates",
   },
   {
-    accessorKey: "batteryLevel",
-    header: "BatteryLevel",
+    accessorKey: "location",
+    header: "Location",
   },
   {
-    accessorKey: "lastEmptied",
-    header: "Last Emptied",
+    accessorKey: "project",
+    header: "Project",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Updated At",
   },
 ];
-
 
 export default function OrdersPage({}: Props) {
   const [data, setData] = useState([]);
@@ -59,24 +76,38 @@ export default function OrdersPage({}: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/trashbins/all');
-
-        const transformedData = response.data.map((item : any) => {
-          return {
-            ...item,
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/trashbin",
+          {
+            headers: {
+              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            },
           }
-        })
+        );
+
+        const transformedData = response.data.map((item: any) => {
+          return {
+            id: item._id,
+            identifier: item.identifier,
+            coordinates: item.coordinates,
+            location: item.location,
+            project: item.project,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          };
+        });
 
         setData(transformedData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
 
   return (
-    <div className="flex flex-col gap-5  w-full">
+    <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Trashbins" />
       <DataTable columns={columns} data={data} />
     </div>
