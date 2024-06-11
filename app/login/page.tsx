@@ -26,7 +26,7 @@ export default function Component() {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/auth/login",
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/auth/login`,
         {
           email,
           password,

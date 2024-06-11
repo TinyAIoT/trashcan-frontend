@@ -70,8 +70,11 @@ const TrashbinDetailPage = ({ params }: { params: { id: string } }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
+        console.log(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.id}`
+        );
         const response = await axios.get(
-          `http://localhost:${process.env.PORT}/api/v1/trashbin/${params.id}`,
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.id}`,
           {
             headers: {
               Authorization: `Bearer ${token.replace(/"/g, "")}`,

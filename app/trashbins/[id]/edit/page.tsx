@@ -26,7 +26,7 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
       try {
         const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          `http://localhost:${process.env.PORT}/api/v1/trashbin/${params.id}`,
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.id}`,
           {
             headers: {
               Authorization: `Bearer ${token.replace(/"/g, "")}`,
@@ -134,7 +134,10 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
             className="w-full border px-2 py-1"
           />
         </div>
-        <button type="submit" className="px-4 py-2 bg-blue-500 text-white">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-green-600 text-white rounded-md"
+        >
           Update
         </button>
       </form>

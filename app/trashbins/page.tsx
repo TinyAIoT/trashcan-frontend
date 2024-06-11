@@ -78,7 +78,7 @@ export default function OrdersPage({}: Props) {
       try {
         const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          "http://localhost:8000/api/v1/trashbin",
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin`,
           {
             headers: {
               Authorization: `Bearer ${token.replace(/"/g, "")}`,
