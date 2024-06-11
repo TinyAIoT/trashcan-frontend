@@ -12,6 +12,7 @@ import {
 import Card, { CardContent, CardProps } from "@/components/Card";
 import BarChart from "@/components/BarChart";
 import SalesCard, { SalesProps } from "@/components/SalesCard";
+import HeatMapChart from "@/components/HeatMap";
 
 const cardData: CardProps[] = [
   {
