@@ -1,12 +1,9 @@
 // components/HeatMapChart.tsx
 "use client";
-
-import React, { useEffect, useState } from "react";
-import { Chart, registerables } from "chart.js";
-import { Scatter } from "react-chartjs-2";
-import "chartjs-adapter-date-fns"; // Import the date-fns adapter
-
-Chart.register(...registerables);
+import React, { useEffect, useRef } from "react";
+import * as d3 from "d3";
+import { COLORS, THRESHOLDS } from "../contants";
+import d3Tip from "d3-tip";
 
 const data = [
   { timestamp: "2024-01-01T00:00:00Z", fillLevel: 20, trashcanId: 1 },
@@ -91,64 +88,124 @@ const data = [
   { timestamp: "2024-01-04T12:00:00Z", fillLevel: 50, trashcanId: 10 },
 ];
 
-const HeatMapChart = () => {
-  const chartData = {
-    datasets: [
-      {
-        label: "Trashcan Fill Levels Over Time",
-        data: data.map((item) => ({
-          x: new Date(item.timestamp).getTime(), // Convert timestamp to milliseconds
-          y: item.trashcanId,
-          r: item.fillLevel / 10, // Bubble radius proportional to fill level
-        })),
-        backgroundColor: (context) => {
-          const index = context.dataIndex;
-          const value = context.dataset.data[index].r * 10;
-          return `rgba(255, ${255 - value * 2.55}, ${255 - value * 2.55}, 0.8)`;
-        },
-        pointBackgroundColor: (context) => {
-          const index = context.dataIndex;
-          const value = context.dataset.data[index].r * 10;
-          return `rgba(255, ${255 - value * 2.55}, ${255 - value * 2.55}, 0.8)`;
-        },
-      },
-    ],
-  };
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 30 };
 
-  const options = {
-    scales: {
-      x: {
-        type: "time",
-        time: {
-          unit: "day", // Change to appropriate time unit (hour, day, month, etc.)
-        },
-        title: {
-          display: true,
-          text: "Time",
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: "Trashcan ID",
-        },
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const value = context.raw.r * 10;
-            return `Trashcan ID: ${context.raw.y}, Fill Level: ${value}%`;
-          },
-        },
-      },
-    },
-  };
+type HeatmapProps = {};
 
-  return <Scatter data={chartData} options={options} />;
+export const Heatmap = () => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const width = 800;
+  const height = 600;
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove(); // Clear any previous content
+
+    const boundsWidth = width - MARGIN.right - MARGIN.left;
+    const boundsHeight = height - MARGIN.top - MARGIN.bottom;
+
+    const allYGroups = [...new Set(data.map((d) => d.fillLevel))];
+    const allXGroups = [
+      ...new Set(data.map((d) => new Date(d.timestamp).toLocaleDateString())),
+    ];
+
+    const xScale = d3
+      .scaleBand()
+      .range([0, boundsWidth])
+      .domain(allXGroups)
+      .padding(0.01);
+    const yScale = d3
+      .scaleBand()
+      .range([boundsHeight, 0])
+      .domain(allYGroups)
+      .padding(0.01);
+
+    const aggregatedData = d3
+      .groups(
+        data,
+        (d) => new Date(d.timestamp).toLocaleDateString(),
+        (d) => d.fillLevel
+      )
+      .flatMap(([x, yGroup]) =>
+        yGroup.map(([y, values]) => ({
+          x,
+          y,
+          value: values.length,
+        }))
+      );
+
+    const [min, max] = d3.extent(aggregatedData.map((d) => d.value)) as [
+      number,
+      number
+    ];
+    const colorScale = d3
+      .scaleLinear<string>()
+      .domain(THRESHOLDS.map((t) => t * max))
+      .range(COLORS);
+
+    const tip = d3Tip()
+      .attr("class", "d3-tip")
+      .offset([-10, 0])
+      .html(
+        (event, d) => `<strong>Count:</strong> <span>${d.value}</span><br>
+                             <strong>Date:</strong> <span>${d.x}</span><br>
+                             <strong>Fill Level:</strong> <span>${d.y}%</span>`
+      );
+
+    svg.call(tip);
+
+    const bounds = svg
+      .append("g")
+      .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+
+    bounds
+      .selectAll("rect")
+      .data(aggregatedData)
+      .enter()
+      .append("rect")
+      .attr("x", (d) => xScale(d.x)!)
+      .attr("y", (d) => yScale(d.y)!)
+      .attr("width", xScale.bandwidth())
+      .attr("height", yScale.bandwidth())
+      .attr("fill", (d) => colorScale(d.value)!)
+      .attr("stroke", "white")
+      .on("mouseover", tip.show)
+      .on("mouseout", tip.hide);
+
+    bounds
+      .selectAll(".x-label")
+      .data(allXGroups)
+      .enter()
+      .append("text")
+      .attr("class", "x-label")
+      .attr("x", (d) => xScale(d)! + xScale.bandwidth() / 2)
+      .attr("y", boundsHeight + 10)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("font-size", 10)
+      .text((d) => d);
+
+    bounds
+      .selectAll(".y-label")
+      .data(allYGroups)
+      .enter()
+      .append("text")
+      .attr("class", "y-label")
+      .attr("x", -5)
+      .attr("y", (d) => yScale(d)! + yScale.bandwidth() / 2)
+      .attr("text-anchor", "end")
+      .attr("dominant-baseline", "middle")
+      .attr("font-size", 10)
+      .text((d) => d);
+  }, [data, height, width]);
+
+  return (
+    <div>
+      <svg ref={svgRef} width={width} height={height}></svg>
+    </div>
+  );
 };
-export default HeatMapChart;
+
+export default Heatmap;

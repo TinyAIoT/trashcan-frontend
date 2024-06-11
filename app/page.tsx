@@ -12,7 +12,7 @@ import {
 import Card, { CardContent, CardProps } from "@/components/Card";
 import BarChart from "@/components/BarChart";
 import SalesCard, { SalesProps } from "@/components/SalesCard";
-import HeatMapChart from "@/components/HeatMap";
+import Heatmap from "@/components/HeatMap";
 
 const cardData: CardProps[] = [
   {
@@ -90,6 +90,7 @@ export default function Home() {
             <SalesCard key={i} name={d.name} TrashbinID={d.TrashbinID} />
           ))}
         </CardContent>
+        <Heatmap />
       </section>
     </div>
   );
