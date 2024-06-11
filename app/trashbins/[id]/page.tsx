@@ -9,6 +9,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FillLevelChart from "@/components/FillLevelChart";
 import { CardContent } from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Trashbin = {
   id: string;
@@ -62,6 +64,7 @@ const columns: ColumnDef<Trashbin>[] = [
 
 const TrashbinDetailPage = ({ params }: { params: { id: string } }) => {
   const [data, setData] = useState<Trashbin | null>(null);
+  const editUrl = `/trashbins/${params.id}/edit`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,6 +106,12 @@ const TrashbinDetailPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex flex-col gap-5 w-full">
+      <div className="flex justify-between px-4 py-4">
+        <PageTitle title={`Trashbin ${data.identifier}`} />
+        <Button asChild className="bg-green-600 text-white">
+          <Link href={editUrl}>Edit Trashcan</Link>
+        </Button>
+      </div>
       <Tabs defaultValue="table" className="">
         <TabsList className="w-full">
           <TabsTrigger value="table" className="w-full">
@@ -113,7 +122,6 @@ const TrashbinDetailPage = ({ params }: { params: { id: string } }) => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="table">
-          <PageTitle title={`Trashbin ${data.identifier}`} />
           <DataTable columns={columns} data={[data]} />
         </TabsContent>
         <TabsContent value="visual">
