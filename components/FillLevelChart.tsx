@@ -20,9 +20,6 @@ for (let i = 1; i < fill_levels_prediction.length; i++) {
   fill_levels_prediction[i] = { timestamp: timestamps[i + 49], fill: Math.round(Math.min(100, prev + Math.random() * 2)) };
 }
 
-// Log the generated past data
-console.log(fill_levels_past);
-
 const FillLevelChart = () => {
   const mainChartRef = useRef();
   const yAxisRef = useRef();
@@ -112,13 +109,13 @@ const FillLevelChart = () => {
       .attr('height', y(thresholds[1]))
       .attr('fill', 'red')
       .attr('opacity', 0.15);
-    svg.append('rect')
-      .attr('x', x(0))
-      .attr('y', 0)
-      .attr('width', fullWidth - x(0))
-      .attr('height', height)
-      .attr('fill', 'white')
-      .attr('opacity', 0.3);
+    // svg.append('rect')
+    //   .attr('x', x(0))
+    //   .attr('y', 0)
+    //   .attr('width', fullWidth - x(0))
+    //   .attr('height', height)
+    //   .attr('fill', 'white')
+    //   .attr('opacity', 0.3);
 
     const color = d3.scaleThreshold(thresholds, ["green", "yellow", "red"]);
 
