@@ -5,20 +5,23 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 const thresholds = [30, 70];
 
-const hours = Array.from({ length: 97 }, (_, i) => i - 48);
+const timestamps = Array.from({ length: 97 }, (_, i) => new Date(Date.now() + (i - 48) * 3600000));
 
-var fill_levels_past = new Array(49).fill({ hour: -48, fill: 0 });
+var fill_levels_past = new Array(49).fill({ timestamp: timestamps[0], fill: 0 });
 for (let i = 1; i < fill_levels_past.length; i++) {
   const prev = fill_levels_past[i - 1].fill || 0;
-  fill_levels_past[i] = { hour: hours[i], fill: Math.round(Math.min(100, prev + Math.random() * 2)) };
+  fill_levels_past[i] = { timestamp: timestamps[i], fill: Math.round(Math.min(100, prev + Math.random() * 2)) };
 }
 
-var fill_levels_prediction = new Array(48).fill({ hour: 0, fill: 0 });
-fill_levels_prediction[0] = { hour: hours[49], fill: Math.round(Math.min(100, fill_levels_past[48].fill + Math.random() * 2)) };
+var fill_levels_prediction = new Array(48).fill({ timestamp: timestamps[49], fill: 0 });
+fill_levels_prediction[0] = { timestamp: timestamps[49], fill: Math.round(Math.min(100, fill_levels_past[48].fill + Math.random() * 2)) };
 for (let i = 1; i < fill_levels_prediction.length; i++) {
   const prev = fill_levels_prediction[i - 1].fill || 0;
-  fill_levels_prediction[i] = { hour: hours[i + 49], fill: Math.round(Math.min(100, prev + Math.random() * 2)) };
+  fill_levels_prediction[i] = { timestamp: timestamps[i + 49], fill: Math.round(Math.min(100, prev + Math.random() * 2)) };
 }
+
+// Log the generated past data
+console.log(fill_levels_past);
 
 const FillLevelChart = () => {
   const mainChartRef = useRef();
@@ -46,9 +49,9 @@ const FillLevelChart = () => {
   useEffect(() => {
     if (dimensions.width === 0 || dimensions.height === 0) return;
 
-    const margin = { top: 5, right: 5, bottom: 30, left: 40 };
+    const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = 10 * hours.length;
+    const fullWidth = 10 * timestamps.length;
 
     d3.select(mainChartRef.current).selectAll('*').remove();
 
@@ -58,27 +61,35 @@ const FillLevelChart = () => {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = d3.scaleLinear()
-      .domain([Math.min(...hours), Math.max(...hours)])
-      .range([0, fullWidth]);
+      const x = d3.scaleTime()
+      .domain([timestamps[0], timestamps[timestamps.length - 1]])
+      .range([0, fullWidth]);    
 
     const y = d3.scaleLinear()
       .domain([0, 100])
       .range([height, 0]);
 
     const pastLine = d3.line()
-      .x((_d, i) => x(hours[i]))
+      .x(d => x(d.timestamp))
       .y(d => y(d.fill));
 
     const predictionLine = d3.line()
-      .x((_d, i) => x(hours[i + 48]))
+      .x(d => x(d.timestamp))
       .y(d => y(d.fill));
 
     const xAxis = d3.axisBottom(x)
-      .tickValues(hours.filter(h => h % 2 === 0));
+      .ticks(d3.timeHour.every(2))
+      .tickFormat(d3.timeFormat('%Y-%m-%d %H:%M'));
+      
+
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
-      .call(xAxis);
+      .call(xAxis)
+      .selectAll('text')
+      .attr('transform', 'rotate(-90)')
+      .style('text-anchor', 'end')
+      .attr('dx', '-.8em')
+      .attr('dy', '-.55em');
 
     svg.append('rect')
       .attr('x', 0)
@@ -146,7 +157,7 @@ const FillLevelChart = () => {
       .attr('class', 'dot')
       .attr('stroke', 'black')
       .attr('fill', d => color(d.fill))
-      .attr('cx', d => x(d.hour))
+      .attr('cx', d => x(d.timestamp))
       .attr('cy', d => y(d.fill))
       .attr('r', 1.5);
 
@@ -156,19 +167,19 @@ const FillLevelChart = () => {
       .attr('class', 'dot')
       .attr('stroke', 'black')
       .attr('fill', d => color(d.fill))
-      .attr('cx', d => x(d.hour))
+      .attr('cx', d => x(d.timestamp))
       .attr('cy', d => y(d.fill))
       .attr('r', 2);
 
     const tipPast = d3Tip()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
-      .html((_event, d) => `${Math.abs(d.hour)} hours ago: <span style='color:red'>${d.fill}%</span>`);
+      .html((_event, d) => `${d.timestamp.toLocaleString()}: <span style='color:red'>${d.fill}%</span>`);
 
     const tipPrediction = d3Tip()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
-      .html((_event, d) => `In ${d.hour} hours: <span style='color:red'>${d.fill}%</span> <em>(Prediction)</em>`);
+      .html((_event, d) => `${d.timestamp.toLocaleString()}: <span style='color:red'>${d.fill}%</span> <em>(Prediction)</em>`);
 
     svg.call(tipPast);
     svg.call(tipPrediction);
@@ -177,7 +188,7 @@ const FillLevelChart = () => {
       .data(fill_levels_past)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
-      .attr('cx', d => x(d.hour))
+      .attr('cx', d => x(d.timestamp))
       .attr('cy', d => y(d.fill))
       .attr('r', 6)
       .style('opacity', 0)
@@ -188,7 +199,7 @@ const FillLevelChart = () => {
       .data(fill_levels_prediction)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
-      .attr('cx', d => x(d.hour))
+      .attr('cx', d => x(d.timestamp))
       .attr('cy', d => y(d.fill))
       .attr('r', 6)
       .style('opacity', 0)
@@ -217,12 +228,12 @@ const FillLevelChart = () => {
   }, [dimensions]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '400px' }}>
-      <svg ref={yAxisRef} style={{ position: 'absolute', left: 0, top: 0 }}></svg>
-      <div style={{ overflowX: 'scroll', height: '100%', marginLeft: '40px' }}>
-        <svg ref={mainChartRef} style={{ display: 'block', height: '100%' }}></svg>
-      </div>
+  <div className="relative w-full h-[400px]">
+    <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
+    <div className="overflow-x-scroll h-full ml-10">
+      <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
     </div>
+  </div>
   );
 };
 

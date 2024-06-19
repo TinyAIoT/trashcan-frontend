@@ -169,13 +169,19 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
   
     // Itinerary instructions are disabled via css
     if (showRoute && optimizedBins && optimizedBins.length > 0) {
-      const waypoints = [L.latLng(tripStartEnd[0], tripStartEnd[1]), ...optimizedBins.map(bin => L.latLng(bin.lat, bin.lng)), L.latLng(tripStartEnd[0], tripStartEnd[1])];
-  
+      // Allow U-turns on waypoints
+      var waypoints = [
+        L.Routing.waypoint(L.latLng(tripStartEnd[0], tripStartEnd[1]), null, { allowUTurn: true }),
+        ...optimizedBins.map(bin => L.Routing.waypoint(L.latLng(bin.lat, bin.lng), null, { allowUTurn: true })),
+        L.Routing.waypoint(L.latLng(tripStartEnd[0], tripStartEnd[1]), null, { allowUTurn: true }),
+      ];
+
       routingControlRef.current = L.Routing.control({
         waypoints: waypoints,
         routeWhileDragging: true,
         createMarker: function() { return null; },
         show: false,
+        allowUTurns: true,
         lineOptions : {
           addWaypoints: false
         }
