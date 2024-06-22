@@ -1,12 +1,10 @@
 /** @format */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav } from "@/components/ui/nav";
 import { Button } from "@/components/ui/button";
 import { useWindowWidth } from "@react-hook/window-size";
-
-type Props = {};
 
 import {
   ChevronRight,
@@ -19,39 +17,71 @@ import {
   TrashIcon,
   Settings,
   Settings2,
-  PanelsTopLeft,
 } from "lucide-react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
-const selectedProject = "Laer - Trash";
-const furtherProjects = [
-  "Emsdetten - Trash",
-  "Emsdetten - Noise",
-  "Muenster - Trash",
-]
-  
-
-export default function SideNavbar({}: Props) {
+export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [projectId, setProjectId] = useState(null);
+  const [projects, _setProjects] = useState(
+    [
+      { identifier: "laer-trash", type: "trash" },
+      { identifier: "emsdetten-trash", type: "trash" },
+      { identifier: "emsdetten-noise", type: "noise" },
+    ]
+  );
 
   const onlyWidth = useWindowWidth();
   const mobileWidth = onlyWidth < 768;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Extract the project ID from the URL
+      const path = window.location.pathname;
+      const parts = path.split('/');
+      const id = parts[2]; // URL is /projects/[id]/...
+      setProjectId(id);
+    }
+  }, []);
 
   function toggleSidebar() {
     setIsCollapsed(!isCollapsed);
   }
 
-  const navGroups = [
+  const noiseNavGroups = [
     {
       header: isCollapsed ? null : "Overview",  // Hide header when collapsed
+      links: [
+        {
+          title: "Noise Dashboard",
+          href: "/",
+          icon: LayoutDashboard,
+          variant: "default",
+        },
+      ],
+    },
+    {
+      header: isCollapsed ? null : "Settings",
+      links: [
+        {
+          title: "Project",
+          href: "/project-settings",
+          icon: Settings2,
+          variant: "ghost",
+        },
+        {
+          title: "Account",
+          href: "/settings",
+          icon: Settings,
+          variant: "ghost",
+        },
+      ],
+    },
+  ]
+
+  const trashNavGroups = [
+    {
+      header: isCollapsed ? null : "Overview",
       links: [
         {
           title: "Dashboard",
@@ -115,6 +145,14 @@ export default function SideNavbar({}: Props) {
     },
   ];
 
+  const currentProject = projects.find(project => project.identifier === projectId);
+  const navGroups = currentProject?.type === "trash" ? trashNavGroups : noiseNavGroups;
+
+  // const filteredNavGroups = navGroups.map(group => ({
+  //   ...group,
+  //   links: group.links.filter(link => currentProject?.subpages.includes(link.title))
+  // }));
+
   return (
     <div className="relative min-w-[80px] border-r px-3 pb-10 pt-24 d-flex flex-column justify-content-between">
       <div>
@@ -129,20 +167,6 @@ export default function SideNavbar({}: Props) {
             </Button>
           </div>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            { isCollapsed ? <PanelsTopLeft/> : selectedProject }
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Other Projects</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {
-              furtherProjects.map((project) => (
-              < DropdownMenuItem key={project}>{project}</DropdownMenuItem>
-              ))
-            }
-          </DropdownMenuContent>
-        </DropdownMenu>
         {navGroups.map((group, index) => (
           <div key={index}>
             <div className="text-center text-lg mt-4">{group.header}</div>

@@ -123,7 +123,7 @@
 
 
 /* Tooltip for showing information about what a button does */
-/* .tooltip {
+.tooltip {
   position: relative;
   display: inline-block;
 }
@@ -146,4 +146,4 @@
   visibility: visible;
   opacity: 1;
   transition-delay: 0.5s;
-} */
+}

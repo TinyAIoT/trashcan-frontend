@@ -1,3 +1,4 @@
+// layout.tsx
 "use client";
 
 import { Inter } from "next/font/google";
@@ -8,13 +9,6 @@ import { useEffect, useState } from "react";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 const inter = Inter({ subsets: ["latin"] });
-
-// TODO: Where to put metadata?
-// export const metadata: Metadata = {
-//   title: "TinyAIoT Dashboard",
-//   description: "Created by the project seminar \"TinyAIOT\" in summer term 2024.",
-// };
-
 
 export default function RootLayout({
   children,
@@ -34,11 +28,11 @@ export default function RootLayout({
     }
   }, [token]);
 
-  // Show the navigation bar on all pages except the login and signup pages
+  // The navigation bar is hidden on some subpages
   useEffect(() => {
     if (!isBrowser) return;
     
-    const noNavigationPaths = ["/login", "/signup"];
+    const noNavigationPaths = ["/login", "/signup", "/projects"];
 
     // TODO: This is hacky. Fix later.
     const checkPathname = () => {
@@ -52,6 +46,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <title>TinyAIoT Dashboard</title>
+      </head>
       <body
         className={cn(
           "min-h-screen w-full bg-white text-black flex ",
