@@ -59,10 +59,14 @@ export default function RootLayout({
         )}
       >
         {/* Only show the navigation bar on certain pages */}
-        {showNavigation ? <SideNavbar /> : <></>}
+        {showNavigation ? 
+          <div className="h-screen">
+            <SideNavbar />
+          </div> : <></>}
 
         {/* Main page */}
         <div className="p-8 w-full">{children}</div>
+
       </body>
     </html>
   );

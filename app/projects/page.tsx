@@ -20,7 +20,7 @@ export default function Projects() {
       <PageTitle title="Your Projects" />
       <section className="grid grid-cols-1 gap-4 transition-all lg:grid-cols-3">
         {projectData.map((project) => (
-          <Link href={`/projects/${project.identifier}/`} key={project.identifier}>
+          <Link href={`/projects/${project.identifier.replace(/-/g, "/")}`} key={project.identifier}>
               <CardContent>
                 <p>{project.name}</p>
               </CardContent>

@@ -17,8 +17,9 @@ import React, { useCallback, useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
+
 
 type Props = {};
 
@@ -49,8 +50,8 @@ export default function TrashbinsOverview({}: Props) {
   const router = useRouter();
 
   const handleClick = useCallback((trashbin: Trashbin) => {
-    console.log("Clicked on trashbin: ", trashbin);
-    router.push(`/trashbins/${trashbin.identifier}`);
+    router.push(`/projects/trashbins/${trashbin.identifier}`);
+    console.log(router.pathname);
   }, []);
 
   useEffect(() => {
