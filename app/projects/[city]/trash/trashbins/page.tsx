@@ -50,8 +50,11 @@ export default function TrashbinsOverview({}: Props) {
   const router = useRouter();
 
   const handleClick = useCallback((trashbin: Trashbin) => {
-    router.push(`/projects/trashbins/${trashbin.identifier}`);
-    console.log(router.pathname);
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    const city = parts[2];
+    const type = parts[3];
+    router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
   }, []);
 
   useEffect(() => {

@@ -13,7 +13,6 @@ import {
   MapIcon,
   Route,
   Trash2Icon,
-  TrashIcon,
   Settings,
   Settings2,
   CornerLeftUp,
@@ -49,7 +48,6 @@ export default function SideNavbar() {
 
   const dataLinks = [
     type === "trash" ? { title: "Trashbins", href: `/projects/${city}/${type}/trashbins`, icon: Trash2Icon, variant: "ghost" } : null,
-    type === "trash" ? { title: "Trashbins Detail", href: `/projects/${city}/${type}/trashbins-detail`, icon: TrashIcon, variant: "ghost" } : null,
   ].filter(link => link !== null)
   
   const settingsLinks = [

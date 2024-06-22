@@ -37,7 +37,6 @@ const columns: ColumnDef<Trashbin>[] = [
 
 export default function TrashbinDetail({ params }: { params: { identifier: string } }) {
   const [data, setData] = useState<Trashbin | null>(null);
-  const editUrl = `/trashbins/${params.identifier}/edit`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,12 +75,20 @@ export default function TrashbinDetail({ params }: { params: { identifier: strin
     return <div>Loading...</div>;
   }
 
+  function getEditUrl(): string {
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    const city = parts[2];
+    const type = parts[3];
+    return `/projects/${city}/${type}/trashbins/${params.identifier}/edit`;
+  }
+
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between px-4 py-4">
         <PageTitle title={`Trashbin ${data.identifier}`} />
         <Button asChild className="bg-green-600 text-white">
-          <Link href={editUrl}>Edit Trashcan</Link>
+          <Link href={getEditUrl()}>Edit Trashcan</Link>
         </Button>
       </div>
       <Tabs defaultValue="table" className="">
