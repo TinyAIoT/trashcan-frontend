@@ -2,8 +2,12 @@ import { useMemo } from "react";
 import * as d3 from "d3";
 import { InteractionData } from "./Heatmap";
 import { MARGIN } from "./constants";
-import styles from "./renderer.module.css";
-import { Dataset } from "./data";
+
+type Dataset = {
+  time: number; // Unix timestamp
+  percentage: number; // (10, 20, 30, ..., 90, 100)
+  amount: number;
+}[];
 
 type RendererProps = {
   width: number;
@@ -24,11 +28,14 @@ export const Renderer = ({
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
-  const allYGroups = useMemo(() => [...new Set(data.map((d) => d.y))], [data]);
-  const allXGroups = useMemo(
-    () => [...new Set(data.map((d) => String(d.x)))],
-    [data]
-  );
+  // const allYGroups = useMemo(() => [...new Set(data.map((d) => d.percentage?.toString()).filter(Boolean))], [data]);
+  const allYGroups = useMemo(() => {
+    // Convert percentages to numbers, sort them in descending order, and convert back to strings
+    return [...new Set(data.map(d => d.percentage))]
+      .sort((a, b) => b - a) // Sort in descending order
+      .map(String); // Convert back to strings if necessary
+  }, [data]);
+  const allXGroups = useMemo(() => [...new Set(data.map((d) => new Date(d.time).toDateString()).filter(Boolean))], [data]);
 
   const xScale = useMemo(() => {
     return d3
@@ -44,14 +51,14 @@ export const Renderer = ({
       .range([0, boundsHeight])
       .domain(allYGroups)
       .padding(0.1);
-  }, [data, height]);
+  }, [allYGroups, boundsHeight]);
 
   const allRects = data.map((d, i) => {
-    const xPos = xScale(String(d.x));
-    const yPos = yScale(d.y);
+    const xPos = xScale(new Date(d.time).toDateString());
+    const yPos = yScale(d.percentage?.toString());
 
-    if (d.value === null || !xPos || !yPos) {
-      return;
+    if (d.amount === null || !xPos || !yPos) {
+      return null;
     }
 
     return (
@@ -59,17 +66,17 @@ export const Renderer = ({
         key={i}
         x={xPos}
         y={yPos}
-        className={styles.rectangle}
+        className="rectangle"
         width={xScale.bandwidth()}
         height={yScale.bandwidth()}
-        fill={d.value ? colorScale(d.value) : "#F8F8F8"}
+        fill={colorScale(d.amount)}
         onMouseEnter={(e) => {
           setHoveredCell({
-            xLabel: String(d.x),
-            yLabel: d.y,
+            xLabel: new Date(d.time).toDateString(),
+            yLabel: d.percentage?.toString() || "",
             xPos: xPos + xScale.bandwidth() + MARGIN.left,
-            yPos: yPos + xScale.bandwidth() / 2 + MARGIN.top,
-            value: d.value ? Math.round(d.value * 100) / 100 : null,
+            yPos: yPos + yScale.bandwidth() / 2 + MARGIN.top,
+            value: Math.round(d.amount * 100) / 100,
           });
         }}
       />
@@ -77,7 +84,7 @@ export const Renderer = ({
   });
 
   const xLabels = allXGroups.map((name, i) => {
-    if (name && Number(name) % 10 === 0) {
+    if (name && new Date(name).getDate() % 7 === 0) { // Show every 7th date
       return (
         <text
           key={i}
@@ -93,24 +100,23 @@ export const Renderer = ({
         </text>
       );
     }
+    return null;
   });
 
   const yLabels = allYGroups.map((name, i) => {
     const yPos = yScale(name);
-    if (yPos && i % 2 === 0) {
-      return (
-        <text
-          key={i}
-          x={-5}
-          y={yPos + yScale.bandwidth() / 2}
-          textAnchor="end"
-          dominantBaseline="middle"
-          fontSize={10}
-        >
-          {name}
-        </text>
-      );
-    }
+    return (
+      <text
+        key={i}
+        x={-5}
+        y={yPos + yScale.bandwidth() / 2}
+        textAnchor="end"
+        dominantBaseline="middle"
+        fontSize={10}
+      >
+        {name - 10}-{name}
+      </text>
+    );
   });
 
   return (

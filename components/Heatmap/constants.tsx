@@ -1,21 +1,19 @@
-export const MARGIN = { top: 10, right: 10, bottom: 20, left: 35 };
-
+export const MARGIN = { top: 5, right: 5, bottom: 20, left: 45 };
 export const COLOR_LEGEND_HEIGHT = 60;
+export const CELL_SIZE = 20; // px
+export const CELL_GAP = 2; // px
 
+// Shades of blue
+// https://htmlcolorcodes.com/color-chart/ (5th column of Flat Design Color Chart) 
 export const COLORS = [
-  "#e7f0fa",
-  "#c9e2f6",
-  "#95cbee",
-  "#0099dc",
-  "#4ab04a",
-  "#ffd73e",
-  "#eec73a",
-  "#e29421",
-  "#e29421",
-  "#f05336",
-  "#ce472e",
+  "#e8eaf6",
+  "#c5cae9",
+  "#9fa8da",
+  "#5c6bc0",
+  "#3949ab",
+  "#1a237e",
 ];
 
 export const THRESHOLDS = [
-  0, 0.01, 0.02, 0.03, 0.09, 0.1, 0.15, 0.25, 0.4, 0.5, 1,
+  0, 1, 2, 4, 7, 10,
 ];

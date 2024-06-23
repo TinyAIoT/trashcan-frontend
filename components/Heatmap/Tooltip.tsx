@@ -1,5 +1,4 @@
 import { InteractionData } from "./Heatmap";
-import styles from "./tooltip.module.css";
 
 type TooltipProps = {
   interactionData: InteractionData | null;
@@ -26,18 +25,16 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
     >
       {/* The actual box with white background */}
       <div
-        className={styles.tooltip}
+        className="chart-tooltip"
         style={{
           position: "absolute",
           left: interactionData.xPos,
           top: interactionData.yPos,
         }}
       >
-        <span>{interactionData.yLabel}</span>
-        <br />
         <span>{interactionData.xLabel}</span>
-        <span>: </span>
-        <b>{interactionData.value}</b>
+        <br/>
+        <span>{interactionData.value} bins ({interactionData.yLabel - 10}-{interactionData.yLabel}%)</span>
       </div>
     </div>
   );

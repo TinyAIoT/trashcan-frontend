@@ -113,7 +113,7 @@ const NoiseChart = () => {
     var classificationResult = "Car"
 
     const tip = d3Tip()
-      .attr('class', 'd3-tip')
+      .attr('class', 'chart-tooltip')
       .offset([-10, 0])
       .html((event, d) => `${new Date(d.timestamp).toLocaleString()}: <span style='color:red'>${d.dB} dB</span>${d.dB > 80 ? ' Reason: ' + classificationResult : ''}`);
 

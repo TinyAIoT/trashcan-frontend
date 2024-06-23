@@ -169,12 +169,12 @@ const FillLevelChart = () => {
       .attr('r', 2);
 
     const tipPast = d3Tip()
-      .attr('class', 'd3-tip')
+      .attr('class', 'chart-tooltip')
       .offset([-10, 0])
       .html((_event, d) => `${d.timestamp.toLocaleString()}: <span style='color:red'>${d.fill}%</span>`);
 
     const tipPrediction = d3Tip()
-      .attr('class', 'd3-tip')
+      .attr('class', 'chart-tooltip')
       .offset([-10, 0])
       .html((_event, d) => `${d.timestamp.toLocaleString()}: <span style='color:red'>${d.fill}%</span> <em>(Prediction)</em>`);
 

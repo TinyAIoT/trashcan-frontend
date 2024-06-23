@@ -1,4 +1,3 @@
-import { InteractionData } from "./Heatmap";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
@@ -6,16 +5,14 @@ type ColorLegendProps = {
   height: number;
   width: number;
   colorScale: d3.ScaleLinear<string, string, never>;
-  interactionData: InteractionData | null;
 };
 
-const COLOR_LEGEND_MARGIN = { top: 0, right: 0, bottom: 50, left: 0 };
+const COLOR_LEGEND_MARGIN = { top: 0, right: 0, bottom: 40, left: 0 };
 
 export const ColorLegend = ({
   height,
   colorScale,
   width,
-  interactionData,
 }: ColorLegendProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -26,7 +23,7 @@ export const ColorLegend = ({
 
   const domain = colorScale.domain();
   const max = domain[domain.length - 1];
-  const xScale = d3.scaleLinear().range([0, boundsWidth]).domain([0, max]);
+  const xScale = d3.scaleLinear().range([0, boundsWidth]).domain([0, 10]);
 
   const allTicks = xScale.ticks(4).map((tick) => {
     return (
@@ -35,33 +32,20 @@ export const ColorLegend = ({
           x1={xScale(tick)}
           x2={xScale(tick)}
           y1={0}
-          y2={boundsHeight + 10}
+          y2={boundsHeight + 5}
           stroke="black"
         />
         <text
           x={xScale(tick)}
           y={boundsHeight + 20}
-          fontSize={9}
+          fontSize={12}
           textAnchor="middle"
         >
-          {tick / 1000 + "k"}
+          {tick === 10 ? "10+" : tick}
         </text>
       </>
     );
   });
-
-  const hoveredValue = interactionData?.value;
-  const x = hoveredValue ? xScale(hoveredValue) : null;
-  const triangleWidth = 9;
-  const triangleHeight = 6;
-  const triangle = x ? (
-    <polygon
-      points={`${x},0 ${x - triangleWidth / 2},${-triangleHeight} ${
-        x + triangleWidth / 2
-      },${-triangleHeight}`}
-      fill="grey"
-    />
-  ) : null;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -93,7 +77,6 @@ export const ColorLegend = ({
           style={{ position: "absolute", top: 0, left: 0, overflow: "visible" }}
         >
           {allTicks}
-          {triangle}
         </svg>
       </div>
     </div>
