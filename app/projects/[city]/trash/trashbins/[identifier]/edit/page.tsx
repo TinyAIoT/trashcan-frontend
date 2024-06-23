@@ -17,7 +17,7 @@ type Trashbin = {
   updatedAt: Date;
 };
 
-const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
+const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   const [data, setData] = useState<Trashbin | null>(null);
   const [formData, setFormData] = useState<Partial<Trashbin>>({});
 
@@ -26,7 +26,7 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
       try {
         const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.id}`,
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
               Authorization: `Bearer ${token.replace(/"/g, "")}`,
@@ -53,7 +53,7 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchData();
-  }, [params.id]);
+  }, [params.identifier]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,7 +66,7 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
       const token = localStorage.getItem("authToken");
       console.log(formData);
       await axios.patch(
-        `http://localhost:${process.env.PORT}/api/v1/trashbins/${params.id}`,
+        `http://localhost:${process.env.PORT}/api/v1/trashbins/${params.identifier}`,
         formData,
         {
           headers: {
@@ -75,7 +75,8 @@ const EditTrashbinPage = ({ params }: { params: { id: string } }) => {
         }
       );
       // Redirect to the details page
-      window.location.href = `/trashbins/${params.id}`;
+      // By removing the last part of the URL, we can redirect to the details page
+      window.location.href = window.location.href.replace(/\/edit$/, "");
     } catch (error) {
       console.error("Error updating data:", error);
     }

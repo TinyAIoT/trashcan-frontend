@@ -76,17 +76,6 @@
 }
 
 
-/* Styling for the charts */
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 10px;
-  pointer-events: all;
-}
-
 /* Do not show itinerary instructions when using leaflet routing */
 .leaflet-control-container .leaflet-routing-container-hide {
   display: none;
@@ -111,6 +100,28 @@
 }
 
 
+/* Styling for the charts */
+/* .d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 10px;
+  pointer-events: all;
+} */
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 10px;
+  pointer-events: all;
+}
+
+
 /* Tooltip for showing information about what a button does */
 .tooltip {
   position: relative;
@@ -129,7 +140,6 @@
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.5s;
-  /* animation-delay: 2s; */
 }
 
 .tooltip:hover .tooltiptext {

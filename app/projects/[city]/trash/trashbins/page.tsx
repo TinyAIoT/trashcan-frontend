@@ -13,14 +13,16 @@
 /** @format */
 "use client";
 
+import React, { useCallback, useState, useEffect } from "react";
+import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import PageTitle from "@/components/PageTitle";
-import React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { useState, useEffect } from "react";
+
 
 type Props = {};
+
 type Trashbin = {
   id: string;
   identifier: string;
@@ -32,46 +34,28 @@ type Trashbin = {
 };
 
 const columns: ColumnDef<Trashbin>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => (
-      <a
-        href={`/trashbins/${row.original.id}`}
-        className="text-blue-500 underline"
-      >
-        {row.original.id}
-      </a>
-    ),
-  },
-  {
-    accessorKey: "identifier",
-    header: "Identifier",
-  },
-  {
-    accessorKey: "coordinates",
-    header: "Coordinates",
-  },
-  {
-    accessorKey: "location",
-    header: "Location",
-  },
-  {
-    accessorKey: "project",
-    header: "Project",
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-  },
+  { accessorKey: "identifier", header: "Identifier" },
+  { accessorKey: "display", header: "Name" },
+  { accessorKey: "fill", header: "Fill Level" },
+  { accessorKey: "fillLevelChange", header: "Fill Level Change" },
+  { accessorKey: "coordinates", header: "Coordinates" },
+  { accessorKey: "location", header: "Location" },
+  { accessorKey: "createdAt", header: "Created At" },
+  { accessorKey: "updatedAt", header: "Updated At" },
 ];
 
-export default function OrdersPage({}: Props) {
-  const [data, setData] = useState([]);
+
+export default function TrashbinsOverview({}: Props) {
+  const [trashbinData, setTrashbinData] = useState([]);
+  const router = useRouter();
+
+  const handleClick = useCallback((trashbin: Trashbin) => {
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    const city = parts[2];
+    const type = parts[3];
+    router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +82,7 @@ export default function OrdersPage({}: Props) {
           };
         });
 
-        setData(transformedData);
+        setTrashbinData(transformedData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -109,7 +93,11 @@ export default function OrdersPage({}: Props) {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Trashbins" />
-      <DataTable columns={columns} data={data} />
+      <DataTable
+            columns={columns}
+            data={trashbinData}
+            onRowClick={handleClick}
+          />
     </div>
   );
 }
