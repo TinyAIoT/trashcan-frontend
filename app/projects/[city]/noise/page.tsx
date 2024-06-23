@@ -14,7 +14,7 @@ export default function NoiseDashboard() {
         <Info className="text-gray-500 ml-5 mr-2" />
         <p className="text-lg text-gray-500">The time interval can be changed in the settings</p>
       </div>
-      <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-1">
+      <section className="grid grid-cols-1  gap-4 transition-all">
         <CardContent>
           <p className="p-4 font-semibold">Noise Level (dB)</p>
           <NoiseChart />
