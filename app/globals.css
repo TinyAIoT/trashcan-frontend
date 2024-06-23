@@ -99,9 +99,8 @@
   }
 }
 
-
-/* Styling for the charts */
-/* .d3-tip {
+/* Tooltip shown when hovering over a chart */
+.chart-tooltip {
   line-height: 1;
   font-weight: bold;
   padding: 12px;
@@ -109,20 +108,15 @@
   color: #fff;
   border-radius: 10px;
   pointer-events: all;
-} */
-
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 10px;
-  pointer-events: all;
+  min-width: 50px;
 }
 
+/* Used in Heatmap graphics */
+.rectangle:hover {
+  fill: #3f51b5;
+}
 
-/* Tooltip for showing information about what a button does */
+/* Tooltip showing information about what a button does */
 .tooltip {
   position: relative;
   display: inline-block;

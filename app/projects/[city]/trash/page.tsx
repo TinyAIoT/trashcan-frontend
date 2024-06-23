@@ -1,8 +1,9 @@
 /** @format */
 
 import PageTitle from "@/components/PageTitle";
-import Card, { CardProps } from "@/components/Card";
-import Heatmap from "@/components/HeatMap";
+import Card, { CardContent, CardProps } from "@/components/Card";
+import { HeatmapFillLevel } from "@/components/Heatmap/HeatmapFillLevel";
+import { HeatmapBatteryLevel } from "@/components/Heatmap/HeatmapBatteryLevel";
 
 const cardData: CardProps[] = [
   {
@@ -32,9 +33,18 @@ export default function Home() {
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Dashboard" />
       <h2 className="text-2xl font-semibold">Distribution of fill level of all bins</h2>
-      <div className="w-full h-300">
-        <Heatmap />
-      </div>
+      <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
+        <CardContent>
+          <p className="p-4 font-semibold">Distribution of fill level of all bins</p>
+          {/* https://www.react-graph-gallery.com/heatmap */}
+          <HeatmapFillLevel />
+        </CardContent>
+        <CardContent>
+          <p className="p-4 font-semibold">Distribution of battery level of all bins</p>
+          {/* https://www.react-graph-gallery.com/heatmap */}
+          <HeatmapBatteryLevel />
+        </CardContent>
+      </section>
       <section className="grid w-full grid-cols-1 gap-4 gap-x-8 transition-all sm:grid-cols-2 xl:grid-cols-4">
         {cardData.map((d, i) => (
           <Card
