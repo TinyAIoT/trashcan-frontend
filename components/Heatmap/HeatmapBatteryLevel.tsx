@@ -37,7 +37,7 @@ function generateMockData(startTimestamp: number, endTimestamp: number): Entry[]
   return mockData;
 }
 
-const startTimestamp = new Date('2023-01-01').getTime();
+const startTimestamp = new Date('2024-01-01').getTime();
 const endTimestamp = new Date('2024-07-01').getTime();
 const data = generateMockData(startTimestamp, endTimestamp);
 

@@ -99,16 +99,15 @@ const NoiseChart = () => {
       .attr('stroke-width', 1.5)
       .attr('d', line);
 
-
     svg.selectAll('.dot')
-    .data(mockData)
-    .enter().append('circle')
-    .attr('class', 'dot')
-    .attr('stroke', 'black')
-    .attr('fill', d => d.dB >= 80 ? 'red' : 'black')
-    .attr('cx', d => x(new Date(d.timestamp)))
-    .attr('cy', d => y(d.dB))
-    .attr('r', 2);
+      .data(mockData)
+      .enter().append('circle')
+      .attr('class', 'dot')
+      .attr('stroke', 'black')
+      .attr('fill', d => d.dB >= 80 ? 'red' : 'black')
+      .attr('cx', d => x(new Date(d.timestamp)))
+      .attr('cy', d => y(d.dB))
+      .attr('r', 4);
 
     var classificationResult = "Car"
 

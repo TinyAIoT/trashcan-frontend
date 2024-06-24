@@ -35,6 +35,7 @@ export const Renderer = ({
       .sort((a, b) => b - a) // Sort in descending order
       .map(String); // Convert back to strings if necessary
   }, [data]);
+
   const allXGroups = useMemo(() => [...new Set(data.map((d) => new Date(d.time).toDateString()).filter(Boolean))], [data]);
 
   const xScale = useMemo(() => {
@@ -74,8 +75,8 @@ export const Renderer = ({
           setHoveredCell({
             xLabel: new Date(d.time).toDateString(),
             yLabel: d.percentage?.toString() || "",
-            xPos: xPos + xScale.bandwidth() + MARGIN.left,
-            yPos: yPos + yScale.bandwidth() / 2 + MARGIN.top,
+            xPos: xPos + xScale.bandwidth(),
+            yPos: yPos + yScale.bandwidth(),
             value: Math.round(d.amount * 100) / 100,
           });
         }}
@@ -103,27 +104,12 @@ export const Renderer = ({
     return null;
   });
 
-  const yLabels = allYGroups.map((name, i) => {
-    const yPos = yScale(name);
-    return (
-      <text
-        key={i}
-        x={-5}
-        y={yPos + yScale.bandwidth() / 2}
-        textAnchor="end"
-        dominantBaseline="middle"
-        fontSize={10}
-      >
-        {name - 10}-{name}
-      </text>
-    );
-  });
-
   return (
     <svg
       width={width}
       height={height}
       onMouseLeave={() => setHoveredCell(null)}
+      className="-ml-12"
     >
       <g
         width={boundsWidth}
@@ -132,7 +118,6 @@ export const Renderer = ({
       >
         {allRects}
         {xLabels}
-        {yLabels}
       </g>
     </svg>
   );
