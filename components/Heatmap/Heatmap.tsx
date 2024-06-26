@@ -40,9 +40,9 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
         y={yPos + yScale.bandwidth() / 2}
         textAnchor="end"
         dominantBaseline="middle"
-        fontSize={10}
+        fontSize={9}
       >
-        {name - 10}-{name}
+        {name - 10}-{name}%
       </text>
     );
   });
