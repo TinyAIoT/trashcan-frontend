@@ -69,6 +69,18 @@ function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePl
   );
 }
 
+function redirectToTrashbinDetail(trashbin: Trashbin) {
+  // Get the city from the url
+  var current_url = window.location.pathname;
+  console.log(current_url);
+  // Remove map from the url
+  var modified_url = current_url.replace("map", "");
+  // Append trashbins/trashbin_id to the url
+  var new_url = modified_url + "trashbins/" + trashbin.id;
+  // Redirect to the new url
+  window.location.href = new_url;
+}
+
 const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
   const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
@@ -145,18 +157,14 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
         window.L.DomEvent.on(popup._contentNode, 'click', function() {
           if (isRoutePlanning && onTrashbinClick) onTrashbinClick(trashbin);
           if (!isRoutePlanning) {
-            window.location.href = '/trashbins-detail/';
-            // TODO: Use correct route
-            // window.location.href = '/trashbins/' + trashbin.id;
+            redirectToTrashbinDetail(trashbin);
           }
         });
       });
       marker.on("click", () => {
         if (isRoutePlanning && onTrashbinClick) onTrashbinClick(trashbin);
         if (!isRoutePlanning) {
-          window.location.href = '/trashbins-detail/';
-          // TODO: Use correct route
-          // window.location.href = '/trashbins/' + trashbin.id;
+          redirectToTrashbinDetail(trashbin);
         }
       });
       markersRef.current.addLayer(marker);

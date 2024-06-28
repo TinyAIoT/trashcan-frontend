@@ -28,7 +28,7 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
         className="chart-tooltip"
         style={{
           position: "absolute",
-          left: interactionData.xPos,
+          left: interactionData.xPos - 170,
           top: interactionData.yPos,
         }}
       >

@@ -6,7 +6,7 @@ import { Tooltip } from "./Tooltip";
 import { COLOR_LEGEND_HEIGHT } from "./constants";
 import { ColorLegend } from "./ColorLegend";
 import * as d3 from "d3";
-import { COLORS, THRESHOLDS } from "./constants";
+import { COLORS, THRESHOLDS, MARGIN } from "./constants";
 
 type HeatmapProps = {
   data: {
@@ -24,6 +24,38 @@ export type InteractionData = {
   value: number | null;
 };
 
+const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
+  const yScale = d3
+    .scaleBand<string>()
+    .range([0, height - MARGIN.top - MARGIN.bottom])
+    .domain(yGroups)
+    .padding(0.1);
+
+  const yLabels = yGroups.map((name, i) => {
+    const yPos = yScale(name);
+    return (
+      <text
+        key={i}
+        x={-5}
+        y={yPos + yScale.bandwidth() / 2}
+        textAnchor="end"
+        dominantBaseline="middle"
+        fontSize={9}
+      >
+        {name - 10}-{name}%
+      </text>
+    );
+  });
+
+  return (
+    <svg width={MARGIN.left} height={height} className="absolute left-0 top-0">
+      <g transform={`translate(${MARGIN.left - 1},${MARGIN.top})`}>
+        {yLabels}
+      </g>
+    </svg>
+  );
+};
+
 export const Heatmap = ({ data }: HeatmapProps) => {
   const [hoveredCell, setHoveredCell] = useState<InteractionData | null>(null);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
@@ -31,6 +63,11 @@ export const Heatmap = ({ data }: HeatmapProps) => {
   const colorScale = d3.scaleLinear<string>()
       .domain(THRESHOLDS)
       .range(COLORS);
+
+  const allYGroups = [...new Set(data.map(d => d.percentage))]
+    .sort((a, b) => b - a)
+    .map(String);
+
 
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {
@@ -41,7 +78,8 @@ export const Heatmap = ({ data }: HeatmapProps) => {
 
   return (
     <div className="relative w-full h-[400px]">
-      <div className="overflow-x-scroll h-[340px]" ref={scrollableDivRef}>
+    <YAxis yGroups={allYGroups} height={340} />
+      <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
           <Renderer
             width={data.length * 2}

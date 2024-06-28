@@ -1,7 +1,5 @@
 export const MARGIN = { top: 5, right: 5, bottom: 20, left: 45 };
 export const COLOR_LEGEND_HEIGHT = 60;
-export const CELL_SIZE = 20; // px
-export const CELL_GAP = 2; // px
 
 // Shades of blue
 // https://htmlcolorcodes.com/color-chart/ (5th column of Flat Design Color Chart) 

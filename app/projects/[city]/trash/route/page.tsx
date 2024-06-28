@@ -100,11 +100,6 @@ const RoutePlanning = () => {
         for (let i = 0; i < waypointIndices.length; i++) {
           orderedBins[waypointIndices[i]] = selectedBins[i];
         }
-        
-        // Logging for debugging purposes
-        // console.log('Waypoint Indices:', waypointIndices);
-        // console.log('Selected Bins:', selectedBins);
-        // console.log('Ordered Bins:', orderedBins);
 
         // Returns the bins in the optimized order
         return orderedBins;
@@ -173,15 +168,21 @@ const RoutePlanning = () => {
   return (
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Route Planning" />
-      <h1 className="text-2xl font-bold">Trashbin Selection</h1>
+      {/* <h1 className="text-2xl font-bold">Trashbin Selection</h1> */}
       <p>Select the trashbins to be considered for a route by clicking on the trashbins on the map or table.</p>
+      <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
+        <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
+        <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
+        <Button className="bg-green-600 text-white">Assign Route</Button>
+        <Button className="bg-red-600 text-white">Unassign All Bins</Button>
+      </section>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full">
           <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          <div className="w-full h-[60vh] relative z-0">
+          <div className="w-full h-[80vh] relative z-0">
             <Map 
               trashbinData={trashbinData}
               isRoutePlanning={true}
@@ -193,7 +194,7 @@ const RoutePlanning = () => {
           </div>
         </TabsContent>
         <TabsContent value="table">
-          <div className="w-full h-[60vh] overflow-auto">
+          <div className="w-full h-[80vh] overflow-auto">
           <DataTable
             columns={columns}
             data={trashbinData}
@@ -203,13 +204,8 @@ const RoutePlanning = () => {
           </div>
         </TabsContent>
       </Tabs>
-      <div className="flex-col">
-        <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4 mb-4">
-          <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
-          <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
-          <Button className="bg-green-600 text-white">Assign Route</Button>
-          <Button className="bg-red-600 text-white">Unassign All Bins</Button>
-        </section>
+      {/* Commented out, as Options are not supported yet */}
+      {/* <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
             <p>Driver: </p>
@@ -246,7 +242,7 @@ const RoutePlanning = () => {
             </SelectContent>
             </Select>
         </div>
-      </div>
+      </div> */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="z-50">
           <DialogHeader>
