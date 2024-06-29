@@ -2,12 +2,18 @@
 
 "use client";
 
+import * as React from "react";
+
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
+  ColumnFiltersState,
+  SortingState,
+  getFilteredRowModel,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -18,7 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Button } from "./ui/button";
+import { Input } from "@/components/ui/input";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,16 +41,39 @@ export function DataTable<TData, TValue>({
   onRowClick,
   selectedRows,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
   });
 
   return (
-    
     <div>
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter Identifier..."
+          value={
+            (table.getColumn("identifier")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("identifier")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -69,8 +100,14 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  onClick={() => onRowClick ? onRowClick(row.original) : undefined}
-                  className={selectedRows && selectedRows.includes(row.original) ? "bg-gray-200": undefined}
+                  onClick={() =>
+                    onRowClick ? onRowClick(row.original) : undefined
+                  }
+                  className={
+                    selectedRows && selectedRows.includes(row.original)
+                      ? "bg-gray-200"
+                      : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
