@@ -137,7 +137,7 @@ export default function TrashbinDetail({
         <TabsContent value="table">
           <DataTable columns={columns} data={[data]} />
           <div className="flex gap-3 items-center">
-            <p className="inline">Location: {data.name}</p>
+            <p className="inline">Location: {data.location}</p>
             <Button className="bg-green-600 text-white">
               <Link href="https://www.google.com/maps" target="_blank">
                 See on Google Maps
