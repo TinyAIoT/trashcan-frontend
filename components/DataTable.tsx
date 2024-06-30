@@ -73,6 +73,8 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <Info className="text-gray-500 ml-5 mr-2" />
+        <p className="text-lg text-gray-500">Sort by clicking on header</p>
       </div>
       <div className="rounded-md border">
         <Table>

@@ -18,7 +18,7 @@ import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef, useReactTable } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Info, MoreHorizontal } from "lucide-react";
 import axios from "axios";
 import {
   ColumnFiltersState,
@@ -33,6 +33,7 @@ type Props = {};
 type Trashbin = {
   id: string;
   identifier: string;
+  name: string;
   location: string;
   project: string;
   createdAt: Date;
@@ -43,56 +44,78 @@ type Trashbin = {
   assigned: boolean;
 };
 
+const headerSortButton = (column: any, displayname: string) => {
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      {displayname}
+    </Button>
+  );
+};
+
 const columns: ColumnDef<Trashbin>[] = [
   {
     accessorKey: "identifier",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Identifier
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return headerSortButton(column, "Identifier");
     },
   },
-  { accessorKey: "display", header: "Name" },
+  {
+    accessorKey: "name",
+    header: ({ column }) => {
+      return headerSortButton(column, "Name");
+    },
+  },
   {
     accessorKey: "fill",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Fill Level
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return headerSortButton(column, "Fill Level");
     },
   },
-  { accessorKey: "fillLevelChange", header: "Fill Level Change" },
-  { accessorKey: "location", header: "Location" },
-  { accessorKey: "createdAt", header: "Created At" },
-  { accessorKey: "updatedAt", header: "Updated At" },
-  { accessorKey: "lastEmptied", header: "Last Emptied" },
+  {
+    accessorKey: "fillLevelChange",
+    header: ({ column }) => {
+      return headerSortButton(column, "Fill Level Change");
+    },
+  },
+  {
+    accessorKey: "location",
+    header: ({ column }) => {
+      return headerSortButton(column, "Location");
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return headerSortButton(column, "Created At");
+    },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => {
+      return headerSortButton(column, "Updated At");
+    },
+  },
+  {
+    accessorKey: "lastEmptied",
+    header: ({ column }) => {
+      return headerSortButton(column, "Last Emptied");
+    },
+  },
   {
     accessorKey: "batteryLevel",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Battery Level
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+      return headerSortButton(column, "Battery Levels");
     },
   },
-  { accessorKey: "signalStrength", header: "Signal Strength" },
+  {
+    accessorKey: "signalStrength",
+    header: ({ column }) => {
+      return headerSortButton(column, "Signal Strength");
+    },
+  },
   { accessorKey: "assigned", header: "Assigned" },
 ];
 
@@ -129,6 +152,7 @@ export default function TrashbinsOverview({}: Props) {
           return {
             id: item._id,
             identifier: item.identifier,
+            name: item.name,
             coordinates: item.coordinates,
             location: item.location,
             project: item.project,
