@@ -28,8 +28,7 @@ import {
 
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
-import { Info, ArrowUpDown } from "lucide-react";
-import { mkConfig, generateCsv, download } from "export-to-csv";
+import { Info, ArrowUpDown, MoveUp, MoveDown } from "lucide-react";
 
 interface TrashBinData {
   id: string;
@@ -38,8 +37,8 @@ interface TrashBinData {
   coordinates: [number | null, number | null];
   location: string;
   project: string;
-  createdAt: string;
-  updatedAt: string;
+  // createdAt: string;
+  // updatedAt: string;
   fillLevel: number;
   batteryLevel: number;
   fillLevelChange: number;
@@ -48,18 +47,20 @@ interface TrashBinData {
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
+  showSearchBar: boolean;
+  showExportButton: boolean;
   data: TData[];
-  showHeader: boolean;
   onRowClick?: (row: TData) => void;
   selectedRows?: TData[];
 }
 
 export function DataTable<TData extends TrashBinData, TValue>({
   columns,
+  showSearchBar = true,
+  showExportButton = true,
   data,
   onRowClick,
   selectedRows,
-  showHeader = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -103,8 +104,8 @@ export function DataTable<TData extends TrashBinData, TValue>({
       "batteryLevel",
       "fillLevelChange",
       "signalStrength",
-      "createdAt",
-      "updatedAt",
+      // "createdAt",
+      // "updatedAt",
     ];
 
     // Generate CSV content
@@ -131,15 +132,15 @@ export function DataTable<TData extends TrashBinData, TValue>({
 
   return (
     <div>
-      {showHeader ? (
-        <div className="flex items-center py-4">
+      {showSearchBar && (
+        <div className="flex items-center py-4 px-1">
           <Input
             placeholder="Search..."
             value={table.getState().globalFilter}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
-          <Info className="text-gray-500 ml-10 mr-2" />
+          <Info className="text-gray-500 ml-4 mr-2" />
           <p className="text-lg text-gray-500">
             Search by name, location, or identifier
           </p>
@@ -147,17 +148,17 @@ export function DataTable<TData extends TrashBinData, TValue>({
           <p className="text-lg text-gray-500">
             Sort by clicking on the column headers
           </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto"
-            onClick={() => makeCSV()}
-          >
-            Export to CSV
-          </Button>
+          { showExportButton && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-auto"
+              onClick={() => makeCSV()}
+            >
+              Export to CSV
+            </Button>
+          )}
         </div>
-      ) : (
-        <></>
       )}
 
       <div className="rounded-md border">
@@ -167,23 +168,33 @@ export function DataTable<TData extends TrashBinData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className={
-                      header.column.getIsSorted()
-                        ? header.column.getIsSorted() === "asc"
-                          ? "sort-asc"
-                          : "sort-desc"
-                        : ""
-                    }
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                  className={
+                    header.column.getIsSorted()
+                      ? header.column.getIsSorted() === "asc"
+                        ? "sort-asc"
+                        : "sort-desc"
+                      : ""
+                  }
+                >
+                  {header.isPlaceholder ? null : (
+                    <div className="flex items-center">
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {header.column.getIsSorted() && (
+                        header.column.getIsSorted() === "asc" ? (
+                          <MoveUp className="ml-1 h-[18px]" />
+                        ) : (
+                          <MoveDown className="ml-1 h-[18px]" />
+                        )
+                      )}
+                    </div>
+                  )}
+                </TableHead>
+                
                 ))}
               </TableRow>
             ))}

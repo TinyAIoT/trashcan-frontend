@@ -63,22 +63,13 @@ const MapPage = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "90vh",
-        padding: "2px",
-      }}
-    >
-      <div className="flex flex-col h-screen p-1">
-        <div className="flex justify-between items-center">
-          <PageTitle title="Map" />
-        </div>
-        { centerCoordinates && initialZoom && (
-          <Map trashbinData={trashbinData} centerCoordinates={centerCoordinates} initialZoom={initialZoom} />
-        )}
+    <div className="flex flex-col h-[90vh]">
+      <div className="pb-2">
+        <PageTitle title="Map" />
       </div>
+      { centerCoordinates && initialZoom && (
+        <Map trashbinData={trashbinData} centerCoordinates={centerCoordinates} initialZoom={initialZoom} />
+      )}
     </div>
   );
 };

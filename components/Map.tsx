@@ -8,9 +8,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Trash2, BatteryFull, Signal } from "lucide-react";
 import { createRoot } from 'react-dom/client';
 
-// Import image from public folder
-import binImage from '../../../../public/images/leaflet/bin_bl.png';
-
 interface Trashbin {
   identifier: string;
   name: string;

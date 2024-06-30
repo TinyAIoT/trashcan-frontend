@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -233,7 +233,7 @@ const RoutePlanning = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5  w-full">
+    <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Route Planning" />
       {/* <h1 className="text-2xl font-bold">Trashbin Selection</h1> */}
       <div className="flex items-center justify-start">
@@ -271,6 +271,7 @@ const RoutePlanning = () => {
           <div className="w-full h-[80vh] overflow-auto">
           <DataTable
             columns={columns}
+            showExportButton={false}
             data={trashbinData}
             onRowClick={handleTrashbinClick}
             selectedRows={selectedBins}
