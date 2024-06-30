@@ -17,6 +17,7 @@ type Props = {};
 type Trashbin = {
   id: string;
   identifier: string;
+  name: string;
   coordinates: [number, number];
   location: string;
   project: string;
@@ -27,15 +28,35 @@ type Trashbin = {
 
 const columns: ColumnDef<Trashbin>[] = [
   { accessorKey: "identifier", header: "Identifier" },
-  { accessorKey: "coordinates", header: "Coordinates", cell: ({ row }) => row.original.coordinates.join(", ") },
+  {
+    accessorKey: "coordinates",
+    header: "Coordinates",
+    cell: ({ row }) => row.original.coordinates.join(", "),
+  },
   { accessorKey: "location", header: "Location" },
   { accessorKey: "project", header: "Project" },
-  { accessorKey: "sensors", header: "Sensors", cell: ({ row }) => JSON.stringify(row.original.sensors) },
-  { accessorKey: "createdAt", header: "Created At", cell: ({ row }) => new Date(row.original.createdAt).toLocaleString() },
-  { accessorKey: "updatedAt", header: "Updated At", cell: ({ row }) => new Date(row.original.updatedAt).toLocaleString() },
+  {
+    accessorKey: "sensors",
+    header: "Sensors",
+    cell: ({ row }) => JSON.stringify(row.original.sensors),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Updated At",
+    cell: ({ row }) => new Date(row.original.updatedAt).toLocaleString(),
+  },
 ];
 
-export default function TrashbinDetail({ params }: { params: { identifier: string } }) {
+export default function TrashbinDetail({
+  params,
+}: {
+  params: { identifier: string };
+}) {
   const [data, setData] = useState<Trashbin | null>(null);
 
   useEffect(() => {
@@ -54,6 +75,7 @@ export default function TrashbinDetail({ params }: { params: { identifier: strin
         const trashbin = {
           id: response.data._id,
           identifier: response.data.identifier,
+          name: response.data.name,
           coordinates: response.data.coordinates,
           location: response.data.location,
           project: response.data.project,
@@ -77,7 +99,7 @@ export default function TrashbinDetail({ params }: { params: { identifier: strin
 
   function getEditUrl(): string {
     const path = window.location.pathname;
-    const parts = path.split('/');
+    const parts = path.split("/");
     const city = parts[2];
     const type = parts[3];
     return `/projects/${city}/${type}/trashbins/${params.identifier}/edit`;
@@ -91,18 +113,15 @@ export default function TrashbinDetail({ params }: { params: { identifier: strin
           <Link href={getEditUrl()}>Edit Trashcan</Link>
         </Button>
       </div>
-      <Tabs defaultValue="table" className="">
+      <Tabs defaultValue="visual" className="">
         <TabsList className="w-full">
-          <TabsTrigger value="table" className="w-full">
-            Table View
-          </TabsTrigger>
           <TabsTrigger value="visual" className="w-full">
             Graphical View
           </TabsTrigger>
+          <TabsTrigger value="table" className="w-full">
+            Table View
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="table">
-          <DataTable columns={columns} data={[data]} />
-        </TabsContent>
         <TabsContent value="visual">
           <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
             <CardContent>
@@ -114,6 +133,17 @@ export default function TrashbinDetail({ params }: { params: { identifier: strin
               <FillLevelChart />
             </CardContent>
           </section>
+        </TabsContent>
+        <TabsContent value="table">
+          <DataTable columns={columns} data={[data]} />
+          <div className="flex gap-3 items-center">
+            <p className="inline">Location: {data.location}</p>
+            <Button className="bg-green-600 text-white">
+              <Link href="https://www.google.com/maps" target="_blank">
+                See on Google Maps
+              </Link>
+            </Button>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -2,12 +2,19 @@
 
 "use client";
 
+import * as React from "react";
+
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
+  ColumnFiltersState,
+  SortingState,
+  getFilteredRowModel,
+  getSortedRowModel,
+  FilterFn,
 } from "@tanstack/react-table";
 
 import {
@@ -18,7 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Button } from "./ui/button";
+import { Input } from "@/components/ui/input";
+import { Info } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,44 +43,83 @@ export function DataTable<TData, TValue>({
   onRowClick,
   selectedRows,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+
+  const fuzzyFilter: FilterFn<TData> = (row, columnId, value) => {
+    const cellValue = row[columnId as keyof TData];
+    return String(cellValue).toLowerCase().includes(value.toLowerCase());
+  };
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+    filterFns: {
+      fuzzyName: fuzzyFilter,
+      fuzzyLocation: fuzzyFilter,
+      fuzzyIdentifier: fuzzyFilter,
+    },
+    debugTable: true, // Optional: Enable debugging to see console logs
   });
 
   return (
-    
     <div>
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Search..."
+          value={table.getState().globalFilter}
+          onChange={(event) => table.setGlobalFilter(event.target.value)}
+          className="max-w-sm"
+        />
+        <Info className="text-gray-500 ml-5 mr-2" />
+        <p className="text-lg text-gray-500">
+          Search by name, location, or identifier
+        </p>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {table.getFilteredRowModel().rows.length ? (
+              table.getFilteredRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  onClick={() => onRowClick ? onRowClick(row.original) : undefined}
-                  className={selectedRows && selectedRows.includes(row.original) ? "bg-gray-200": undefined}
+                  onClick={() =>
+                    onRowClick ? onRowClick(row.original) : undefined
+                  }
+                  className={
+                    selectedRows && selectedRows.includes(row.original)
+                      ? "bg-gray-200"
+                      : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

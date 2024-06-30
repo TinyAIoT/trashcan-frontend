@@ -5,10 +5,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 type Trashbin = {
   id: string;
   identifier: string;
+  name: string;
   coordinates: [number, number];
   location: string;
   project: string;
@@ -38,6 +41,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           id: response.data._id,
           identifier: response.data.identifier,
           coordinates: response.data.coordinates,
+          name: response.data.name,
           location: response.data.location,
           project: response.data.project,
           sensors: response.data.sensors,
@@ -55,6 +59,10 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     fetchData();
   }, [params.identifier]);
 
+  const goBack = () => {
+    window.history.back();
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -65,8 +73,9 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     try {
       const token = localStorage.getItem("authToken");
       console.log(formData);
+
       await axios.patch(
-        `http://localhost:${process.env.PORT}/api/v1/trashbins/${params.identifier}`,
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${data.id}`,
         formData,
         {
           headers: {
@@ -76,7 +85,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
       );
       // Redirect to the details page
       // By removing the last part of the URL, we can redirect to the details page
-      window.location.href = window.location.href.replace(/\/edit$/, "");
+      goBack();
     } catch (error) {
       console.error("Error updating data:", error);
     }
@@ -100,6 +109,17 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             className="w-full border px-2 py-1"
           />
         </div>
+        <div>
+          <label className="block">Name</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name || ""}
+            onChange={handleChange}
+            className="w-full border px-2 py-1"
+          />
+        </div>
+
         <div>
           <label className="block">Coordinates</label>
           <input
@@ -125,22 +145,20 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             className="w-full border px-2 py-1"
           />
         </div>
-        <div>
-          <label className="block">Project</label>
-          <input
-            type="text"
-            name="project"
-            value={formData.project || ""}
-            onChange={handleChange}
-            className="w-full border px-2 py-1"
-          />
+        <div className="flex gap-4">
+          <Button
+            type="submit"
+            className="px-4 py-2 bg-green-600 text-white rounded-md"
+          >
+            Update
+          </Button>
+          <Button
+            className="px-4 py-2 bg-red-600 text-white rounded-md"
+            onClick={goBack}
+          >
+            <Link href="">Abort</Link>
+          </Button>
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded-md"
-        >
-          Update
-        </button>
       </form>
     </div>
   );
