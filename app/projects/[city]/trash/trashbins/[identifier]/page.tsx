@@ -105,6 +105,8 @@ export default function TrashbinDetail({
     return `/projects/${city}/${type}/trashbins/${params.identifier}/edit`;
   }
 
+  const googleMapurl = `https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]}`;
+
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between px-4 py-4">
@@ -139,7 +141,10 @@ export default function TrashbinDetail({
           <div className="flex gap-3 items-center">
             <p className="inline">Location: {data.location}</p>
             <Button className="bg-green-600 text-white">
-              <Link href="https://www.google.com/maps" target="_blank">
+              <Link
+                href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},14z?entry=ttu`}
+                target="_blank"
+              >
                 See on Google Maps
               </Link>
             </Button>
