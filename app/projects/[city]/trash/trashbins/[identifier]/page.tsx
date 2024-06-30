@@ -133,20 +133,37 @@ export default function TrashbinDetail({
               <FillLevelChart />
             </CardContent>
           </section>
+          <section className="mt-5 mr-4 gap-3">
+            <p>Location: {data.location}</p>
+            <p>Newest Data Point: 25 June 2024</p>
+            <p>
+              Signal Strength: <span className="text-green-500">Strong</span>
+            </p>
+            <p>Trashcan Type: Normal</p>
+          </section>
         </TabsContent>
         <TabsContent value="table">
           <DataTable columns={columns} data={fill_levels_past} />
-          <div className="flex gap-3 items-center">
-            <p className="inline">Location: {data.location}</p>
-            <Button className="bg-green-600 text-white">
-              <Link
-                href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},14z?entry=ttu`}
-                target="_blank"
-              >
-                See on Google Maps
-              </Link>
-            </Button>
-          </div>
+
+          <section className="mt-5 mr-4 gap-3">
+            <div className="flex gap-3 items-center">
+              <p className="inline">Location: {data.location}</p>
+              <Button className="bg-green-600 text-white">
+                <Link
+                  href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},14z?entry=ttu`}
+                  target="_blank"
+                >
+                  See on Google Maps
+                </Link>
+              </Button>
+            </div>
+
+            <p>Newest Data Point: 25 June 2024</p>
+            <p>
+              Signal Strength: <span className="text-green-500">Strong</span>
+            </p>
+            <p>Trashcan Type: Normal</p>
+          </section>
         </TabsContent>
       </Tabs>
     </div>
