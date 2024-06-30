@@ -27,11 +27,38 @@ interface Trashbin {
   signalStrength: number;
 }
 
+const headerSortButton = (column: any, displayname: string) => {
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      {displayname}
+    </Button>
+  );
+};
+
 const columns: ColumnDef<Trashbin>[] = [
-    { accessorKey: "identifier", header: "Identifier" },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "fillLevel", header: "Fill Level" },
-    { accessorKey: "fillLevelChange", header: "Fill Level Change" },
+    { accessorKey: "identifier", 
+      header: ({ column }) => {
+        return headerSortButton(column, "Identifier");
+      },
+    },
+    { accessorKey: "name", 
+      header: ({ column }) => {
+        return headerSortButton(column, "Name");
+      },
+    },
+    { accessorKey: "fillLevel",
+      header: ({ column }) => {
+        return headerSortButton(column, "Fill Level");
+      },
+    },
+    { accessorKey: "fillLevelChange",
+      header: ({ column }) => {
+        return headerSortButton(column, "Fill Level Change");
+      },
+    },
 ];
 
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];

@@ -116,7 +116,11 @@ const columns: ColumnDef<Trashbin>[] = [
       return headerSortButton(column, "Signal Strength");
     },
   },
-  { accessorKey: "assigned", header: "Assigned" },
+  { accessorKey: "assigned", 
+    header: ({ column }) => {
+      return headerSortButton(column, "Assigned");
+    },
+  },
 ];
 
 export default function TrashbinsOverview({}: Props) {
