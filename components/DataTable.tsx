@@ -49,6 +49,7 @@ interface TrashBinData {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  showHeader: boolean;
   onRowClick?: (row: TData) => void;
   selectedRows?: TData[];
 }
@@ -58,6 +59,7 @@ export function DataTable<TData extends TrashBinData, TValue>({
   data,
   onRowClick,
   selectedRows,
+  showHeader = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -129,30 +131,35 @@ export function DataTable<TData extends TrashBinData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Search..."
-          value={table.getState().globalFilter}
-          onChange={(event) => table.setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <Info className="text-gray-500 ml-10 mr-2" />
-        <p className="text-lg text-gray-500">
-          Search by name, location, or identifier
-        </p>
-        <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
-        <p className="text-lg text-gray-500">
-          Sort by clicking on the column headers
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto"
-          onClick={() => makeCSV()}
-        >
-          Export to CSV
-        </Button>
-      </div>
+      {showHeader ? (
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Search..."
+            value={table.getState().globalFilter}
+            onChange={(event) => table.setGlobalFilter(event.target.value)}
+            className="max-w-sm"
+          />
+          <Info className="text-gray-500 ml-10 mr-2" />
+          <p className="text-lg text-gray-500">
+            Search by name, location, or identifier
+          </p>
+          <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
+          <p className="text-lg text-gray-500">
+            Sort by clicking on the column headers
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            onClick={() => makeCSV()}
+          >
+            Export to CSV
+          </Button>
+        </div>
+      ) : (
+        <></>
+      )}
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
