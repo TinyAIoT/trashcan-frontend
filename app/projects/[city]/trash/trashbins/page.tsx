@@ -18,7 +18,6 @@ import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef, useReactTable } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowUpDown, Info, MoreHorizontal } from "lucide-react";
 import axios from "axios";
 import {
   ColumnFiltersState,
@@ -27,6 +26,7 @@ import {
 } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sign } from "crypto";
 
 type Props = {};
 
@@ -69,7 +69,7 @@ const columns: ColumnDef<Trashbin>[] = [
     },
   },
   {
-    accessorKey: "fill",
+    accessorKey: "fillLevel",
     header: ({ column }) => {
       return headerSortButton(column, "Fill Level");
     },
@@ -107,7 +107,7 @@ const columns: ColumnDef<Trashbin>[] = [
   {
     accessorKey: "batteryLevel",
     header: ({ column }) => {
-      return headerSortButton(column, "Battery Levels");
+      return headerSortButton(column, "Battery Level");
     },
   },
   {
@@ -149,7 +149,7 @@ export default function TrashbinsOverview({}: Props) {
           }
         );
 
-        const transformedData = response.data.map((item: any) => {
+        const transformedData = response.data.trashbins.map((item: any) => {
           return {
             id: item._id,
             identifier: item.identifier,
@@ -159,6 +159,10 @@ export default function TrashbinsOverview({}: Props) {
             project: item.project,
             createdAt: new Date(item.createdAt),
             updatedAt: new Date(item.updatedAt),
+            fillLevel: item.fillLevel,
+            fillLevelChange: item.fillLevelChange,
+            batteryLevel: item.batteryLevel,
+            signalStrength: item.signalStrength,
           };
         });
 
