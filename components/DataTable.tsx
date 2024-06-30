@@ -28,7 +28,33 @@ import {
 
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
-import { Info } from "lucide-react";
+import { Info, ArrowUpDown } from "lucide-react";
+
+// Utility function to convert data to CSV
+const exportToCSV = (data: any[], columns: ColumnDef<any, any>[]) => {
+  const csvRows = [];
+  const headers = columns.map((col) => col.header);
+  csvRows.push(headers.join(','));
+
+  for (const row of data) {
+    const values = columns.map((col) => {
+      const cellValue = row[col.accessorKey as keyof typeof row];
+      return `"${cellValue}"`;
+    });
+    csvRows.push(values.join(','));
+  }
+
+  const csvString = csvRows.join('\n');
+  const blob = new Blob([csvString], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('hidden', '');
+  a.setAttribute('href', url);
+  a.setAttribute('download', 'data.csv');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,7 +75,7 @@ export function DataTable<TData, TValue>({
   );
 
   const fuzzyFilter: FilterFn<TData> = (row, columnId, value) => {
-    const cellValue = row[columnId as keyof TData];
+    const cellValue = row.getValue(columnId);
     return String(cellValue).toLowerCase().includes(value.toLowerCase());
   };
 
@@ -83,10 +109,22 @@ export function DataTable<TData, TValue>({
           onChange={(event) => table.setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <Info className="text-gray-500 ml-5 mr-2" />
+        <Info className="text-gray-500 ml-10 mr-2" />
         <p className="text-lg text-gray-500">
           Search by name, location, or identifier
         </p>
+        <ArrowUpDown className="text-gray-500 ml-4 mr-2"/>
+        <p className="text-lg text-gray-500">
+          Sort by clicking on the column headers
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          onClick={() => exportToCSV(data, columns)}
+        >
+          Export to CSV
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -94,7 +132,17 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    onClick={header.column.getToggleSortingHandler()}
+                    className={
+                      header.column.getIsSorted()
+                        ? header.column.getIsSorted() === 'asc'
+                          ? 'sort-asc'
+                          : 'sort-desc'
+                        : ''
+                    }
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -107,8 +155,8 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getFilteredRowModel().rows.length ? (
-              table.getFilteredRowModel().rows.map((row) => (
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
