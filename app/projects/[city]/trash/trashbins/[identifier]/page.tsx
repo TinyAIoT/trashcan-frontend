@@ -29,6 +29,7 @@ type Trashbin = {
 const columns: ColumnDef<Trashbin>[] = [
   { accessorKey: "timestamp", header: "Time" },
   { accessorKey: "fill", header: "Fill Level" },
+  { accessorKey: "batteryLevel", header: "Battery Level" },
 ];
 
 export default function TrashbinDetail({
@@ -45,12 +46,14 @@ export default function TrashbinDetail({
   var fill_levels_past = new Array(49).fill({
     timestamp: timestamps[0],
     fill: 0,
+    batteryLevel: 0,
   });
   for (let i = 1; i < fill_levels_past.length; i++) {
     const prev = fill_levels_past[i - 1].fill || 0;
     fill_levels_past[i] = {
       timestamp: timestamps[i],
       fill: Math.round(Math.min(100, prev + Math.random() * 2)),
+      batteryLevel: Math.round(Math.min(100, prev + Math.random() * 4)),
     };
   }
 

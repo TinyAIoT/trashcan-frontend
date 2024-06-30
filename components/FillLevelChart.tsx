@@ -22,8 +22,6 @@ for (let i = 1; i < fill_levels_past.length; i++) {
   };
 }
 
-console.log("fill levels", fill_levels_past);
-
 var fill_levels_prediction = new Array(48).fill({
   timestamp: timestamps[49],
   fill: 0,
