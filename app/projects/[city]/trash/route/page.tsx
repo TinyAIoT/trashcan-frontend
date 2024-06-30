@@ -13,37 +13,33 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { Copy } from 'lucide-react';
+import { Copy, Info } from 'lucide-react';
+
+// interface Trashbin {
+//     lat: number;
+//     lng: number;
+//     fill: number;
+//     fillLevelChange: number;
+//     battery: number;
+//     id: string;
+//     display: string;
+// }
 
 interface Trashbin {
-    lat: number;
-    lng: number;
-    fill: number;
-    fillLevelChange: number;
-    battery: number;
-    id: string;
-    display: string;
+  identifier: string;
+  name: string;
+  lat: number;
+  lng: number;
+  fillLevel: number;
+  fillLevelChange: number;
+  batteryLevel: number;
+  signalStrength: number;
 }
 
-const trashbinData: Trashbin[] = [
-    {id: 'laer-bin-0001', display: 'Rathaus', lat: 52.05564102823898, lng: 7.360054548481379, fill: 10, fillLevelChange: -50, battery: 100},
-    {id: 'laer-bin-0002', display: 'Eisdiele', lat: 52.054446369474086, lng: 7.357900783032656, fill: 20, fillLevelChange: -40,  battery: 95},
-    {id: 'laer-bin-0003', display: 'Mock 1', lat: 52.05740200167625, lng: 7.358153181917018, fill: 30, fillLevelChange: -30,  battery: 90},
-    {id: 'laer-bin-0004', display: 'Mock 2', lat: 52.05984470069173, lng: 7.354508167781202, fill: 40, fillLevelChange: -20,  battery: 85},
-    {id: 'laer-bin-0005', display: 'Mock 3', lat: 52.05858758029923, lng: 7.348339576126552, fill: 50, fillLevelChange: -10,  battery: 80},
-    {id: 'laer-bin-0006', display: 'Mock 4', lat: 52.056849321616546, lng: 7.348257774319442, fill: 60, fillLevelChange: 10,  battery: 75},
-    {id: 'laer-bin-0007', display: 'Mock 5', lat: 52.05484146301711, lng: 7.344537017805167, fill: 70, fillLevelChange: 20,  battery: 70},
-    {id: 'laer-bin-0008', display: 'Mock 6', lat: 52.053822275411655, lng: 7.350998965386141, fill: 80, fillLevelChange: 30,  battery: 65},
-    {id: 'laer-bin-0009', display: 'Mock 7', lat: 52.05089302486732, lng: 7.356591490962451, fill: 90, fillLevelChange: 40,  battery: 60},
-    {id: 'laer-bin-0010', display: 'Mock 8', lat: 52.052561689808336, lng: 7.359980721247052, fill: 100, fillLevelChange: 50,  battery: 55},
-    {id: 'laer-bin-0012', display: 'Mock 9', lat: 52.049990684460234, lng: 7.36145800003346, fill: 10, fillLevelChange: -50,  battery: 50},
-    {id: 'laer-bin-0011', display: 'Mock 10', lat: 52.050934789062104, lng: 7.364132550516044, fill: 20, fillLevelChange: -40,  battery: 45},
-];
-
 const columns: ColumnDef<Trashbin>[] = [
-    { accessorKey: "id", header: "Identifier" },
-    { accessorKey: "display", header: "Name" },
-    { accessorKey: "fill", header: "Fill Level" },
+    { accessorKey: "identifier", header: "Identifier" },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "fillLevel", header: "Fill Level" },
     { accessorKey: "fillLevelChange", header: "Fill Level Change" },
 ];
 
@@ -51,7 +47,7 @@ const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
-const RoutePlanning = () => {
+const RoutePlanning = () => {  
   // Bins selected by user by clicking on map or table-row
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
   // Optimized order of bins based on route optimization
@@ -64,11 +60,52 @@ const RoutePlanning = () => {
   const [googleMapsLink, setGoogleMapsLink] = useState('');
   // Dialog state for showing the GoogleMaps link
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Trashbin data fetched from the our backend
+  const [trashbinData, setTrashbinData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const projectId = localStorage.getItem("projectId");
+
+        const response = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            },
+          }
+        );
+
+        const transformedData = response.data.trashbins.map((item: any) => {
+          return {
+            // id: item._id,
+            identifier: item.identifier,
+            name: item.name,
+            // coordinates: item.coordinates,
+            lat: item.coordinates[0],
+            lng: item.coordinates[1],
+            fillLevel: item.fillLevel,
+            fillLevelChange: item.fillLevelChange,
+            batteryLevel: item.batteryLevel,
+            signalStrength: item.signalStrength,
+          };
+        });
+
+        setTrashbinData(transformedData);
+        console.log(trashbinData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
     setSelectedBins((prevSelected) => {
-        if (prevSelected.some((bin) => bin.id === trashbin.id)) return prevSelected.filter((bin) => bin.id !== trashbin.id);
+        if (prevSelected.some((bin) => bin.identifier === trashbin.identifier)) return prevSelected.filter((bin) => bin.identifier !== trashbin.identifier);
         else return [...prevSelected, trashbin];
     });
   }, []);
@@ -169,7 +206,10 @@ const RoutePlanning = () => {
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Route Planning" />
       {/* <h1 className="text-2xl font-bold">Trashbin Selection</h1> */}
-      <p>Select the trashbins to be considered for a route by clicking on the trashbins on the map or table.</p>
+      <div className="flex items-center justify-start">
+        <Info className="text-gray-500 mr-2" />
+        <p className="text-lg text-gray-500">Select the trashbins to be considered for a route by clicking on the trashbins on the map or table</p>
+      </div>
       <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
         <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
         <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
