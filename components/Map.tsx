@@ -21,6 +21,8 @@ interface Trashbin {
 
 interface MapProps {
   trashbinData: Trashbin[];
+  centerCoordinates: LatLngTuple;
+  initialZoom: number;
   isRoutePlanning?: boolean;
   onTrashbinClick?: (trashbin: Trashbin) => void;
   selectedBins?: Trashbin[];
@@ -29,7 +31,7 @@ interface MapProps {
 }
 
 // Important Coordinates
-const laerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
+// const centerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 // TODO: Globally define thresholds and be able to set them in the Settings
@@ -82,7 +84,7 @@ function redirectToTrashbinDetail(trashbin: Trashbin) {
   window.location.href = new_url;
 }
 
-const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
+const Map = ({ trashbinData, centerCoordinates, initialZoom, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
   const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
@@ -120,8 +122,11 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
         // blueBinSelected = new BinIconSelected({iconUrl: '/images/leaflet/bin_bl_b.png'}),
         // blackBin = new BinIcon({iconUrl: '/images/leaflet/Trashbin_green_black.svg'}),
 
+    // Set initial zoom to 20, if not set
+    if (!initialZoom) { initialZoom = 20; }
+
     if (!mapRef.current) {
-      mapRef.current = window.L.map("map").setView(laerCoordinates, 16);
+      mapRef.current = window.L.map("map").setView(centerCoordinates, initialZoom);
       window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {attribution: "© OpenStreetMap contributors"}
       ).addTo(mapRef.current);

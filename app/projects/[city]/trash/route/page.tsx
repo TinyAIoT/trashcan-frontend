@@ -15,15 +15,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy, Info } from 'lucide-react';
 
-// interface Trashbin {
-//     lat: number;
-//     lng: number;
-//     fill: number;
-//     fillLevelChange: number;
-//     battery: number;
-//     id: string;
-//     display: string;
-// }
 
 interface Trashbin {
   identifier: string;
@@ -62,6 +53,8 @@ const RoutePlanning = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Trashbin data fetched from the our backend
   const [trashbinData, setTrashbinData] = useState([]);
+  const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
+  const [initialZoom, setInitialZoom] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,7 +62,7 @@ const RoutePlanning = () => {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const response = await axios.get(
+        const trashbinResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -78,7 +71,7 @@ const RoutePlanning = () => {
           }
         );
 
-        const transformedData = response.data.trashbins.map((item: any) => {
+        const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
           return {
             // id: item._id,
             identifier: item.identifier,
@@ -93,8 +86,18 @@ const RoutePlanning = () => {
           };
         });
 
-        setTrashbinData(transformedData);
-        console.log(trashbinData);
+        setTrashbinData(transformedTrashbinData);
+
+        const projectResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            },
+          }
+        );
+        setInitialZoom(projectResponse.data.project.initialZoom);
+        setCenterCoordinates(projectResponse.data.project.centerCoords);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -222,9 +225,12 @@ const RoutePlanning = () => {
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
+          { centerCoordinates && initialZoom && handleTrashbinClick && (
           <div className="w-full h-[80vh] relative z-0">
             <Map 
               trashbinData={trashbinData}
+              centerCoordinates={centerCoordinates}
+              initialZoom={initialZoom}
               isRoutePlanning={true}
               onTrashbinClick={handleTrashbinClick}
               selectedBins={selectedBins}
@@ -232,6 +238,7 @@ const RoutePlanning = () => {
               showRoute={showRoute}
             />
           </div>
+          )}
         </TabsContent>
         <TabsContent value="table">
           <div className="w-full h-[80vh] overflow-auto">

@@ -4,19 +4,13 @@ import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import axios from "axios";
+import { LatLngTuple } from "leaflet";
 
-interface Trashbin {
-  lat: number;
-  lng: number;
-  fill: number;
-  fillLevelChange: number;
-  battery: number;
-  id: string;
-  display: string;
-}
 
 const MapPage = () => {
   const [trashbinData, setTrashbinData] = useState([]);
+  const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
+  const [initialZoom, setInitialZoom] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +18,7 @@ const MapPage = () => {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const response = await axios.get(
+        const trashbinResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -33,7 +27,7 @@ const MapPage = () => {
           }
         );
 
-        const transformedData = response.data.trashbins.map((item: any) => {
+        const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
           return {
             // id: item._id,
             identifier: item.identifier,
@@ -48,8 +42,18 @@ const MapPage = () => {
           };
         });
 
-        setTrashbinData(transformedData);
-        console.log(trashbinData);
+        setTrashbinData(transformedTrashbinData);
+
+        const projectResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            },
+          }
+        );
+        setInitialZoom(projectResponse.data.project.initialZoom);
+        setCenterCoordinates(projectResponse.data.project.centerCoords);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -70,7 +74,9 @@ const MapPage = () => {
         <div className="flex justify-between items-center">
           <PageTitle title="Map" />
         </div>
-        <Map trashbinData={trashbinData} />
+        { centerCoordinates && initialZoom && (
+          <Map trashbinData={trashbinData} centerCoordinates={centerCoordinates} initialZoom={initialZoom} />
+        )}
       </div>
     </div>
   );
