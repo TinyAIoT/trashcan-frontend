@@ -29,32 +29,22 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Info, ArrowUpDown } from "lucide-react";
+import { mkConfig, generateCsv, download } from "export-to-csv";
 
-// Utility function to convert data to CSV
-const exportToCSV = (data: any[], columns: ColumnDef<any, any>[]) => {
-  const csvRows = [];
-  const headers = columns.map((col) => col.header);
-  csvRows.push(headers.join(','));
-
-  for (const row of data) {
-    const values = columns.map((col) => {
-      const cellValue = row[col.accessorKey as keyof typeof row];
-      return `"${cellValue}"`;
-    });
-    csvRows.push(values.join(','));
-  }
-
-  const csvString = csvRows.join('\n');
-  const blob = new Blob([csvString], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.setAttribute('hidden', '');
-  a.setAttribute('href', url);
-  a.setAttribute('download', 'data.csv');
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-};
+interface TrashBinData {
+  id: string;
+  identifier: string;
+  name: string;
+  coordinates: [number | null, number | null];
+  location: string;
+  project: string;
+  createdAt: string;
+  updatedAt: string;
+  fillLevel: number;
+  batteryLevel: number;
+  fillLevelChange: number;
+  signalStrength: number;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -63,7 +53,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends TrashBinData, TValue>({
   columns,
   data,
   onRowClick,
@@ -100,6 +90,43 @@ export function DataTable<TData, TValue>({
     debugTable: true, // Optional: Enable debugging to see console logs
   });
 
+  const makeCSV = () => {
+    // Define fields to include in CSV
+    const csvFields = [
+      "id",
+      "identifier",
+      "name",
+      "location",
+      "fillLevel",
+      "batteryLevel",
+      "fillLevelChange",
+      "signalStrength",
+      "createdAt",
+      "updatedAt",
+    ];
+
+    // Generate CSV content
+    const csvContent = [
+      csvFields.join(","), // Header row
+      ...data.map((item) => {
+        return csvFields
+          .map((field) => `"${item[field as keyof TData] || ""}"`)
+          .join(",");
+      }),
+    ].join("\n");
+
+    // Create Blob and download link
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.setAttribute("hidden", "");
+    a.setAttribute("href", url);
+    a.setAttribute("download", "trashbins.csv");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <div>
       <div className="flex items-center py-4">
@@ -113,7 +140,7 @@ export function DataTable<TData, TValue>({
         <p className="text-lg text-gray-500">
           Search by name, location, or identifier
         </p>
-        <ArrowUpDown className="text-gray-500 ml-4 mr-2"/>
+        <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
         <p className="text-lg text-gray-500">
           Sort by clicking on the column headers
         </p>
@@ -121,7 +148,7 @@ export function DataTable<TData, TValue>({
           variant="outline"
           size="sm"
           className="ml-auto"
-          onClick={() => exportToCSV(data, columns)}
+          onClick={() => makeCSV()}
         >
           Export to CSV
         </Button>
@@ -137,10 +164,10 @@ export function DataTable<TData, TValue>({
                     onClick={header.column.getToggleSortingHandler()}
                     className={
                       header.column.getIsSorted()
-                        ? header.column.getIsSorted() === 'asc'
-                          ? 'sort-asc'
-                          : 'sort-desc'
-                        : ''
+                        ? header.column.getIsSorted() === "asc"
+                          ? "sort-asc"
+                          : "sort-desc"
+                        : ""
                     }
                   >
                     {header.isPlaceholder
