@@ -27,29 +27,8 @@ type Trashbin = {
 };
 
 const columns: ColumnDef<Trashbin>[] = [
-  { accessorKey: "identifier", header: "Identifier" },
-  {
-    accessorKey: "coordinates",
-    header: "Coordinates",
-    cell: ({ row }) => row.original.coordinates.join(", "),
-  },
-  { accessorKey: "location", header: "Location" },
-  { accessorKey: "project", header: "Project" },
-  {
-    accessorKey: "sensors",
-    header: "Sensors",
-    cell: ({ row }) => JSON.stringify(row.original.sensors),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => new Date(row.original.updatedAt).toLocaleString(),
-  },
+  { accessorKey: "timestamp", header: "Time" },
+  { accessorKey: "fill", header: "Fill Level" },
 ];
 
 export default function TrashbinDetail({
@@ -58,6 +37,22 @@ export default function TrashbinDetail({
   params: { identifier: string };
 }) {
   const [data, setData] = useState<Trashbin | null>(null);
+  const timestamps = Array.from(
+    { length: 97 },
+    (_, i) => new Date(Date.now() + (i - 48) * 3600000)
+  );
+
+  var fill_levels_past = new Array(49).fill({
+    timestamp: timestamps[0],
+    fill: 0,
+  });
+  for (let i = 1; i < fill_levels_past.length; i++) {
+    const prev = fill_levels_past[i - 1].fill || 0;
+    fill_levels_past[i] = {
+      timestamp: timestamps[i],
+      fill: Math.round(Math.min(100, prev + Math.random() * 2)),
+    };
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,7 +100,7 @@ export default function TrashbinDetail({
     return `/projects/${city}/${type}/trashbins/${params.identifier}/edit`;
   }
 
-  const googleMapurl = `https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]}`;
+  console.log("on the table", fill_levels_past);
 
   return (
     <div className="flex flex-col gap-5 w-full">
@@ -137,7 +132,7 @@ export default function TrashbinDetail({
           </section>
         </TabsContent>
         <TabsContent value="table">
-          <DataTable columns={columns} data={[data]} />
+          <DataTable columns={columns} data={fill_levels_past} />
           <div className="flex gap-3 items-center">
             <p className="inline">Location: {data.location}</p>
             <Button className="bg-green-600 text-white">
