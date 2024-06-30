@@ -11,8 +11,8 @@ import { createRoot } from 'react-dom/client';
 interface Trashbin {
   identifier: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   fillLevel: number;
   fillLevelChange: number;
   batteryLevel: number;
@@ -135,8 +135,16 @@ const Map = ({ trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, opt
       mapRef.current.addLayer(markersRef.current);
     }
 
+    // Filter trashbinData to only include bins with valid lat and lng
+    const filteredTrashbinData = trashbinData.filter(trashbin => 
+      trashbin.lat !== (null && undefined) &&
+      trashbin.lng !== (null && undefined) && 
+      trashbin.lat >= -90 && trashbin.lat <= 90 &&
+      trashbin.lng >= -180 && trashbin.lng <= 180
+    );
+
     // Add trashbin markers by iterating over the trashbin data in a for loop
-    trashbinData.forEach(trashbin => {
+    filteredTrashbinData.forEach(trashbin => {
       var marker = window.L.marker(
         [trashbin.lat, trashbin.lng],
       );
