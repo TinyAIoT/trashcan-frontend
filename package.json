@@ -44,6 +44,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18",
+    "react-router-dom": "^6.24.0",
     "recharts": "^2.12.6",
     "resize-observer-polyfill": "^1.5.1",
     "sonner": "^1.4.41",
