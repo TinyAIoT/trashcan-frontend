@@ -8,6 +8,9 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Trash2, BatteryFull, Signal } from "lucide-react";
 import { createRoot } from 'react-dom/client';
 
+// Import image from public folder
+import binImage from '../../../../public/images/leaflet/bin_bl.png';
+
 interface Trashbin {
   identifier: string;
   name: string;
@@ -17,6 +20,7 @@ interface Trashbin {
   fillLevelChange: number;
   batteryLevel: number;
   signalStrength: number;
+  imageUrl: string;
 }
 
 interface MapProps {
@@ -65,7 +69,13 @@ function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePl
       {/* Do not render the image in route planning mode */}
       {routePlanning === undefined && (
         <div className="flex justify-center items-center h-full mt-1">
-          <img src="/temp/trashbin.png" alt="Trashbin image" className="max-h-[150px]" />
+          <>
+          { trashbin.imageUrl && (
+              <img src={trashbin.imageUrl} className="max-h-[150px]" />
+              // Alternative placeholder image
+              // <img src="/images/leaflet/bin_bl.png" className="h-[50px]" />
+          )}
+          </>
         </div>
       )}
     </div>

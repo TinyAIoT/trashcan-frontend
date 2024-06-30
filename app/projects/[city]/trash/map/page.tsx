@@ -39,6 +39,7 @@ const MapPage = () => {
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
             signalStrength: item.signalStrength,
+            imageUrl: item.image,
           };
         });
 
