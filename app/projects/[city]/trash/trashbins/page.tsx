@@ -138,9 +138,10 @@ export default function TrashbinsOverview({}: Props) {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
+        const projectId = localStorage.getItem("projectId");
 
         const response = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin`,
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token.replace(/"/g, "")}`,
