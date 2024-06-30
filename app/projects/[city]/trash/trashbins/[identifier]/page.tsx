@@ -143,7 +143,11 @@ export default function TrashbinDetail({
           </section>
         </TabsContent>
         <TabsContent value="table">
-          <DataTable columns={columns} data={fill_levels_past} />
+          <DataTable
+            columns={columns}
+            data={fill_levels_past}
+            showHeader={false}
+          />
 
           <section className="mt-5 mr-4 gap-3">
             <div className="flex gap-3 items-center">
