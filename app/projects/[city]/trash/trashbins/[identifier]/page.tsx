@@ -107,8 +107,8 @@ export default function TrashbinDetail({
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      <div className="flex justify-between px-4 py-4">
-        <PageTitle title={`Trashbin ${data.identifier}`} />
+      <div className="flex justify-between">
+        <PageTitle title={`Trashbin ${data.name}`} />
         <Button asChild className="bg-green-600 text-white">
           <Link href={getEditUrl()}>Edit Trashcan</Link>
         </Button>
@@ -133,43 +133,36 @@ export default function TrashbinDetail({
               <FillLevelChart />
             </CardContent>
           </section>
-          <section className="mt-5 mr-4 gap-3">
-            <p>Location: {data.location}</p>
-            <p>Newest Data Point: 25 June 2024</p>
-            <p>
-              Signal Strength: <span className="text-green-500">Strong</span>
-            </p>
-            <p>Trashcan Type: Normal</p>
-          </section>
         </TabsContent>
         <TabsContent value="table">
-          <DataTable
-            columns={columns}
-            data={fill_levels_past}
-            showHeader={false}
-          />
-
-          <section className="mt-5 mr-4 gap-3">
+          <div className="h-[510px] overflow-y-auto">
+            <DataTable
+              columns={columns}
+              data={fill_levels_past}
+              showSearchBar={false}
+              showExportButton={false}
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
+      <section className="mt-5 mr-4 gap-3">
             <div className="flex gap-3 items-center">
               <p className="inline">Location: {data.location}</p>
               <Button className="bg-green-600 text-white">
                 <Link
-                  href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},14z?entry=ttu`}
+                  href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},z=18?q=${data.coordinates[0]},${data.coordinates[1]}`}
                   target="_blank"
                 >
                   See on Google Maps
                 </Link>
               </Button>
             </div>
-
             <p>Newest Data Point: 25 June 2024</p>
             <p>
               Signal Strength: <span className="text-green-500">Strong</span>
             </p>
-            <p>Trashcan Type: Normal</p>
           </section>
-        </TabsContent>
-      </Tabs>
+      
     </div>
   );
 }

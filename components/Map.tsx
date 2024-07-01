@@ -8,9 +8,6 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Trash2, BatteryFull, Signal } from "lucide-react";
 import { createRoot } from 'react-dom/client';
 
-// Import image from public folder
-import binImage from '../../../../public/images/leaflet/bin_bl.png';
-
 interface Trashbin {
   identifier: string;
   name: string;
@@ -35,7 +32,6 @@ interface MapProps {
 }
 
 // Important Coordinates
-// const centerCoordinates: LatLngTuple = [52.054653343935236, 7.356975282228671];
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
 
 // TODO: Globally define thresholds and be able to set them in the Settings

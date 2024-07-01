@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -27,11 +27,38 @@ interface Trashbin {
   signalStrength: number;
 }
 
+const headerSortButton = (column: any, displayname: string) => {
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      {displayname}
+    </Button>
+  );
+};
+
 const columns: ColumnDef<Trashbin>[] = [
-    { accessorKey: "identifier", header: "Identifier" },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "fillLevel", header: "Fill Level" },
-    { accessorKey: "fillLevelChange", header: "Fill Level Change" },
+    { accessorKey: "identifier", 
+      header: ({ column }) => {
+        return headerSortButton(column, "Identifier");
+      },
+    },
+    { accessorKey: "name", 
+      header: ({ column }) => {
+        return headerSortButton(column, "Name");
+      },
+    },
+    { accessorKey: "fillLevel",
+      header: ({ column }) => {
+        return headerSortButton(column, "Fill Level");
+      },
+    },
+    { accessorKey: "fillLevelChange",
+      header: ({ column }) => {
+        return headerSortButton(column, "Fill Level Change");
+      },
+    },
 ];
 
 const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
@@ -206,7 +233,7 @@ const RoutePlanning = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5  w-full">
+    <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Route Planning" />
       {/* <h1 className="text-2xl font-bold">Trashbin Selection</h1> */}
       <div className="flex items-center justify-start">
@@ -244,6 +271,7 @@ const RoutePlanning = () => {
           <div className="w-full h-[80vh] overflow-auto">
           <DataTable
             columns={columns}
+            showExportButton={false}
             data={trashbinData}
             onRowClick={handleTrashbinClick}
             selectedRows={selectedBins}

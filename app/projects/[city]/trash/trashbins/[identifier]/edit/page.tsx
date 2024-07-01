@@ -22,7 +22,10 @@ type Trashbin = {
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   const [data, setData] = useState<Trashbin | null>(null);
-  const [formData, setFormData] = useState<Partial<Trashbin>>({});
+  const [formData, setFormData] = useState<Partial<Trashbin>>({
+    coordinates: [0, 0],
+  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,11 +51,13 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           createdAt: new Date(response.data.createdAt),
           updatedAt: new Date(response.data.updatedAt),
         };
+
         console.log(trashbin);
         setData(trashbin);
         setFormData(trashbin);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setError("Error fetching data.");
       }
     };
 
@@ -65,29 +70,45 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      if (name === "lat" || name === "lng") {
+        const coordinates = [...(prev.coordinates || [0, 0])] as [number, number];
+        if (name === "lat") {
+          coordinates[0] = parseFloat(value);
+        } else {
+          coordinates[1] = parseFloat(value);
+        }
+        return { ...prev, coordinates };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    const [lat, lng] = formData.coordinates || [0, 0];
+    if (isNaN(lat) || isNaN(lng)) {
+      setError("Invalid coordinates. Please enter valid latitude and longitude.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("authToken");
-      console.log(formData);
-
       await axios.patch(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${data.id}`,
-        formData,
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${data?.id}`,
+        { ...formData, coordinates: [lat, lng] },
         {
           headers: {
             Authorization: `Bearer ${token.replace(/"/g, "")}`,
           },
         }
       );
-      // Redirect to the details page
-      // By removing the last part of the URL, we can redirect to the details page
       goBack();
     } catch (error) {
       console.error("Error updating data:", error);
+      setError("Error updating data.");
     }
   };
 
@@ -98,6 +119,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title={`Edit Trashbin ${data.identifier}`} />
+      {error && <div className="text-red-600">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block">Identifier</label>
@@ -119,21 +141,29 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             className="w-full border px-2 py-1"
           />
         </div>
-
-        <div>
-          <label className="block">Coordinates</label>
-          <input
-            type="text"
-            name="coordinates"
-            value={formData.coordinates ? formData.coordinates.join(", ") : ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                coordinates: e.target.value.split(",").map(Number),
-              }))
-            }
-            className="w-full border px-2 py-1"
-          />
+        <div className="flex justify-between">
+          <div className="w-1/2 pr-2">
+            <label className="block">Latitude</label>
+            <input
+              type="number"
+              name="lat"
+              value={formData.coordinates?.[0]?.toString() || ""}
+              onChange={handleChange}
+              className="w-full border px-2 py-1"
+              step="any"
+            />
+          </div>
+          <div className="w-1/2 pl-2">
+            <label className="block">Longitude</label>
+            <input
+              type="number"
+              name="lng"
+              value={formData.coordinates?.[1]?.toString() || ""}
+              onChange={handleChange}
+              className="w-full border px-2 py-1"
+              step="any"
+            />
+          </div>
         </div>
         <div>
           <label className="block">Location</label>

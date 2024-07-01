@@ -16,17 +16,11 @@
 import React, { useCallback, useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
-import { ColumnDef, useReactTable } from "@tanstack/react-table";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-import {
-  ColumnFiltersState,
-  getFilteredRowModel,
-  getCoreRowModel,
-} from "@tanstack/react-table";
-import { Input } from "@/components/ui/input";
+import { ColumnFiltersState } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { sign } from "crypto";
 
 type Props = {};
 
@@ -36,8 +30,8 @@ type Trashbin = {
   name: string;
   location: string;
   project: string;
-  createdAt: Date;
-  updatedAt: Date;
+  // createdAt: Date;
+  // updatedAt: Date;
   lastEmptied: Date;
   batteryLevel: number;
   signalStrength: number;
@@ -116,7 +110,11 @@ const columns: ColumnDef<Trashbin>[] = [
       return headerSortButton(column, "Signal Strength");
     },
   },
-  { accessorKey: "assigned", header: "Assigned" },
+  { accessorKey: "assigned", 
+    header: ({ column }) => {
+      return headerSortButton(column, "Assigned");
+    },
+  },
 ];
 
 export default function TrashbinsOverview({}: Props) {
@@ -157,8 +155,8 @@ export default function TrashbinsOverview({}: Props) {
             coordinates: item.coordinates,
             location: item.location,
             project: item.project,
-            createdAt: new Date(item.createdAt),
-            updatedAt: new Date(item.updatedAt),
+            // createdAt: new Date(item.createdAt),
+            // updatedAt: new Date(item.updatedAt),
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
@@ -177,12 +175,13 @@ export default function TrashbinsOverview({}: Props) {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Trashbins" />
-
-      <DataTable
-        columns={columns}
-        data={trashbinData}
-        onRowClick={handleClick}
-      />
+      <div className="w-[80vw]">
+        <DataTable
+          columns={columns}
+          data={trashbinData}
+          onRowClick={handleClick}
+        />
+      </div>
     </div>
   );
 }
