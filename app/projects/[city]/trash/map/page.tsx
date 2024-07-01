@@ -11,6 +11,8 @@ const MapPage = () => {
   const [trashbinData, setTrashbinData] = useState([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +24,7 @@ const MapPage = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -49,12 +51,14 @@ const MapPage = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
         setInitialZoom(projectResponse.data.project.initialZoom);
         setCenterCoordinates(projectResponse.data.project.centerCoords);
+        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
+        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -67,8 +71,16 @@ const MapPage = () => {
       <div className="pb-2">
         <PageTitle title="Map" />
       </div>
-      { centerCoordinates && initialZoom && (
-        <Map trashbinData={trashbinData} centerCoordinates={centerCoordinates} initialZoom={initialZoom} />
+      {/* Make sure that all information was fetched from the backend before rendering the map */}
+      { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && (
+        <Map
+          trashbinData={trashbinData}
+          centerCoordinates={centerCoordinates}
+          initialZoom={initialZoom}
+          fillThresholds={fillThresholds}
+          batteryThresholds={batteryThresholds}
+          isRoutePlanning={false}
+        />
       )}
     </div>
   );

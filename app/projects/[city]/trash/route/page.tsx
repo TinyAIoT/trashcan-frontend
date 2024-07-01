@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-// import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -19,12 +19,13 @@ import { Copy, Info } from 'lucide-react';
 interface Trashbin {
   identifier: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   fillLevel: number;
   fillLevelChange: number;
   batteryLevel: number;
   signalStrength: number;
+  imageUrl: string;
 }
 
 const headerSortButton = (column: any, displayname: string) => {
@@ -61,8 +62,6 @@ const columns: ColumnDef<Trashbin>[] = [
     },
 ];
 
-const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
-
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
 const RoutePlanning = () => {  
@@ -81,7 +80,10 @@ const RoutePlanning = () => {
   // Trashbin data fetched from the our backend
   const [trashbinData, setTrashbinData] = useState([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
+  const [tripStartEnd, setTripStartEnd] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,7 +95,7 @@ const RoutePlanning = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -119,12 +121,17 @@ const RoutePlanning = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
         setInitialZoom(projectResponse.data.project.initialZoom);
+        // TODO: Wait for backend to implement
+        // setTripStartEnd(projectResponse.data.project.tripStartEnd);
+        setTripStartEnd([52.070195792078444, 7.3630479127876205]);
         setCenterCoordinates(projectResponse.data.project.centerCoords);
+        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
+        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -143,7 +150,7 @@ const RoutePlanning = () => {
   // Fetch optimized route from OSRM Trip Service
   const fetchOptimizedRoute = async (): Promise<Trashbin[]> => {
     // If no bins are selected, we cannot plan a route
-    if (selectedBins.length === 0) return [];
+    if (selectedBins.length === 0 || !tripStartEnd) return [];
     
     // The roundtrip starts and ends at the location indicated by `tripStartEnd`
     const coordinates: string[] = [
@@ -252,14 +259,17 @@ const RoutePlanning = () => {
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          { centerCoordinates && initialZoom && handleTrashbinClick && (
+          { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && tripStartEnd &&(
           <div className="w-full h-[80vh] relative z-0">
             <Map 
               trashbinData={trashbinData}
               centerCoordinates={centerCoordinates}
               initialZoom={initialZoom}
+              fillThresholds={fillThresholds}
+              batteryThresholds={batteryThresholds}
               isRoutePlanning={true}
               onTrashbinClick={handleTrashbinClick}
+              tripStartEnd={tripStartEnd}
               selectedBins={selectedBins}
               optimizedBins={optimizedBins}
               showRoute={showRoute}
@@ -279,14 +289,13 @@ const RoutePlanning = () => {
           </div>
         </TabsContent>
       </Tabs>
-      {/* Commented out, as Options are not supported yet */}
-      {/* <div className="flex-col">
+      <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
-            <p>Driver: </p>
+            <p>Assignee: </p>
             <Select>
             <SelectTrigger className="w-[180px] ml-2">
-                <SelectValue placeholder="Select Driver" />
+                <SelectValue placeholder="Select Assignee" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="driver_a">Alice</SelectItem>
@@ -295,7 +304,8 @@ const RoutePlanning = () => {
             </SelectContent>
             </Select>
         </div>
-        <div className="flex items-center mb-3">
+        {/* The following options are not supported yet */}
+        {/* <div className="flex items-center mb-3">
             <p>Time Constraint: </p>
             <Input
                 type="number"
@@ -316,8 +326,8 @@ const RoutePlanning = () => {
                 <SelectItem value="distance">Distance</SelectItem>
             </SelectContent>
             </Select>
-        </div>
-      </div> */}
+        </div> */}
+      </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="z-50">
           <DialogHeader>

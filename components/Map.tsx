@@ -24,21 +24,23 @@ interface MapProps {
   trashbinData: Trashbin[];
   centerCoordinates: LatLngTuple;
   initialZoom: number;
-  isRoutePlanning?: boolean;
+  fillThresholds: [number, number];
+  batteryThresholds: [number, number];
+  isRoutePlanning: boolean;
+  // The following fields must only be set if isRoutePlanning is true
   onTrashbinClick?: (trashbin: Trashbin) => void;
+  tripStartEnd?: LatLngTuple;
   selectedBins?: Trashbin[];
   optimizedBins?: Trashbin[];
   showRoute?: boolean;
 }
 
-// Important Coordinates
-const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
-
-// TODO: Globally define thresholds and be able to set them in the Settings
-const binThresholds = [30, 70];
-const batteryThresholds = [50, 20];
-
-function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePlanning?: boolean }) {  return (
+function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThresholds } : {
+  trashbin: Trashbin, 
+  routePlanning?: boolean, 
+  fillThresholds: [number, number], 
+  batteryThresholds: [number, number],
+}) { return (
     <div id={`popup-${trashbin.identifier}`}>
       <div className="text-base font-semibold flex justify-center items-center">
         {trashbin.name}
@@ -46,8 +48,8 @@ function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePl
       <hr />
       <div className="flex flex-row items-center justify-between mt-1">
         <div className="flex items-center mr-3">
-          <Trash2 size="16px" className={`mr-1 ${trashbin.fillLevel < binThresholds[0] ? 'text-green-500' : trashbin.fillLevel < binThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`} />
-          <span className={`${trashbin.fillLevel < binThresholds[0] ? 'text-green-500' : trashbin.fillLevel < binThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`}>{trashbin.fillLevel}%</span>
+          <Trash2 size="16px" className={`mr-1 ${trashbin.fillLevel < fillThresholds[0] ? 'text-green-500' : trashbin.fillLevel < fillThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`} />
+          <span className={`${trashbin.fillLevel < fillThresholds[0] ? 'text-green-500' : trashbin.fillLevel < fillThresholds[1] ? 'text-yellow-500' : 'text-red-500'}`}>{trashbin.fillLevel}%</span>
         </div>
         {routePlanning === undefined && (
           <div className="flex items-center mr-3">
@@ -78,6 +80,7 @@ function PopupContent({ trashbin, routePlanning }: { trashbin: Trashbin, routePl
   );
 }
 
+// TODO: Make this nicer
 function redirectToTrashbinDetail(trashbin: Trashbin) {
   // Get the city from the url
   var current_url = window.location.pathname;
@@ -90,7 +93,7 @@ function redirectToTrashbinDetail(trashbin: Trashbin) {
   window.location.href = new_url;
 }
 
-const Map = ({ trashbinData, centerCoordinates, initialZoom, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute }: MapProps) => {
+const Map = ({ trashbinData, centerCoordinates, initialZoom, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {
   const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
@@ -157,17 +160,17 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom, isRoutePlanning, on
     // Add trashbin markers by iterating over the trashbin data in a for loop
     filteredTrashbinData.forEach(trashbin => {
       var marker = window.L.marker(
-        [trashbin.lat, trashbin.lng],
+        [trashbin.lat ?? 0, trashbin.lng ?? 0], // 0, 0 as default coordinates
       );
       // Set the color of the marker according to fill level and selection
       if (selectedBins && selectedBins.some((bin) => bin.identifier === trashbin.identifier)) {
-        marker.setIcon(trashbin.fillLevel < binThresholds[0] ? greenBinSelected : trashbin.fillLevel < binThresholds[1] ? yellowBinSelected : redBinSelected);
+        marker.setIcon(trashbin.fillLevel < fillThresholds[0] ? greenBinSelected : trashbin.fillLevel < fillThresholds[1] ? yellowBinSelected : redBinSelected);
       } else {
-        marker.setIcon(trashbin.fillLevel < binThresholds[0] ? greenBin : trashbin.fillLevel < binThresholds[1] ? yellowBin : redBin);
+        marker.setIcon(trashbin.fillLevel < fillThresholds[0] ? greenBin : trashbin.fillLevel < fillThresholds[1] ? yellowBin : redBin);
       }
 
       const container = document.createElement('div');
-      const popupElement = <PopupContent trashbin={trashbin} routePlanning={isRoutePlanning}/>;
+      const popupElement = <PopupContent trashbin={trashbin} routePlanning={isRoutePlanning} fillThresholds={fillThresholds} batteryThresholds={batteryThresholds}/>;
       createRoot(container).render(popupElement);
       marker.bindPopup(container);
 

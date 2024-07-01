@@ -23,7 +23,7 @@ export default function ProjectSettings() {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -73,7 +73,7 @@ export default function ProjectSettings() {
         },
         {
           headers: {
-            Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
           },
         }
       );

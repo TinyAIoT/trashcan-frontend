@@ -35,7 +35,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -101,7 +101,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         { ...formData, coordinates: [lat, lng] },
         {
           headers: {
-            Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
           },
         }
       );
