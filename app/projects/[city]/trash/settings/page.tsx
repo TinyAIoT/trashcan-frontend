@@ -4,7 +4,6 @@ import PageTitle from "@/components/PageTitle";
 import axios from "axios";
 
 export default function ProjectSettings() {
-  const [trashbinData, setTrashbinData] = useState([]);
   const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
   const [zoomLevel, setZoomLevel] = useState(0);
   const [fillLevelInterval, setFillLevelInterval] = useState(0);
@@ -28,13 +27,15 @@ export default function ProjectSettings() {
           }
         );
 
-        const { centerCoords, initialZoom, preferences } =
+        const { centerCoords, initialZoom, preferences, fillLevelChangeHours } =
           projectResponse.data.project;
+
         setCoordinates({
           latitude: centerCoords[0],
           longitude: centerCoords[1],
         });
         setZoomLevel(initialZoom);
+        setFillLevelInterval(fillLevelChangeHours);
         setFillThresholds(preferences.fillThresholds);
         setBatteryThresholds(preferences.batteryThresholds);
         setLoading(false);
@@ -51,7 +52,7 @@ export default function ProjectSettings() {
       ...prevCoordinates,
       [key]: value,
     }));
-    setUpdated(false); // Reset update status when coordinates are changed
+    setUpdated(false);
   };
 
   const handleSubmit = async (event) => {
@@ -70,6 +71,7 @@ export default function ProjectSettings() {
             fillThresholds,
             batteryThresholds,
           },
+          fillLevelChangeHours: fillLevelInterval,
         },
         {
           headers: {
@@ -79,7 +81,7 @@ export default function ProjectSettings() {
       );
 
       console.log("Settings updated successfully!");
-      setUpdated(true); // Set updated status to true
+      setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);
     }
@@ -87,12 +89,11 @@ export default function ProjectSettings() {
 
   const handleCancel = () => {
     window.location.href = window.location.href.replace("/settings", "");
-    setUpdated(false); // Reset update status when canceled
+    setUpdated(false);
   };
 
   useEffect(() => {
     if (updated) {
-      // Redirect to the root URL if settings were successfully updated
       window.location.href = window.location.href.replace("/settings", "");
     }
   }, [updated]);
@@ -133,6 +134,17 @@ export default function ProjectSettings() {
             type="number"
             value={zoomLevel}
             onChange={(e) => setZoomLevel(Number(e.target.value))}
+            className="border border-gray-300 rounded px-3 py-2 w-full"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="mb-1 font-medium">
+            Fill Level Interval (Hours)
+          </label>
+          <input
+            type="number"
+            value={fillLevelInterval}
+            onChange={(e) => setFillLevelInterval(Number(e.target.value))}
             className="border border-gray-300 rounded px-3 py-2 w-full"
           />
         </div>
