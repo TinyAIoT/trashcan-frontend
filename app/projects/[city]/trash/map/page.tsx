@@ -5,14 +5,22 @@ import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import axios from "axios";
 import { LatLngTuple } from "leaflet";
+import { useRouter } from "next/navigation";
 
 
 const MapPage = () => {
+  const router = useRouter();
   const [trashbinData, setTrashbinData] = useState([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
+
+  const redirectToTrashbinDetail = (trashbin: any) => {
+    const city = localStorage.getItem("cityName");
+    const type = localStorage.getItem("projectType");
+    router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,6 +88,7 @@ const MapPage = () => {
           fillThresholds={fillThresholds}
           batteryThresholds={batteryThresholds}
           isRoutePlanning={false}
+          onTrashbinClick={redirectToTrashbinDetail}
         />
       )}
     </div>
