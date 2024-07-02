@@ -106,27 +106,27 @@ export default function ProjectSettings() {
     <div className="p-6">
       <PageTitle title="Project Settings" />
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Latitude</label>
-          <input
-            type="number"
-            value={coordinates.latitude}
-            onChange={(e) =>
-              handleCoordinateChange("latitude", Number(e.target.value))
-            }
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Longitude</label>
-          <input
-            type="number"
-            value={coordinates.longitude}
-            onChange={(e) =>
-              handleCoordinateChange("longitude", Number(e.target.value))
-            }
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          />
+
+      <div className="flex flex-col">
+          <label className="mb-1 font-medium">Latitude & Longitude of map center</label>
+          <div className="flex">
+            <input
+              type="number"
+              value={coordinates.latitude}
+              onChange={(e) =>
+                handleCoordinateChange("latitude", Number(e.target.value))
+              }
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+            />
+            <input
+              type="number"
+              value={coordinates.longitude}
+              onChange={(e) =>
+                handleCoordinateChange("longitude", Number(e.target.value))
+              }
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+            />
+          </div>
         </div>
         <div className="flex flex-col">
           <label className="mb-1 font-medium">Zoom Level</label>

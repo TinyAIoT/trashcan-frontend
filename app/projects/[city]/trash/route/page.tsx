@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -208,6 +208,8 @@ const RoutePlanning = () => {
 
   // Generate GoogleMaps link for the route and show it in a dialog
   const showGoogleMapsLink = async () => {
+    if (!tripStartEnd) return;
+
     // Fetch optimized route, if not already done
     var orderedBins: Trashbin[] = [];
     if (showRoute) orderedBins = optimizedBins;
