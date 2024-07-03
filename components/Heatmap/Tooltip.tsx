@@ -11,6 +11,8 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
     return null;
   }
 
+  const displayText = `${interactionData.value} bins (${Number(interactionData.yLabel) - 10}-${interactionData.yLabel}%)`;
+
   return (
     // Wrapper div: a rect on top of the viz area
     <div
@@ -28,13 +30,13 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
         className="chart-tooltip"
         style={{
           position: "absolute",
-          left: interactionData.xPos - 170,
+          left: interactionData.xPos - 180,
           top: interactionData.yPos,
         }}
       >
         <span>{interactionData.xLabel}</span>
         <br/>
-        <span>{interactionData.value} bins ({interactionData.yLabel - 10}-{interactionData.yLabel}%)</span>
+        <span>{displayText}</span>
       </div>
     </div>
   );

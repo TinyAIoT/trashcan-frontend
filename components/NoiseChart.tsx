@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import d3Tip from 'd3-tip';
+import * as d3Tip from 'd3-tip';
 import ResizeObserver from 'resize-observer-polyfill';
 
 function generateMockData(numPoints: number) {
@@ -10,20 +10,28 @@ function generateMockData(numPoints: number) {
   for (let i = 0; i < numPoints; i++) {
     const timestamp = new Date(startDate - i * 1000 * 60 * 10); // every 10 minutes
     const dBValue = Math.floor(Math.random() * 81) + 20; // dB value between 20 and 100
+    const confidence = Math.floor(Math.random() * 101); // confidence between 0 and 100
     data.push({
       timestamp: timestamp.toISOString(),
-      dB: dBValue
+      dB: dBValue,
+      confidence: confidence,
     });
   }
 
   return data;
 }
 
+interface DataItem {
+  timestamp: string;
+  dB: number;
+  confidence: number;
+}
+
 const NoiseChart = () => {
 
   const mockData = generateMockData(250);
-  const mainChartRef = useRef();
-  const yAxisRef = useRef();
+  const yAxisRef = useRef<SVGSVGElement>(null);
+  const mainChartRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -51,6 +59,8 @@ const NoiseChart = () => {
     const height = dimensions.height - margin.top - margin.bottom;
     const fullWidth = 10 * mockData.length;
 
+    if (!mainChartRef.current) return;
+  
     d3.select(mainChartRef.current).selectAll('*').remove();
 
     const svg = d3.select(mainChartRef.current)
@@ -67,13 +77,19 @@ const NoiseChart = () => {
       .domain([0, 120])
       .range([height, 0]);
 
-    const line = d3.line()
+    const line = d3.line<DataItem>()
       .x(d => x(new Date(d.timestamp)))
       .y(d => y(d.dB));
 
-    const xAxis = d3.axisBottom(x)
+      const xAxis = d3.axisBottom(x)
       .ticks(d3.timeHour.every(2))
-      .tickFormat(d3.timeFormat('%Y-%m-%d %H:%M'));
+      .tickFormat((domainValue, index) => {
+        // Ensure the value is a Date before formatting
+        if (domainValue instanceof Date) {
+          return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
+        }
+        return '';
+      });
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -109,25 +125,23 @@ const NoiseChart = () => {
       .attr('cy', d => y(d.dB))
       .attr('r', 4);
 
-    var classificationResult = "Car"
+    // const tip = d3Tip
+    //   .attr('class', 'chart-tooltip')
+    //   .offset([-10, 0])
+    //   .html((_event: any, d: DataItem) => `${new Date(d.timestamp).toLocaleString()}: <span style='color:red'>${d.dB} dB</span>${d.dB > 80 ? ' Confidence: ' + d.confidence : ''}`);
 
-    const tip = d3Tip()
-      .attr('class', 'chart-tooltip')
-      .offset([-10, 0])
-      .html((event, d) => `${new Date(d.timestamp).toLocaleString()}: <span style='color:red'>${d.dB} dB</span>${d.dB > 80 ? ' Reason: ' + classificationResult : ''}`);
+    // svg.call(tip);
 
-    svg.call(tip);
-
-    svg.selectAll('.dot-overlay')
-      .data(mockData)
-      .enter().append('circle')
-      .attr('class', 'dot-overlay')
-      .attr('cx', d => x(new Date(d.timestamp)))
-      .attr('cy', d => y(d.dB))
-      .attr('r', 6)
-      .style('opacity', 0)
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+    // svg.selectAll('.dot-overlay')
+    //   .data(mockData)
+    //   .enter().append('circle')
+    //   .attr('class', 'dot-overlay')
+    //   .attr('cx', d => x(new Date(d.timestamp)))
+    //   .attr('cy', d => y(d.dB))
+    //   .attr('r', 6)
+    //   .style('opacity', 0)
+    //   .on('mouseover', tip.show)
+    //   .on('mouseout', tip.hide);
 
     d3.select(yAxisRef.current).selectAll('*').remove();
     const yAxis = d3.axisLeft(y)
