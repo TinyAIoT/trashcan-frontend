@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useRef } from "react";
@@ -72,7 +73,7 @@ function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThreshol
       {/* Only render the image in map page and if an image exists */}
       {!routePlanning && trashbin.imageUrl && (
         <div className="flex justify-center items-center h-full mt-1">
-          <img src={trashbin.imageUrl} className="max-h-[150px]" />
+          <img src={trashbin.imageUrl} className="max-h-[150px]" alt=""/>
           {/* Alternative placeholder image */}
           {/* <img src="/images/leaflet/bin_bl.png" className="h-[50px]" /> */}
         </div>
@@ -211,7 +212,7 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
       addMarkersToMap(L, trashbinData, fillThresholds, batteryThresholds, selectedBins, isRoutePlanning, onTrashbinClick, markersRef);
       handleRoutingControl(L, showRoute, optimizedBins, tripStartEnd, mapRef, routingControlRef);
     }
-  }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute]);
+  }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute, batteryThresholds, centerCoordinates, fillThresholds, initialZoom, tripStartEnd ]);
 
   return <div id="map" className="flex-grow h-full"></div>;
 };

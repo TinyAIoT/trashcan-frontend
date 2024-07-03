@@ -59,7 +59,7 @@ export const ColorLegend = ({
       context.fillStyle = colorScale((max * i) / boundsWidth);
       context.fillRect(i, 0, 1, boundsHeight);
     }
-  }, [width, height]);
+  }, [width, height, boundsHeight, boundsWidth, colorScale, max]);
 
   return (
     <div style={{ width, height }}>

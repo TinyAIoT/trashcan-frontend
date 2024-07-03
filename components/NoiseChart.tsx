@@ -35,22 +35,24 @@ const NoiseChart = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      if (!entries || entries.length === 0) return;
-      const { width, height } = entries[0].contentRect;
-      setDimensions({ width, height });
-    });
+      const resizeObserver = new ResizeObserver(entries => {
+        if (!entries || entries.length === 0) return;
+        const { width, height } = entries[0].contentRect;
+        setDimensions({ width, height });
+      });
 
-    if (mainChartRef.current) {
-      resizeObserver.observe(mainChartRef.current);
-    }
+      const currentRef = mainChartRef.current;
 
-    return () => {
-      if (mainChartRef.current) {
-        resizeObserver.unobserve(mainChartRef.current);
+      if (currentRef) {
+        resizeObserver.observe(currentRef);
       }
-    };
-  }, []);
+
+      return () => {
+        if (currentRef) {
+          resizeObserver.unobserve(currentRef);
+        }
+      };
+    }, []);
 
   useEffect(() => {
     if (dimensions.width === 0 || dimensions.height === 0) return;
@@ -163,7 +165,7 @@ const NoiseChart = () => {
       .style('text-anchor', 'middle')
       .text('dB Level');
 
-  }, [dimensions]);
+  }, [dimensions, mockData]);
 
   return (
     <div className="relative w-full h-[400px]">

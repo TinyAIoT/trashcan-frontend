@@ -43,7 +43,7 @@ export const Renderer = ({
       .range([0, boundsWidth])
       .domain(allXGroups)
       .padding(0.1);
-  }, [data, width]);
+  }, [allXGroups, boundsWidth]);
 
   const yScale = useMemo(() => {
     return d3
