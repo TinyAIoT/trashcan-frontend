@@ -20,40 +20,33 @@ import {
 
 export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [city, setCity] = useState("");
-  const [type, setType] = useState("");
+  const city = localStorage.getItem("cityName");
+  const type = localStorage.getItem("projectType");
 
   const onlyWidth = useWindowWidth();
   const mobileWidth = onlyWidth < 768;
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // TODO: This is a hacky way to obtain city and type from URL. Fix.
-      const path = window.location.pathname;
-      const parts = path.split('/');
-      setCity(parts[2]);
-      setType(parts[3]);
-    }
-  }, []);
 
   function toggleSidebar() {
     setIsCollapsed(!isCollapsed);
   }
 
-  const overviewLinks = [
-    { title: "Dashboard", href: `/projects/${city}/${type}`, icon: LayoutDashboard, variant: "default" },
-    type === "trash" ? { title: "Map", href: `/projects/${city}/${type}/map`, icon: MapIcon, variant: "ghost" } : null,
-    type === "trash" ? { title: "Route", href: `/projects/${city}/${type}/route`, icon: Route, variant: "ghost" } : null,
-  ].filter(link => link !== null)
+  const overviewLinks = type === "trash" ? [
+      { title: "Dashboard", href: `/projects/${city}/${type}`, icon: LayoutDashboard, variant: "default" as "default" | "ghost", },
+      { title: "Map", href: `/projects/${city}/${type}/map`, icon: MapIcon, variant: "ghost" as "default" | "ghost", },
+      { title: "Route", href: `/projects/${city}/${type}/route`, icon: Route, variant: "ghost" as "default" | "ghost", },
+  ] : [
+      { title: "Dashboard", href: `/projects/${city}/${type}`, icon: LayoutDashboard, variant: "default" as "default" | "ghost", },
+  ];
 
-  const dataLinks = [
-    type === "trash" ? { title: "Trashbins", href: `/projects/${city}/${type}/trashbins`, icon: Trash2Icon, variant: "ghost" } : null,
-  ].filter(link => link !== null)
-  
+  const dataLinks = type === "trash" ? [
+    { title: "Trashbins", href: `/projects/${city}/${type}/trashbins`, icon: Trash2Icon, variant: "ghost" as "default" | "ghost", },
+  ] : [];
+
   const settingsLinks = [
-    { title: "Project", href: `/projects/${city}/${type}/settings`, icon: Settings2, variant: "ghost" },
-    { title: "Account", href: "/settings", icon: Settings, variant: "ghost" },
-  ]
+    { title: "Project", href: `/projects/${city}/${type}/settings`, icon: Settings2, variant: "ghost" as "default" | "ghost", },
+    { title: "Account", href: "/settings", icon: Settings, variant: "ghost" as "default" | "ghost", },
+  ];
+
 
   return (
     <div className="relative min-w-[80px] border-r px-3 pb-10 py-6 d-flex flex-column justify-content-between h-screen">
