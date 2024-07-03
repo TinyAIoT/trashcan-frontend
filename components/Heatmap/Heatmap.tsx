@@ -74,7 +74,7 @@ export const Heatmap = ({ data }: HeatmapProps) => {
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {
     if (scrollableDivRef.current) {
-      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth;
+      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
     }
   }, []);
 

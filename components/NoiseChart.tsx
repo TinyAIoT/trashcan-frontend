@@ -28,12 +28,12 @@ interface DataItem {
 }
 
 const NoiseChart = () => {
-
   const mockData = generateMockData(250);
   const yAxisRef = useRef<SVGSVGElement>(null);
   const mainChartRef = useRef<SVGSVGElement>(null);
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
+  
   useEffect(() => {
       const resizeObserver = new ResizeObserver(entries => {
         if (!entries || entries.length === 0) return;
@@ -167,10 +167,17 @@ const NoiseChart = () => {
 
   }, [dimensions, mockData]);
 
+  // Scroll to the right when the component is mounted to see the latest data
+  useEffect(() => {
+    if (scrollableDivRef.current) {
+      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
+    }
+  }, []);
+
   return (
     <div className="relative w-full h-[400px]">
       <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
-      <div className="overflow-x-scroll h-full ml-10">
+      <div className="overflow-x-scroll h-full ml-10" ref={scrollableDivRef}>
         <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
       </div>
     </div>
