@@ -141,3 +141,32 @@
   opacity: 1;
   transition-delay: 0.5s;
 }
+
+
+
+.settings-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+.settings-tooltip-text {
+  visibility: hidden;
+  width: 220px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -110px; /* Use half of the width to center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.settings-tooltip:hover .settings-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}

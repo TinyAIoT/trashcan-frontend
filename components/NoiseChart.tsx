@@ -10,7 +10,7 @@ function generateMockData(numPoints: number) {
   for (let i = 0; i < numPoints; i++) {
     const timestamp = new Date(startDate - i * 1000 * 60 * 10); // every 10 minutes
     const dBValue = Math.floor(Math.random() * 81) + 20; // dB value between 20 and 100
-    const confidence = Math.floor(Math.random() * 101); // confidence between 0 and 100
+    const confidence = parseFloat(Math.random().toFixed(4));
     data.push({
       timestamp: timestamp.toISOString(),
       dB: dBValue,
@@ -27,7 +27,12 @@ interface DataItem {
   confidence: number;
 }
 
-const NoiseChart = () => {
+interface NoiseChartProps {
+  noiseThreshold: number;
+  confidenceThreshold: number;
+}
+
+const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThreshold }) => {
   const mockData = generateMockData(250);
   const yAxisRef = useRef<SVGSVGElement>(null);
   const mainChartRef = useRef<SVGSVGElement>(null);
@@ -85,7 +90,7 @@ const NoiseChart = () => {
 
       const xAxis = d3.axisBottom(x)
       .ticks(d3.timeHour.every(2))
-      .tickFormat((domainValue, index) => {
+      .tickFormat((domainValue) => {
         // Ensure the value is a Date before formatting
         if (domainValue instanceof Date) {
           return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
@@ -106,7 +111,7 @@ const NoiseChart = () => {
       .attr('x', 0)
       .attr('y', 0)
       .attr('width', fullWidth)
-      .attr('height', y(80))
+      .attr('height', y(noiseThreshold))
       .attr('fill', 'red')
       .attr('opacity', 0.15);
 
@@ -122,28 +127,42 @@ const NoiseChart = () => {
       .enter().append('circle')
       .attr('class', 'dot')
       .attr('stroke', 'black')
-      .attr('fill', d => d.dB >= 80 ? 'red' : 'black')
+      .attr('fill', d => (d.dB >= noiseThreshold && d.confidence >= confidenceThreshold) ? 'red' : 'black')
       .attr('cx', d => x(new Date(d.timestamp)))
       .attr('cy', d => y(d.dB))
       .attr('r', 4);
 
-    // const tip = d3Tip
-    //   .attr('class', 'chart-tooltip')
-    //   .offset([-10, 0])
-    //   .html((_event: any, d: DataItem) => `${new Date(d.timestamp).toLocaleString()}: <span style='color:red'>${d.dB} dB</span>${d.dB > 80 ? ' Confidence: ' + d.confidence : ''}`);
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('background', '#fff')
+      .style('border', '1px solid #ccc')
+      .style('padding', '10px')
+      .style('border-radius', '4px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0);
 
-    // svg.call(tip);
-
-    // svg.selectAll('.dot-overlay')
-    //   .data(mockData)
-    //   .enter().append('circle')
-    //   .attr('class', 'dot-overlay')
-    //   .attr('cx', d => x(new Date(d.timestamp)))
-    //   .attr('cy', d => y(d.dB))
-    //   .attr('r', 6)
-    //   .style('opacity', 0)
-    //   .on('mouseover', tip.show)
-    //   .on('mouseout', tip.hide);
+    svg.selectAll('.dot-overlay')
+      .data(mockData)
+      .enter().append('circle')
+      .attr('class', 'dot-overlay')
+      .attr('cx', d => x(new Date(d.timestamp)))
+      .attr('cy', d => y(d.dB))
+      .attr('r', 10)
+      .style('opacity', 0)
+      .on('mouseover', (event, d) => {
+        tooltip.transition()
+          .duration(200)
+          .style('opacity', .95);
+        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>dB: ${d.dB}<br/>${d.dB > noiseThreshold ? ' Confidence: ' + d.confidence : ''}`)
+          .style('left', `${event.pageX - 260}px`)
+          .style('top', `${event.pageY + 10}px`);
+      })
+      .on('mouseout', () => {
+        tooltip.transition()
+          .duration(500)
+          .style('opacity', 0);
+      });
 
     d3.select(yAxisRef.current).selectAll('*').remove();
     const yAxis = d3.axisLeft(y)
