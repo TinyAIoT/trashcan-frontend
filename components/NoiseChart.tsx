@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import d3Tip from 'd3-tip';
+import * as d3Tip from 'd3-tip';
 import ResizeObserver from 'resize-observer-polyfill';
 
 function generateMockData(numPoints: number) {
@@ -10,47 +10,63 @@ function generateMockData(numPoints: number) {
   for (let i = 0; i < numPoints; i++) {
     const timestamp = new Date(startDate - i * 1000 * 60 * 10); // every 10 minutes
     const dBValue = Math.floor(Math.random() * 81) + 20; // dB value between 20 and 100
+    const confidence = parseFloat(Math.random().toFixed(4));
     data.push({
       timestamp: timestamp.toISOString(),
-      dB: dBValue
+      dB: dBValue,
+      confidence: confidence,
     });
   }
 
   return data;
 }
 
-const NoiseChart = () => {
+interface DataItem {
+  timestamp: string;
+  dB: number;
+  confidence: number;
+}
 
+interface NoiseChartProps {
+  noiseThreshold: number;
+  confidenceThreshold: number;
+}
+
+const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThreshold }) => {
   const mockData = generateMockData(250);
-  const mainChartRef = useRef();
-  const yAxisRef = useRef();
+  const yAxisRef = useRef<SVGSVGElement>(null);
+  const mainChartRef = useRef<SVGSVGElement>(null);
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
+  
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      if (!entries || entries.length === 0) return;
-      const { width, height } = entries[0].contentRect;
-      setDimensions({ width, height });
-    });
+      const resizeObserver = new ResizeObserver(entries => {
+        if (!entries || entries.length === 0) return;
+        const { width, height } = entries[0].contentRect;
+        setDimensions({ width, height });
+      });
 
-    if (mainChartRef.current) {
-      resizeObserver.observe(mainChartRef.current);
-    }
+      const currentRef = mainChartRef.current;
 
-    return () => {
-      if (mainChartRef.current) {
-        resizeObserver.unobserve(mainChartRef.current);
+      if (currentRef) {
+        resizeObserver.observe(currentRef);
       }
-    };
-  }, []);
+
+      return () => {
+        if (currentRef) {
+          resizeObserver.unobserve(currentRef);
+        }
+      };
+    }, []);
 
   useEffect(() => {
     if (dimensions.width === 0 || dimensions.height === 0) return;
+    if (!mainChartRef.current) return;
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
     const fullWidth = 10 * mockData.length;
-
+  
     d3.select(mainChartRef.current).selectAll('*').remove();
 
     const svg = d3.select(mainChartRef.current)
@@ -67,28 +83,33 @@ const NoiseChart = () => {
       .domain([0, 120])
       .range([height, 0]);
 
-    const line = d3.line()
+    const line = d3.line<DataItem>()
       .x(d => x(new Date(d.timestamp)))
       .y(d => y(d.dB));
 
     const xAxis = d3.axisBottom(x)
       .ticks(d3.timeHour.every(2))
-      .tickFormat(d3.timeFormat('%Y-%m-%d %H:%M'));
+      .tickFormat((domainValue) => {
+        // Ensure the value is a Date before formatting
+        if (domainValue instanceof Date) {
+          return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
+        }
+        return '';
+      });
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis)
       .selectAll('text')
-      .attr('transform', 'rotate(-90)')
+      .attr('transform', 'rotate(-45)')
       .style('text-anchor', 'end')
-      .attr('dx', '-.8em')
-      .attr('dy', '-.55em');
+      .attr('dx', '-.8em');
 
     svg.append('rect')
       .attr('x', 0)
       .attr('y', 0)
       .attr('width', fullWidth)
-      .attr('height', y(80))
+      .attr('height', y(noiseThreshold))
       .attr('fill', 'red')
       .attr('opacity', 0.15);
 
@@ -104,19 +125,20 @@ const NoiseChart = () => {
       .enter().append('circle')
       .attr('class', 'dot')
       .attr('stroke', 'black')
-      .attr('fill', d => d.dB >= 80 ? 'red' : 'black')
+      .attr('fill', d => (d.dB >= noiseThreshold && d.confidence >= confidenceThreshold) ? 'red' : 'black')
       .attr('cx', d => x(new Date(d.timestamp)))
       .attr('cy', d => y(d.dB))
       .attr('r', 4);
 
-    var classificationResult = "Car"
-
-    const tip = d3Tip()
-      .attr('class', 'chart-tooltip')
-      .offset([-10, 0])
-      .html((event, d) => `${new Date(d.timestamp).toLocaleString()}: <span style='color:red'>${d.dB} dB</span>${d.dB > 80 ? ' Reason: ' + classificationResult : ''}`);
-
-    svg.call(tip);
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('background', '#fff')
+      .style('border', '1px solid #ccc')
+      .style('padding', '10px')
+      .style('border-radius', '4px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0);
 
     svg.selectAll('.dot-overlay')
       .data(mockData)
@@ -124,10 +146,21 @@ const NoiseChart = () => {
       .attr('class', 'dot-overlay')
       .attr('cx', d => x(new Date(d.timestamp)))
       .attr('cy', d => y(d.dB))
-      .attr('r', 6)
+      .attr('r', 10)
       .style('opacity', 0)
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+      .on('mouseover', (event, d) => {
+        tooltip.transition()
+          .duration(200)
+          .style('opacity', .95);
+        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>dB: ${d.dB}<br/>${d.dB > noiseThreshold ? ' Confidence: ' + d.confidence : ''}`)
+          .style('left', `${event.pageX - 260}px`)
+          .style('top', `${event.pageY + 10}px`);
+      })
+      .on('mouseout', () => {
+        tooltip.transition()
+          .duration(500)
+          .style('opacity', 0);
+      });
 
     d3.select(yAxisRef.current).selectAll('*').remove();
     const yAxis = d3.axisLeft(y)
@@ -149,12 +182,19 @@ const NoiseChart = () => {
       .style('text-anchor', 'middle')
       .text('dB Level');
 
-  }, [dimensions]);
+  }, [dimensions, mockData, noiseThreshold, confidenceThreshold]);
+
+  // Scroll to the right when the component is mounted to see the latest data
+  useEffect(() => {
+    if (scrollableDivRef.current) {
+      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
+    }
+  }, []);
 
   return (
     <div className="relative w-full h-[400px]">
       <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
-      <div className="overflow-x-scroll h-full ml-10">
+      <div className="overflow-x-scroll h-full ml-10" ref={scrollableDivRef}>
         <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
       </div>
     </div>

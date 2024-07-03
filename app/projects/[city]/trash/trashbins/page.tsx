@@ -1,16 +1,3 @@
-/**
- * eslint-disable @next/next/no-img-element
- *
- * @format
- */
-
-/**
- * eslint-disable @next/next/no-img-element
- *
- * @format
- */
-
-/** @format */
 "use client";
 
 import React, { useCallback, useState, useEffect } from "react";
@@ -20,22 +7,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import { Trashbin } from '@/app/types';
 
-type Props = {};
-
-type Trashbin = {
-  id: string;
-  identifier: string;
-  name: string;
-  location: string;
-  project: string;
-  // createdAt: Date;
-  // updatedAt: Date;
-  lastEmptied: Date;
-  batteryLevel: number;
-  signalStrength: number;
-  assigned: boolean;
-};
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -80,18 +53,6 @@ const columns: ColumnDef<Trashbin>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
-    header: ({ column }) => {
-      return headerSortButton(column, "Created At");
-    },
-  },
-  {
-    accessorKey: "updatedAt",
-    header: ({ column }) => {
-      return headerSortButton(column, "Updated At");
-    },
-  },
-  {
     accessorKey: "lastEmptied",
     header: ({ column }) => {
       return headerSortButton(column, "Last Emptied");
@@ -116,7 +77,7 @@ const columns: ColumnDef<Trashbin>[] = [
   },
 ];
 
-export default function TrashbinsOverview({}: Props) {
+export default function TrashbinsOverview() {
   const [trashbinData, setTrashbinData] = useState([]);
   const router = useRouter();
 
@@ -124,7 +85,7 @@ export default function TrashbinsOverview({}: Props) {
     const city = localStorage.getItem("cityName");
     const type = localStorage.getItem("projectType");
     router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,7 +97,7 @@ export default function TrashbinsOverview({}: Props) {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -174,6 +135,8 @@ export default function TrashbinsOverview({}: Props) {
           columns={columns}
           data={trashbinData}
           onRowClick={handleClick}
+          showSearchBar={true}
+          showExportButton={true}
         />
       </div>
     </div>

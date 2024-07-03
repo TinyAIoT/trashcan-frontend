@@ -7,18 +7,7 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-type Trashbin = {
-  id: string;
-  identifier: string;
-  name: string;
-  coordinates: [number, number];
-  location: string;
-  project: string;
-  sensors: any[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { Trashbin } from '@/app/types';
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   const [data, setData] = useState<Trashbin | null>(null);
@@ -35,7 +24,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -43,13 +32,17 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         const trashbin = {
           id: response.data._id,
           identifier: response.data.identifier,
-          coordinates: response.data.coordinates,
           name: response.data.name,
+          coordinates: response.data.coordinates,
           location: response.data.location,
           project: response.data.project,
-          sensors: response.data.sensors,
-          createdAt: new Date(response.data.createdAt),
-          updatedAt: new Date(response.data.updatedAt),
+          fillLevel: response.data.fillLevel,
+          fillLevelChange: response.data.fillLevelChange,
+          batteryLevel: response.data.batteryLevel,
+          signalStrength: response.data.signalStrength,
+          lastEmptied: new Date(response.data.lastEmptied),
+          assigned: response.data.assigned,
+          imageUrl: response.data.image
         };
 
         console.log(trashbin);
@@ -89,7 +82,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     setError(null);
 
     const [lat, lng] = formData.coordinates || [0, 0];
-    if (isNaN(lat) || isNaN(lng)) {
+    if (lat === null || lng === null || isNaN(lat) || isNaN(lng)) {
       setError("Invalid coordinates. Please enter valid latitude and longitude.");
       return;
     }
@@ -101,7 +94,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         { ...formData, coordinates: [lat, lng] },
         {
           headers: {
-            Authorization: `Bearer ${token.replace(/"/g, "")}`,
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
           },
         }
       );

@@ -6,7 +6,8 @@ import { Tooltip } from "./Tooltip";
 import { COLOR_LEGEND_HEIGHT } from "./constants";
 import { ColorLegend } from "./ColorLegend";
 import * as d3 from "d3";
-import { COLORS, THRESHOLDS, MARGIN } from "./constants";
+import { COLORS, MARGIN, THRESHOLDS } from "./constants";
+
 
 type HeatmapProps = {
   data: {
@@ -32,7 +33,10 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
     .padding(0.1);
 
   const yLabels = yGroups.map((name, i) => {
-    const yPos = yScale(name);
+    const yPos = yScale(name); // Calculate yPos using yScale with the current group name
+    if (yPos === undefined) return null; // Guard against undefined yPos
+    const displayText = `${Number(name)-10}-${name}%`;
+
     return (
       <text
         key={i}
@@ -42,7 +46,7 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
         dominantBaseline="middle"
         fontSize={9}
       >
-        {name - 10}-{name}%
+        {displayText}
       </text>
     );
   });
@@ -64,15 +68,14 @@ export const Heatmap = ({ data }: HeatmapProps) => {
       .domain(THRESHOLDS)
       .range(COLORS);
 
-  const allYGroups = [...new Set(data.map(d => d.percentage))]
+  const allYGroups = Array.from(new Set(data.map(d => d.percentage)))
     .sort((a, b) => b - a)
     .map(String);
-
 
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {
     if (scrollableDivRef.current) {
-      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth;
+      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
     }
   }, []);
 

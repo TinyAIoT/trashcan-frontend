@@ -14,18 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy, Info } from 'lucide-react';
-
-
-interface Trashbin {
-  identifier: string;
-  name: string;
-  lat: number;
-  lng: number;
-  fillLevel: number;
-  fillLevelChange: number;
-  batteryLevel: number;
-  signalStrength: number;
-}
+import { Trashbin } from '@/app/types';
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -61,8 +50,6 @@ const columns: ColumnDef<Trashbin>[] = [
     },
 ];
 
-const tripStartEnd: LatLngTuple = [52.070195792078444, 7.3630479127876205];
-
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
 const RoutePlanning = () => {  
@@ -81,7 +68,10 @@ const RoutePlanning = () => {
   // Trashbin data fetched from the our backend
   const [trashbinData, setTrashbinData] = useState([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
+  const [tripStartEnd, setTripStartEnd] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,7 +83,7 @@ const RoutePlanning = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -104,8 +94,7 @@ const RoutePlanning = () => {
             identifier: item.identifier,
             name: item.name,
             // coordinates: item.coordinates,
-            lat: item.coordinates[0],
-            lng: item.coordinates[1],
+            coordinates: item.coordinates,
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
@@ -119,12 +108,17 @@ const RoutePlanning = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
         setInitialZoom(projectResponse.data.project.initialZoom);
+        // TODO: Wait for backend to implement
+        // setTripStartEnd(projectResponse.data.project.tripStartEnd);
+        setTripStartEnd([52.070195792078444, 7.3630479127876205]);
         setCenterCoordinates(projectResponse.data.project.centerCoords);
+        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
+        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -143,12 +137,12 @@ const RoutePlanning = () => {
   // Fetch optimized route from OSRM Trip Service
   const fetchOptimizedRoute = async (): Promise<Trashbin[]> => {
     // If no bins are selected, we cannot plan a route
-    if (selectedBins.length === 0) return [];
+    if (selectedBins.length === 0 || !tripStartEnd) return [];
     
     // The roundtrip starts and ends at the location indicated by `tripStartEnd`
     const coordinates: string[] = [
       `${tripStartEnd[1]},${tripStartEnd[0]}`,
-      ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
+      ...selectedBins.map(bin => `${bin.coordinates[1]},${bin.coordinates[0]}`),
       `${tripStartEnd[1]},${tripStartEnd[0]}`
     ];
 
@@ -201,6 +195,8 @@ const RoutePlanning = () => {
 
   // Generate GoogleMaps link for the route and show it in a dialog
   const showGoogleMapsLink = async () => {
+    if (!tripStartEnd) return;
+
     // Fetch optimized route, if not already done
     var orderedBins: Trashbin[] = [];
     if (showRoute) orderedBins = optimizedBins;
@@ -212,7 +208,7 @@ const RoutePlanning = () => {
     // Use orderedBins here instead of optimizedBins, as optimizedBins might not be updated yet
     const coordinates: string[] = [
       `${tripStartEnd[0]},${tripStartEnd[1]}`,
-      ...orderedBins.map(bin => `${bin.lat},${bin.lng}`),
+      ...orderedBins.map(bin => `${bin.coordinates[0]},${bin.coordinates[1]}`),
       `${tripStartEnd[0]},${tripStartEnd[1]}`
     ];
   
@@ -252,14 +248,17 @@ const RoutePlanning = () => {
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          { centerCoordinates && initialZoom && handleTrashbinClick && (
+          { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && tripStartEnd &&(
           <div className="w-full h-[80vh] relative z-0">
             <Map 
               trashbinData={trashbinData}
               centerCoordinates={centerCoordinates}
               initialZoom={initialZoom}
+              fillThresholds={fillThresholds}
+              batteryThresholds={batteryThresholds}
               isRoutePlanning={true}
               onTrashbinClick={handleTrashbinClick}
+              tripStartEnd={tripStartEnd}
               selectedBins={selectedBins}
               optimizedBins={optimizedBins}
               showRoute={showRoute}
@@ -271,22 +270,22 @@ const RoutePlanning = () => {
           <div className="w-full h-[80vh] overflow-auto">
           <DataTable
             columns={columns}
-            showExportButton={false}
             data={trashbinData}
             onRowClick={handleTrashbinClick}
             selectedRows={selectedBins}
+            showSearchBar={true}
+            showExportButton={false}
           />
           </div>
         </TabsContent>
       </Tabs>
-      {/* Commented out, as Options are not supported yet */}
-      {/* <div className="flex-col">
+      <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
-            <p>Driver: </p>
+            <p>Assignee: </p>
             <Select>
             <SelectTrigger className="w-[180px] ml-2">
-                <SelectValue placeholder="Select Driver" />
+                <SelectValue placeholder="Select Assignee" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="driver_a">Alice</SelectItem>
@@ -295,7 +294,8 @@ const RoutePlanning = () => {
             </SelectContent>
             </Select>
         </div>
-        <div className="flex items-center mb-3">
+        {/* The following options are not supported yet */}
+        {/* <div className="flex items-center mb-3">
             <p>Time Constraint: </p>
             <Input
                 type="number"
@@ -316,8 +316,8 @@ const RoutePlanning = () => {
                 <SelectItem value="distance">Distance</SelectItem>
             </SelectContent>
             </Select>
-        </div>
-      </div> */}
+        </div> */}
+      </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="z-50">
           <DialogHeader>

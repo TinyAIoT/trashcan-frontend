@@ -13,17 +13,16 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import { useRouter } from "next/navigation";
 
 export default function Component() {
-  const [token, setToken] = useLocalStorage("authToken");
   const [errorMessage, setErrorMessage] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = async () => {
+
     try {
       const response = await axios.post(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/auth/login`,
@@ -36,7 +35,7 @@ export default function Component() {
       if (response.status === 200) {
         // Login was successful
         // Save the token in local storage for future requests
-        setToken(response.data.token);
+        localStorage.setItem("authToken", response.data.token);
         // Redirect to the home page
         router.push("/");
       }

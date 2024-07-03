@@ -28,15 +28,14 @@ export const Renderer = ({
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
-  // const allYGroups = useMemo(() => [...new Set(data.map((d) => d.percentage?.toString()).filter(Boolean))], [data]);
   const allYGroups = useMemo(() => {
-    // Convert percentages to numbers, sort them in descending order, and convert back to strings
-    return [...new Set(data.map(d => d.percentage))]
-      .sort((a, b) => b - a) // Sort in descending order
-      .map(String); // Convert back to strings if necessary
-  }, [data]);
+  // Convert percentages to numbers, sort them in descending order, and convert back to strings
+  return Array.from(new Set(data.map(d => d.percentage)))
+    .sort((a, b) => b - a) // Sort in descending order
+    .map(String); // Convert back to strings if necessary
+}, [data]);
 
-  const allXGroups = useMemo(() => [...new Set(data.map((d) => new Date(d.time).toDateString()).filter(Boolean))], [data]);
+  const allXGroups = useMemo(() => Array.from(new Set(data.map((d) => new Date(d.time).toDateString()).filter(Boolean))), [data]);
 
   const xScale = useMemo(() => {
     return d3
@@ -44,7 +43,7 @@ export const Renderer = ({
       .range([0, boundsWidth])
       .domain(allXGroups)
       .padding(0.1);
-  }, [data, width]);
+  }, [allXGroups, boundsWidth]);
 
   const yScale = useMemo(() => {
     return d3

@@ -6,22 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CardContent, Card, CardHeader } from "@/components/ui/card";
-import {
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Sun, Moon } from "lucide-react";
+import Image from 'next/image';
 // import { useTheme } from "next-themes";  // https://github.com/pacocoursey/next-themes
-
-import { useLocalStorage } from "@uidotdev/usehooks";
 
 export default function Component() {
   const [language, setLanguage] = useState('de');
   const [theme, setTheme] = useState('light');
-  const [_token, setToken] = useLocalStorage("authToken");
 
-  // Logging out corresponds to deleting the "authToken" from local storage
   const handleLogout = () => {
-    setToken("");
+    localStorage.setItem("authToken", "");  // Clear the token
+    window.location.href = '/login';  // Redirect to the login page
   }
 
   return (
@@ -29,7 +24,7 @@ export default function Component() {
       <div className="px-4 space-y-6 sm:px-6">
         <header className="space-y-2">
           <div className="flex items-center space-x-3">
-            <img
+            <Image
               alt="Avatar"
               className="rounded-full"
               height="96"

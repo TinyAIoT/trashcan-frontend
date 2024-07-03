@@ -6,7 +6,6 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "@uidotdev/usehooks";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,22 +15,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [showNavigation, setShowNavigation] = useState(false);
-  const isBrowser = typeof window !== 'undefined';
-  const [token, _setToken] = isBrowser ? useLocalStorage("authToken") : [null, () => {}];
+  const [token, setToken] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    // This effect will run only on the client side, after the component mounts
+    const storedToken = localStorage.getItem("authToken"); // Safely access localStorage here
+    if (storedToken) setToken(storedToken);
+    setLoading(false);
+  }, []); // Empty dependency array ensures this runs once on mount
 
   // Enforce login on all pages except the login and signup pages
   useEffect(() => {
+    if (loading) return;
+    // This effect depends on `token`, so it will re-run when `token` changes.
+    // Initially, it runs after the token is retrieved from localStorage.
     const pathname = window.location.pathname;
     const noAuthPaths = ["/login", "/signup"];
     if (!token && !noAuthPaths.includes(pathname)) {
       window.location.href = '/login'; // Redirect to login page
     }
-  }, [token]);
+  }, [token, loading]); // Depend on `token` to re-run this effect when it changes
 
-  // The navigation bar is hidden on some subpages
+  // Hide the navigation bar on some subpages
   useEffect(() => {
-    if (!isBrowser) return;
-    
     const noNavigationPaths = ["/login", "/signup", "/projects"];
 
     // TODO: This is hacky. Fix later.
@@ -42,7 +50,7 @@ export default function RootLayout({
     const interval = setInterval(checkPathname, 100);
 
     return () => clearInterval(interval);
-  }, [token, isBrowser]);
+  }, []);
 
   return (
     <html lang="en">

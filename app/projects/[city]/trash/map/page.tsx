@@ -5,12 +5,22 @@ import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import axios from "axios";
 import { LatLngTuple } from "leaflet";
-
+import { useRouter } from "next/navigation";
+import { Trashbin } from "@/app/types";
 
 const MapPage = () => {
-  const [trashbinData, setTrashbinData] = useState([]);
+  const router = useRouter();
+  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
+
+  const redirectToTrashbinDetail = (trashbin: any) => {
+    const city = localStorage.getItem("cityName");
+    const type = localStorage.getItem("projectType");
+    router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +32,7 @@ const MapPage = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
@@ -33,8 +43,7 @@ const MapPage = () => {
             identifier: item.identifier,
             name: item.name,
             // coordinates: item.coordinates,
-            lat: item.coordinates[0],
-            lng: item.coordinates[1],
+            coordinates: item.coordinates,
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
@@ -49,12 +58,14 @@ const MapPage = () => {
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
           {
             headers: {
-              Authorization: `Bearer ${token.replace(/"/g, "")}`,
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
         setInitialZoom(projectResponse.data.project.initialZoom);
         setCenterCoordinates(projectResponse.data.project.centerCoords);
+        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
+        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -67,8 +78,17 @@ const MapPage = () => {
       <div className="pb-2">
         <PageTitle title="Map" />
       </div>
-      { centerCoordinates && initialZoom && (
-        <Map trashbinData={trashbinData} centerCoordinates={centerCoordinates} initialZoom={initialZoom} />
+      {/* Make sure that all information was fetched from the backend before rendering the map */}
+      { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && (
+        <Map
+          trashbinData={trashbinData}
+          centerCoordinates={centerCoordinates}
+          initialZoom={initialZoom}
+          fillThresholds={fillThresholds}
+          batteryThresholds={batteryThresholds}
+          isRoutePlanning={false}
+          onTrashbinClick={redirectToTrashbinDetail}
+        />
       )}
     </div>
   );

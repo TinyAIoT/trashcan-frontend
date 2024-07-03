@@ -30,21 +30,6 @@ import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Info, ArrowUpDown, MoveUp, MoveDown } from "lucide-react";
 
-interface TrashBinData {
-  id: string;
-  identifier: string;
-  name: string;
-  coordinates: [number | null, number | null];
-  location: string;
-  project: string;
-  // createdAt: string;
-  // updatedAt: string;
-  fillLevel: number;
-  batteryLevel: number;
-  fillLevelChange: number;
-  signalStrength: number;
-}
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   showSearchBar: boolean;
@@ -54,7 +39,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: TData[];
 }
 
-export function DataTable<TData extends TrashBinData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   showSearchBar = true,
   showExportButton = true,
@@ -90,45 +75,79 @@ export function DataTable<TData extends TrashBinData, TValue>({
       fuzzyLocation: fuzzyFilter,
       fuzzyIdentifier: fuzzyFilter,
     },
-    debugTable: true, // Optional: Enable debugging to see console logs
+    debugTable: false, // Optional: Enable debugging to see console logs
   });
 
   const makeCSV = () => {
-    // Define fields to include in CSV
-    const csvFields = [
-      "id",
-      "identifier",
-      "name",
-      "location",
-      "fillLevel",
-      "batteryLevel",
-      "fillLevelChange",
-      "signalStrength",
-      // "createdAt",
-      // "updatedAt",
-    ];
-
+    // Get the column ids for CSV headers
+    const columnIds = columns.map((col) => {
+      if ('accessorKey' in col && col.accessorKey) {
+        return col.accessorKey as string;
+      } else if ('id' in col && col.id) {
+        return col.id as string;
+      } else {
+        return '';
+      }
+    }).filter(id => id !== '');
+  
     // Generate CSV content
     const csvContent = [
-      csvFields.join(","), // Header row
+      columnIds.join(","), // Header row
       ...data.map((item) => {
-        return csvFields
+        return columnIds
           .map((field) => `"${item[field as keyof TData] || ""}"`)
           .join(",");
       }),
     ].join("\n");
-
+  
     // Create Blob and download link
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.setAttribute("hidden", "");
     a.setAttribute("href", url);
-    a.setAttribute("download", "trashbins.csv");
+    a.setAttribute("download", "data.csv");
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  };
+  };  
+
+  
+
+  // const makeCSV = () => {
+  //   // Define fields to include in CSV
+  //   const csvFields = [
+  //     "id",
+  //     "identifier",
+  //     "name",
+  //     "location",
+  //     "fillLevel",
+  //     "batteryLevel",
+  //     "fillLevelChange",
+  //     "signalStrength",
+  //   ];
+
+  //   // Generate CSV content
+  //   const csvContent = [
+  //     csvFields.join(","), // Header row
+  //     ...data.map((item) => {
+  //       return csvFields
+  //         .map((field) => `"${item[field as keyof TData] || ""}"`)
+  //         .join(",");
+  //     }),
+  //   ].join("\n");
+
+  //   // Create Blob and download link
+  //   const blob = new Blob([csvContent], { type: "text/csv" });
+  //   const url = window.URL.createObjectURL(blob);
+  //   const a = document.createElement("a");
+  //   a.setAttribute("hidden", "");
+  //   a.setAttribute("href", url);
+  //   a.setAttribute("download", "trashbins.csv");
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   document.body.removeChild(a);
+  // };
 
   return (
     <div>

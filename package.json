@@ -47,6 +47,7 @@
     "react-router-dom": "^6.24.0",
     "recharts": "^2.12.6",
     "resize-observer-polyfill": "^1.5.1",
+    "sharp": "^0.33.4",
     "sonner": "^1.4.41",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
@@ -56,6 +57,7 @@
     "@types/d3-tip": "^3.5.8",
     "@types/leaflet": "^1.9.12",
     "@types/leaflet-routing-machine": "^3.2.8",
+    "@types/leaflet.markercluster": "^1.5.4",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^18.3.1",
