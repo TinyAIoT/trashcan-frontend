@@ -29,21 +29,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Info, ArrowUpDown, MoveUp, MoveDown } from "lucide-react";
-
-interface TrashBinData {
-  id: string;
-  identifier: string;
-  name: string;
-  coordinates: [number | null, number | null];
-  location: string;
-  project: string;
-  // createdAt: string;
-  // updatedAt: string;
-  fillLevel: number;
-  batteryLevel: number;
-  fillLevelChange: number;
-  signalStrength: number;
-}
+import { Trashbin } from '@/app/types';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -54,7 +40,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: TData[];
 }
 
-export function DataTable<TData extends TrashBinData, TValue>({
+export function DataTable<TData extends Trashbin, TValue>({
   columns,
   showSearchBar = true,
   showExportButton = true,

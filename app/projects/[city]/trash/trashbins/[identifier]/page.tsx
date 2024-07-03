@@ -11,20 +11,7 @@ import FillLevelChart from "@/components/FillLevelChart";
 import { CardContent } from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-type Props = {};
-
-type Trashbin = {
-  id: string;
-  identifier: string;
-  name: string;
-  coordinates: [number, number];
-  location: string;
-  project: string;
-  sensors: any[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { Trashbin } from '@/app/types';
 
 const columns: ColumnDef<Trashbin>[] = [
   { accessorKey: "timestamp", header: "Time" },
@@ -77,9 +64,13 @@ export default function TrashbinDetail({
           coordinates: response.data.coordinates,
           location: response.data.location,
           project: response.data.project,
-          sensors: response.data.sensors,
-          createdAt: new Date(response.data.createdAt),
-          updatedAt: new Date(response.data.updatedAt),
+          fillLevel: response.data.fillLevel,
+          fillLevelChange: response.data.fillLevelChange,
+          batteryLevel: response.data.batteryLevel,
+          signalStrength: response.data.signalStrength,
+          lastEmptied: new Date(response.data.lastEmptied),
+          assigned: response.data.assigned,
+          imageUrl: response.data.image
         };
 
         setData(trashbin);

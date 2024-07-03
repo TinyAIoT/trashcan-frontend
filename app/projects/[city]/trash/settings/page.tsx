@@ -47,7 +47,7 @@ export default function ProjectSettings() {
     fetchData();
   }, []);
 
-  const handleCoordinateChange = (key, value) => {
+  const handleCoordinateChange = (key: string, value: number) => {
     setCoordinates((prevCoordinates) => ({
       ...prevCoordinates,
       [key]: value,
@@ -55,7 +55,7 @@ export default function ProjectSettings() {
     setUpdated(false);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
 
     try {

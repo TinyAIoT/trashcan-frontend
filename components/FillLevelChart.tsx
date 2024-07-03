@@ -70,6 +70,7 @@ const FillLevelChart = () => {
     const height = dimensions.height - margin.top - margin.bottom;
     const fullWidth = 10 * timestamps.length;
 
+    if (mainChartRef.current) {
     d3.select(mainChartRef.current).selectAll("*").remove();
 
     const svg = d3
@@ -273,6 +274,7 @@ const FillLevelChart = () => {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Fill Level (%)");
+    }
   }, [dimensions]);
 
   return (

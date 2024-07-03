@@ -6,11 +6,11 @@ import Map from "@/components/Map";
 import axios from "axios";
 import { LatLngTuple } from "leaflet";
 import { useRouter } from "next/navigation";
-
+import { Trashbin } from "@/app/types";
 
 const MapPage = () => {
   const router = useRouter();
-  const [trashbinData, setTrashbinData] = useState([]);
+  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
@@ -43,8 +43,7 @@ const MapPage = () => {
             identifier: item.identifier,
             name: item.name,
             // coordinates: item.coordinates,
-            lat: item.coordinates[0],
-            lng: item.coordinates[1],
+            coordinates: item.coordinates,
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,

@@ -23,17 +23,19 @@ interface MapProps {
   showRoute?: boolean;
 }
 
-interface Trashbin {
-  identifier: string;
-  name: string;
-  lat: number | null;
-  lng: number | null;
-  fillLevel: number;
-  fillLevelChange: number;
-  batteryLevel: number;
-  signalStrength: number;
-  imageUrl: string;
-}
+import { Trashbin } from '@/app/types';
+
+// interface Trashbin {
+//   identifier: string;
+//   name: string;
+//   lat: number | null;
+//   lng: number | null;
+//   fillLevel: number;
+//   fillLevelChange: number;
+//   batteryLevel: number;
+//   signalStrength: number;
+//   imageUrl: string;
+// }
 
 function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThresholds } : {
   trashbin: Trashbin, 
@@ -134,15 +136,15 @@ const addMarkersToMap = (L: any, trashbinData: Trashbin[], fillThresholds: [numb
   const { greenBin, greenBinSelected, yellowBin, yellowBinSelected, redBin, redBinSelected } = createBinIcons(L);
 
   const filteredTrashbinData = trashbinData.filter(trashbin =>
-    trashbin.lat !== (null && undefined) &&
-    trashbin.lng !== (null && undefined) &&
-    trashbin.lat >= -90 && trashbin.lat <= 90 &&
-    trashbin.lng >= -180 && trashbin.lng <= 180
+    trashbin.coordinates[0] !== (null && undefined) &&
+    trashbin.coordinates[1] !== (null && undefined) &&
+    trashbin.coordinates[0] >= -90 && trashbin.coordinates[0] <= 90 &&
+    trashbin.coordinates[1] >= -180 && trashbin.coordinates[1] <= 180
   );
 
   filteredTrashbinData.forEach(trashbin => {
     const marker = L.marker(
-      [trashbin.lat ?? 0, trashbin.lng ?? 0],
+      [trashbin.coordinates[0] ?? 0, trashbin.coordinates[1] ?? 0],
       {
         icon: selectedBins?.some((bin) => bin.identifier === trashbin.identifier)
           ? (trashbin.fillLevel < fillThresholds[0] ? greenBinSelected : trashbin.fillLevel < fillThresholds[1] ? yellowBinSelected : redBinSelected)
@@ -176,7 +178,7 @@ const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins:
   if (showRoute && tripStartEnd && optimizedBins && optimizedBins.length > 0) {
     const waypoints = [
       L.Routing.waypoint(L.latLng(tripStartEnd[0], tripStartEnd[1]), null, { allowUTurn: true }),
-      ...optimizedBins.map(bin => L.Routing.waypoint(L.latLng(bin.lat, bin.lng), null, { allowUTurn: true })),
+      ...optimizedBins.map(bin => L.Routing.waypoint(L.latLng(bin.coordinates[0], bin.coordinates[1]), null, { allowUTurn: true })),
       L.Routing.waypoint(L.latLng(tripStartEnd[0], tripStartEnd[1]), null, { allowUTurn: true }),
     ];
 

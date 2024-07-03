@@ -13,11 +13,9 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-// import { useLocalStorage } from "@uidotdev/usehooks";
 import { useRouter } from "next/navigation";
 
 export default function Component() {
-  // const [token, setToken] = useLocalStorage("authToken");
   const [errorMessage, setErrorMessage] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

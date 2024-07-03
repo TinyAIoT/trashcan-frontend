@@ -14,19 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy, Info } from 'lucide-react';
-
-
-interface Trashbin {
-  identifier: string;
-  name: string;
-  lat: number | null;
-  lng: number | null;
-  fillLevel: number;
-  fillLevelChange: number;
-  batteryLevel: number;
-  signalStrength: number;
-  imageUrl: string;
-}
+import { Trashbin } from '@/app/types';
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -106,8 +94,7 @@ const RoutePlanning = () => {
             identifier: item.identifier,
             name: item.name,
             // coordinates: item.coordinates,
-            lat: item.coordinates[0],
-            lng: item.coordinates[1],
+            coordinates: item.coordinates,
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
@@ -155,7 +142,7 @@ const RoutePlanning = () => {
     // The roundtrip starts and ends at the location indicated by `tripStartEnd`
     const coordinates: string[] = [
       `${tripStartEnd[1]},${tripStartEnd[0]}`,
-      ...selectedBins.map(bin => `${bin.lng},${bin.lat}`),
+      ...selectedBins.map(bin => `${bin.coordinates[1]},${bin.coordinates[0]}`),
       `${tripStartEnd[1]},${tripStartEnd[0]}`
     ];
 
@@ -221,7 +208,7 @@ const RoutePlanning = () => {
     // Use orderedBins here instead of optimizedBins, as optimizedBins might not be updated yet
     const coordinates: string[] = [
       `${tripStartEnd[0]},${tripStartEnd[1]}`,
-      ...orderedBins.map(bin => `${bin.lat},${bin.lng}`),
+      ...orderedBins.map(bin => `${bin.coordinates[0]},${bin.coordinates[1]}`),
       `${tripStartEnd[0]},${tripStartEnd[1]}`
     ];
   
@@ -287,6 +274,7 @@ const RoutePlanning = () => {
             data={trashbinData}
             onRowClick={handleTrashbinClick}
             selectedRows={selectedBins}
+            showSearchBar={true}
           />
           </div>
         </TabsContent>
