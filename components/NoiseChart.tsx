@@ -61,12 +61,11 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
 
   useEffect(() => {
     if (dimensions.width === 0 || dimensions.height === 0) return;
+    if (!mainChartRef.current) return;
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
     const fullWidth = 10 * mockData.length;
-
-    if (!mainChartRef.current) return;
   
     d3.select(mainChartRef.current).selectAll('*').remove();
 
@@ -88,7 +87,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .x(d => x(new Date(d.timestamp)))
       .y(d => y(d.dB));
 
-      const xAxis = d3.axisBottom(x)
+    const xAxis = d3.axisBottom(x)
       .ticks(d3.timeHour.every(2))
       .tickFormat((domainValue) => {
         // Ensure the value is a Date before formatting
@@ -102,10 +101,9 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .attr('transform', `translate(0,${height})`)
       .call(xAxis)
       .selectAll('text')
-      .attr('transform', 'rotate(-90)')
+      .attr('transform', 'rotate(-45)')
       .style('text-anchor', 'end')
-      .attr('dx', '-.8em')
-      .attr('dy', '-.55em');
+      .attr('dx', '-.8em');
 
     svg.append('rect')
       .attr('x', 0)
@@ -184,7 +182,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .style('text-anchor', 'middle')
       .text('dB Level');
 
-  }, [dimensions, mockData]);
+  }, [dimensions, mockData, noiseThreshold, confidenceThreshold]);
 
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {

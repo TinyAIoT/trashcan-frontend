@@ -47,6 +47,7 @@
     "react-router-dom": "^6.24.0",
     "recharts": "^2.12.6",
     "resize-observer-polyfill": "^1.5.1",
+    "sharp": "^0.33.4",
     "sonner": "^1.4.41",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"

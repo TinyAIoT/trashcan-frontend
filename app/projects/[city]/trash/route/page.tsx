@@ -270,11 +270,11 @@ const RoutePlanning = () => {
           <div className="w-full h-[80vh] overflow-auto">
           <DataTable
             columns={columns}
-            showExportButton={false}
             data={trashbinData}
             onRowClick={handleTrashbinClick}
             selectedRows={selectedBins}
             showSearchBar={true}
+            showExportButton={false}
           />
           </div>
         </TabsContent>
