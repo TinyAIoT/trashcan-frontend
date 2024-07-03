@@ -6,7 +6,8 @@ import { Tooltip } from "./Tooltip";
 import { COLOR_LEGEND_HEIGHT } from "./constants";
 import { ColorLegend } from "./ColorLegend";
 import * as d3 from "d3";
-import { COLORS, THRESHOLDS, MARGIN } from "./constants";
+import { COLORS, MARGIN, THRESHOLDS } from "./constants";
+
 
 type HeatmapProps = {
   data: {

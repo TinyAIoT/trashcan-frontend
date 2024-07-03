@@ -22,6 +22,7 @@ export default function Component() {
   const router = useRouter();
 
   const handleLogin = async () => {
+
     try {
       const response = await axios.post(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/auth/login`,

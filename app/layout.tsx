@@ -16,15 +16,19 @@ export default function RootLayout({
 }) {
   const [showNavigation, setShowNavigation] = useState(false);
   const [token, setToken] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     // This effect will run only on the client side, after the component mounts
     const storedToken = localStorage.getItem("authToken"); // Safely access localStorage here
     if (storedToken) setToken(storedToken);
+    setLoading(false);
   }, []); // Empty dependency array ensures this runs once on mount
 
   // Enforce login on all pages except the login and signup pages
   useEffect(() => {
+    if (loading) return;
     // This effect depends on `token`, so it will re-run when `token` changes.
     // Initially, it runs after the token is retrieved from localStorage.
     const pathname = window.location.pathname;
@@ -32,7 +36,7 @@ export default function RootLayout({
     if (!token && !noAuthPaths.includes(pathname)) {
       window.location.href = '/login'; // Redirect to login page
     }
-  }, [token]); // Depend on `token` to re-run this effect when it changes
+  }, [token, loading]); // Depend on `token` to re-run this effect when it changes
 
   // Hide the navigation bar on some subpages
   useEffect(() => {
