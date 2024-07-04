@@ -8,6 +8,8 @@ import PageTitle from "@/components/PageTitle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Trashbin } from '@/app/types';
+import { Info } from "lucide-react";
+
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   const [data, setData] = useState<Trashbin | null>(null);
@@ -111,19 +113,9 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      <PageTitle title={`Edit Trashbin ${data.identifier}`} />
+      <PageTitle title={`Edit Trashbin ${data.name} (${data.identifier})`} />
       {error && <div className="text-red-600">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block">Identifier</label>
-          <input
-            type="text"
-            name="identifier"
-            value={formData.identifier || ""}
-            onChange={handleChange}
-            className="w-full border px-2 py-1"
-          />
-        </div>
         <div>
           <label className="block">Name</label>
           <input
@@ -133,6 +125,10 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             onChange={handleChange}
             className="w-full border px-2 py-1"
           />
+        </div>
+        <div className="flex items-center justify-start">
+          <Info className="text-gray-500 mr-2" />
+          <p className="text-lg text-gray-500">Latitude and longitude are the first entry in the list when right-clicking on the map in Google Maps.</p>
         </div>
         <div className="flex justify-between">
           <div className="w-1/2 pr-2">

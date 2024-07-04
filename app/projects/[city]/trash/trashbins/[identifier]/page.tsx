@@ -119,7 +119,7 @@ export default function TrashbinDetail({
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between">
-        <PageTitle title={`Trashbin ${data.name}`} />
+        <PageTitle title={`Trashbin ${data.name} (${data.identifier})`} />
         <Button asChild className="bg-green-600 text-white">
           <Link href={getEditUrl()}>Edit Trashcan</Link>
         </Button>
