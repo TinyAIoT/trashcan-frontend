@@ -82,7 +82,7 @@ export default function TrashbinDetail({
         );
 
         const trashbin = {
-          id: response.data._id,
+          _id: response.data._id,
           identifier: response.data.identifier,
           name: response.data.name,
           coordinates: response.data.coordinates,
@@ -97,6 +97,8 @@ export default function TrashbinDetail({
           imageUrl: response.data.image
         };
 
+        // TODO: Edit Trashbin type to completely match the API response
+        // setData(response.data);
         setData(trashbin);
       } catch (error) {
         console.error("Error fetching data:", error);

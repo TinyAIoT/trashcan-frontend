@@ -230,7 +230,7 @@ const RoutePlanning = () => {
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
         {
           trashCollector: collectorId,
-          assignedTrashbins: selectedBins.map(bin => bin.id),
+          assignedTrashbins: selectedBins.map(bin => bin._id),
         },
         {
           headers: {
