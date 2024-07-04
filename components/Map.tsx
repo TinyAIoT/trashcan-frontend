@@ -8,6 +8,7 @@ import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { Trashbin } from '@/app/types';
 
 interface MapProps {
   trashbinData: Trashbin[];
@@ -23,20 +24,6 @@ interface MapProps {
   optimizedBins?: Trashbin[];
   showRoute?: boolean;
 }
-
-import { Trashbin } from '@/app/types';
-
-// interface Trashbin {
-//   identifier: string;
-//   name: string;
-//   lat: number | null;
-//   lng: number | null;
-//   fillLevel: number;
-//   fillLevelChange: number;
-//   batteryLevel: number;
-//   signalStrength: number;
-//   imageUrl: string;
-// }
 
 function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThresholds } : {
   trashbin: Trashbin, 
@@ -171,12 +158,12 @@ const addMarkersToMap = (L: any, trashbinData: Trashbin[], fillThresholds: [numb
 
 // Route handling
 const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins: Trashbin[] | undefined, tripStartEnd: LatLngTuple | undefined, mapRef: any, routingControlRef: any) => {
-  if (routingControlRef.current) {
+  if (routingControlRef.current && mapRef.current) {
     mapRef.current.removeControl(routingControlRef.current);
     routingControlRef.current = null;
   }
 
-  if (showRoute && tripStartEnd && optimizedBins && optimizedBins.length > 0) {
+  if (mapRef.current && showRoute && tripStartEnd && optimizedBins && optimizedBins.length > 0) {
     const waypoints = [
       L.Routing.waypoint(L.latLng(tripStartEnd[0], tripStartEnd[1]), null, { allowUTurn: true }),
       ...optimizedBins.map(bin => L.Routing.waypoint(L.latLng(bin.coordinates[0], bin.coordinates[1]), null, { allowUTurn: true })),
@@ -209,8 +196,10 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
       require('leaflet-routing-machine');
 
       initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
-      addMarkersToMap(L, trashbinData, fillThresholds, batteryThresholds, selectedBins, isRoutePlanning, onTrashbinClick, markersRef);
-      handleRoutingControl(L, showRoute, optimizedBins, tripStartEnd, mapRef, routingControlRef);
+      if (mapRef.current && markersRef.current) {
+        addMarkersToMap(L, trashbinData, fillThresholds, batteryThresholds, selectedBins, isRoutePlanning, onTrashbinClick, markersRef);
+        handleRoutingControl(L, showRoute, optimizedBins, tripStartEnd, mapRef, routingControlRef);
+      }
     }
   }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute, batteryThresholds, centerCoordinates, fillThresholds, initialZoom, tripStartEnd ]);
 

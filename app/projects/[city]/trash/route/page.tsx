@@ -9,8 +9,8 @@ import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
 // import { Input } from "@/components/ui/input";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy, Info } from 'lucide-react';
@@ -66,7 +66,8 @@ const RoutePlanning = () => {
   // Dialog state for showing the GoogleMaps link
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Trashbin data fetched from the our backend
-  const [trashbinData, setTrashbinData] = useState([]);
+  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
+  const [unassignedTrashbins, setUnassignedTrashbins] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [tripStartEnd, setTripStartEnd] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
@@ -90,19 +91,20 @@ const RoutePlanning = () => {
 
         const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
           return {
-            // id: item._id,
+            id: item._id,
             identifier: item.identifier,
             name: item.name,
-            // coordinates: item.coordinates,
             coordinates: item.coordinates,
             fillLevel: item.fillLevel,
             fillLevelChange: item.fillLevelChange,
             batteryLevel: item.batteryLevel,
             signalStrength: item.signalStrength,
+            assigned: item.assigned
           };
         });
 
         setTrashbinData(transformedTrashbinData);
+        setUnassignedTrashbins(transformedTrashbinData.filter((item: any) => item.assigned === false));
 
         const projectResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
@@ -181,17 +183,12 @@ const RoutePlanning = () => {
     setShowRoute(true);
   };
 
-  // If map tab is deselected, don't show the route anymore
+  // If the active tab is not 'map' don't show the route anymore
   useEffect(() => {
     if (activeTab !== 'map') {
       setShowRoute(false);
     }
   }, [activeTab]);
-
-  // If selected bins change, don't show the route anymore
-  useEffect(() => {
-    setShowRoute(false);
-  }, [selectedBins]);
 
   // Generate GoogleMaps link for the route and show it in a dialog
   const showGoogleMapsLink = async () => {
@@ -216,7 +213,72 @@ const RoutePlanning = () => {
     setGoogleMapsLink(googleMapsUrl);
     setIsDialogOpen(true);
   };
-  
+
+  // Assigns currently selected bins to a collector
+  const assignRoute = async () => {
+    // If no bins are selected, we cannot assign a route
+    if (selectedBins.length === 0) return;
+
+    const token = localStorage.getItem("authToken");
+
+    // Bins currently always assigned to a single collector
+    // Treated like a boolean for now: assigned or not assigned
+    const collectorId = '66800deb530fb584255e1f8f'
+
+    try {
+      const response = await axios.post(
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
+        {
+          trashCollector: collectorId,
+          assignedTrashbins: selectedBins.map(bin => bin.id),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+          },
+        }
+      );
+
+      // Reload the page to not show assigned bins anymore
+      if (response.status === 200) {
+        location.reload();
+      }
+    } catch (error) {
+      console.error('Error while assigning route:', error);
+    }
+  }
+
+  // Unassigns all bins
+  const unassignAllBins = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // Bins currently always assigned to a single collector
+    // Treated like a boolean for now: assigned or not assigned
+    const collectorId = '66800deb530fb584255e1f8f'
+
+    try {
+      const response = await axios.post(
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
+        {
+          trashCollector: collectorId,
+          assignedTrashbins: [],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+          },
+        }
+      );
+
+      // Reload the page to show all bins again
+      if (response.status === 200) {
+        location.reload();
+      }
+    } catch (error) {
+      console.error('Error while assigning route:', error);
+    }
+  }
+
   // Handle the animation for the copy button
   const handleCopy = () => {
     // Find the button by its ID and add the effect class
@@ -231,7 +293,6 @@ const RoutePlanning = () => {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Route Planning" />
-      {/* <h1 className="text-2xl font-bold">Trashbin Selection</h1> */}
       <div className="flex items-center justify-start">
         <Info className="text-gray-500 mr-2" />
         <p className="text-lg text-gray-500">Select the trashbins to be considered for a route by clicking on the trashbins on the map or table</p>
@@ -239,8 +300,8 @@ const RoutePlanning = () => {
       <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
         <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
         <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
-        <Button className="bg-green-600 text-white">Assign Route</Button>
-        <Button className="bg-red-600 text-white">Unassign All Bins</Button>
+        <Button className="bg-green-600 text-white" onClick={assignRoute}>Assign Route</Button>
+        <Button className="bg-red-600 text-white" onClick={unassignAllBins}>Unassign All Bins</Button>
       </section>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full">
@@ -250,6 +311,7 @@ const RoutePlanning = () => {
         <TabsContent value="map">
           { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && tripStartEnd &&(
           <div className="w-full h-[80vh] relative z-0">
+            {/* use trashbinData={unassignedTrashbins} */}
             <Map 
               trashbinData={trashbinData}
               centerCoordinates={centerCoordinates}
@@ -279,7 +341,8 @@ const RoutePlanning = () => {
           </div>
         </TabsContent>
       </Tabs>
-      <div className="flex-col">
+      {/* Commented out, as options are not supported yet */}
+      {/* <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
         <div className="flex items-center mb-3">
             <p>Assignee: </p>
@@ -294,8 +357,7 @@ const RoutePlanning = () => {
             </SelectContent>
             </Select>
         </div>
-        {/* The following options are not supported yet */}
-        {/* <div className="flex items-center mb-3">
+          <div className="flex items-center mb-3">
             <p>Time Constraint: </p>
             <Input
                 type="number"
@@ -316,8 +378,8 @@ const RoutePlanning = () => {
                 <SelectItem value="distance">Distance</SelectItem>
             </SelectContent>
             </Select>
-        </div> */}
-      </div>
+        </div>
+      </div> */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="z-50">
           <DialogHeader>
