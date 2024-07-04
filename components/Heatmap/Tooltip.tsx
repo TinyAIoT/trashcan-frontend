@@ -1,4 +1,5 @@
 import { InteractionData } from "./Heatmap";
+import * as d3 from "d3";
 
 type TooltipProps = {
   interactionData: InteractionData | null;
@@ -10,8 +11,6 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
   if (!interactionData) {
     return null;
   }
-
-  const displayText = `${interactionData.value} bins (${Number(interactionData.yLabel) - 10}-${interactionData.yLabel}%)`;
 
   return (
     // Wrapper div: a rect on top of the viz area
@@ -25,18 +24,17 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
         pointerEvents: "none",
       }}
     >
-      {/* The actual box with white background */}
+      {/* Actual tooltip */}
       <div
-        className="chart-tooltip"
+        className="tooltip tooltip absolute bg-white border border-gray-300 p-2.5 rounded-md pointer-events-none opacity-95"
         style={{
-          position: "absolute",
           left: interactionData.xPos - 180,
           top: interactionData.yPos,
         }}
       >
-        <span>{interactionData.xLabel}</span>
+        <span>Date: {d3.timeFormat('%Y-%m-%d')(new Date(interactionData.xLabel))}</span>
         <br/>
-        <span>{displayText}</span>
+        <span>{interactionData.value} bins ({Number(interactionData.yLabel) - 10}-{interactionData.yLabel}%)</span>
       </div>
     </div>
   );
