@@ -163,9 +163,8 @@ export default function ProjectSettings() {
       newErrors.batteryThresholds = "Battery level thresholds must be real numbers.";
     }
 
-    setErrors(newErrors);
-
     if (!isValid) {
+      setErrors(newErrors);
       return;
     }
 

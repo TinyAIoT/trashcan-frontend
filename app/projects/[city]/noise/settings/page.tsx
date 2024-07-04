@@ -93,9 +93,8 @@ export default function AppSettings() {
       newErrors.activeTimeInterval = "Active time interval must be a number between 0 and 24.";
     }
 
-    setErrors(newErrors);
-
     if (!isValid) {
+      setErrors(newErrors);
       return;
     }
 
