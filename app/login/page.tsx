@@ -36,6 +36,7 @@ export default function Component() {
         // Login was successful
         // Save the token in local storage for future requests
         localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("email", email);
         // Redirect to the home page
         router.push("/");
       }

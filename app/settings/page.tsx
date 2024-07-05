@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
+import PageTitle from '@/components/PageTitle';
 // import { Label } from "@/components/ui/label";
 // import { Input } from "@/components/ui/input";
 // import { Textarea } from "@/components/ui/textarea";
-import PageTitle from '@/components/PageTitle';
 // import { CardContent, Card, CardHeader } from "@/components/ui/card";
 // import { Sun, Moon } from "lucide-react";
 // import { useTheme } from "next-themes";  // https://github.com/pacocoursey/next-themes
@@ -13,19 +13,17 @@ import PageTitle from '@/components/PageTitle';
 export default function Component() {
   // const [language, setLanguage] = useState('de');
   // const [theme, setTheme] = useState('light');
-  const [email, setEmail] = useState('placeholder@tinyaiot-international.com');
 
   const handleLogout = () => {
     localStorage.setItem("authToken", "");  // Clear the token
     window.location.href = '/login';  // Redirect to the login page
   }
 
-  // TODO: Fetch the current user's data (email address)
-
   return (
     <div>
       <div className="px-4 space-y-6 sm:px-6">
-        <PageTitle title={email} />
+        {/* TODO: Make it more robust by fetching the email by API, not storing it in local storage! */}
+        <PageTitle title={localStorage.getItem("email") || "Email not found"} />
         <Button onClick={handleLogout} variant="destructive" className="w-[150px]">
           Logout
         </Button>
