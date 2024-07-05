@@ -91,7 +91,7 @@ const RoutePlanning = () => {
 
         const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
           return {
-            id: item._id,
+            _id: item._id,
             identifier: item.identifier,
             name: item.name,
             coordinates: item.coordinates,
@@ -103,8 +103,11 @@ const RoutePlanning = () => {
           };
         });
 
+        console.log(transformedTrashbinData)
+        // await new Promise(resolve => setTimeout(resolve, 100000));
+
         setTrashbinData(transformedTrashbinData);
-        setUnassignedTrashbins(transformedTrashbinData.filter((item: any) => item.assigned === false));
+        setUnassignedTrashbins(transformedTrashbinData.filter((item: any) => item.assigned === undefined));
 
         const projectResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
@@ -225,6 +228,8 @@ const RoutePlanning = () => {
     // Treated like a boolean for now: assigned or not assigned
     const collectorId = '66800deb530fb584255e1f8f'
 
+    console.log(selectedBins);
+
     try {
       const response = await axios.post(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
@@ -238,6 +243,21 @@ const RoutePlanning = () => {
           },
         }
       );
+
+      // TODO: Remove (DEBUGGING)
+      // Get information for the first bin of assignedTrashbins
+      // const bin = response.data.assignedTrashbins[0];
+      // const response2 = await axios.get(
+      //   `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${bin.identifier}`,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+      //     },
+      //   }
+      // );
+
+      // console.log(response2.data);
+      // await new Promise(resolve => setTimeout(resolve, 100000));
 
       // Reload the page to not show assigned bins anymore
       if (response.status === 200) {
@@ -311,9 +331,9 @@ const RoutePlanning = () => {
         <TabsContent value="map">
           { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && tripStartEnd &&(
           <div className="w-full h-[80vh] relative z-0">
-            {/* use trashbinData={unassignedTrashbins} */}
+            {/* Instead of trashbinData={trashbinData} */}
             <Map 
-              trashbinData={trashbinData}
+              trashbinData={unassignedTrashbins}
               centerCoordinates={centerCoordinates}
               initialZoom={initialZoom}
               fillThresholds={fillThresholds}
