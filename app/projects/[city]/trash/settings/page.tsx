@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import axios from "axios";
+import { Info } from "lucide-react";
 
 export default function ProjectSettings() {
   const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
@@ -215,122 +216,142 @@ export default function ProjectSettings() {
   }
 
   return (
-    <div className="p-6">
+    <div className="px-1">
       <PageTitle title="Project Settings" />
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 mt-2">
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Latitude & Longitude of map center</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of city center.</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">The maps are centered on this coordinate.</p>
+          </div>
           <div className="flex">
             <input
               type="text"
               value={mapCenterCoordinates[0]}
-              onChange={(e) =>
-                handleMapCenterCoordinateChange("latitude", e.target.value)
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              onChange={(e) => handleMapCenterCoordinateChange("latitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
             />
             <input
               type="text"
               value={mapCenterCoordinates[1]}
-              onChange={(e) =>
-                handleMapCenterCoordinateChange("longitude", e.target.value)
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              onChange={(e) => handleMapCenterCoordinateChange("longitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
           {errors.mapCenter && <p className="text-red-500">{errors.mapCenter}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Latitude & Longitude of start and end location of routes</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of depot.</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">The route planning takes these coordinates as start and end point.</p>
+          </div>
           <div className="flex">
             <input
               type="text"
               value={startEndCoordinates[0]}
-              onChange={(e) =>
-                handleStartEndCoordinateChange("latitude", e.target.value)
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              onChange={(e) => handleStartEndCoordinateChange("latitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
             />
             <input
               type="text"
               value={startEndCoordinates[1]}
-              onChange={(e) =>
-                handleStartEndCoordinateChange("longitude", e.target.value)
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              onChange={(e) => handleStartEndCoordinateChange("longitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
           {errors.startEnd && <p className="text-red-500">{errors.startEnd}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Zoom Level</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Zoom Level</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Factor how much the map is zoomed in.</p>
+          </div>
           <input
             type="text"
             value={zoomLevel}
             onChange={(e) => setZoomLevel(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          />
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
+            />
           {errors.zoomLevel && <p className="text-red-500">{errors.zoomLevel}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">
-            Fill Level Interval (Hours)
-          </label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Fill Level Interval</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Over how many hours the fill level change will be computed.</p>
+          </div>
           <input
             type="text"
             value={fillLevelInterval}
             onChange={(e) => setFillLevelInterval(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
           {errors.fillLevelInterval && <p className="text-red-500">{errors.fillLevelInterval}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Fill Level Thresholds</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Fill Level Thresholds</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
+          </div>
           <div className="flex">
+            <div className="w-1/5 h-12 bg-green-600"/>
             <input
               type="text"
               value={fillThresholds[0]}
               onChange={(e) => setFillThresholds([e.target.value, fillThresholds[1]])}
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-yellow-400"/>
             <input
               type="text"
               value={fillThresholds[1]}
               onChange={(e) => setFillThresholds([fillThresholds[0], e.target.value])}
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-red-600"/>
           </div>
           {errors.fillThresholds && <p className="text-red-500">{errors.fillThresholds}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Battery Level Thresholds</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Battery Level Thresholds</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
+          </div>
           <div className="flex">
+            <div className="w-1/5 h-12 bg-green-600"/>
             <input
               type="text"
               value={batteryThresholds[0]}
               onChange={(e) => setBatteryThresholds([e.target.value, batteryThresholds[1]])}
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-yellow-400"/>
             <input
               type="text"
               value={batteryThresholds[1]}
               onChange={(e) => setBatteryThresholds([batteryThresholds[0], e.target.value])}
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-red-600"/>
           </div>
           {errors.batteryThresholds && <p className="text-red-500">{errors.batteryThresholds}</p>}
         </div>
         <div className="flex space-x-4">
           <button
             type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded-md"
+            className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
             Save Settings
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 bg-red-600 text-white rounded-md"
+            className="px-4 py-2 bg-red-600 text-white rounded-md w-[200px]"
           >
             Cancel
           </button>
