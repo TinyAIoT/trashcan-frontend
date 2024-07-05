@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import axios from "axios";
+import { Info } from "lucide-react";
 
 export default function AppSettings() {
   const [noiseThreshold, setNoiseThreshold] = useState<string>("");
@@ -83,10 +84,6 @@ export default function AppSettings() {
         newErrors.activeTimeInterval = "Active time interval must be a number between 0 and 24.";
         isValid = false;
       }
-      if (startHour >= endHour) {
-        newErrors.activeTimeInterval = "Start hour must be before end hour.";
-        isValid = false;
-      }
     }
     catch (error) {
       isValid = false;
@@ -142,40 +139,51 @@ export default function AppSettings() {
       <PageTitle title="App Settings" />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Noise Threshold</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Noise Threshold (dB)</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Loudness of sound to be considered noise.</p>
+          </div>
           <input
             type="text"
             value={noiseThreshold}
             onChange={(e) => setNoiseThreshold(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
+          {errors.noiseThreshold && <p className="text-red-500">{errors.noiseThreshold}</p>}
         </div>
-        {errors.noiseThreshold && <p className="text-red-500">{errors.noiseThreshold}</p>}
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Confidence Threshold</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Confidence Threshold</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Confidence of model needed to classify sound as noise.</p>
+          </div>
           <input
             type="text"
-            step="0.01"
             value={confidenceThreshold}
             onChange={(e) => setConfidenceThreshold(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
         </div>
         {errors.confidenceThreshold && <p className="text-red-500">{errors.confidenceThreshold}</p>}
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Active Time Interval (Hours)</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Active Time Interval</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Hours in which the sensor measures and which are displayed in the dashboard.</p>
+          </div>
           <div className="flex">
             <input
               type="text"
               value={activeTimeInterval[0]}
               onChange={(e) => setActiveTimeInterval([e.target.value, activeTimeInterval[1]])}
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-l px-3 py-2 w-[100px] mr-2"
             />
             <input
               type="text"
               value={activeTimeInterval[1]}
               onChange={(e) => setActiveTimeInterval([activeTimeInterval[0], e.target.value])}
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
+              className="border border-gray-300 rounded-r px-3 py-2 w-[100px]"
             />
           </div>
         </div>
