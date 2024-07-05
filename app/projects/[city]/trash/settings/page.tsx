@@ -137,7 +137,7 @@ export default function ProjectSettings() {
       // First number must be smaller than the second number
       if (fill1 > fill2) {
         isValid = false;
-        newErrors.fillThresholds = "First fill level threshold must be smaller than the second threshold.";
+        newErrors.fillThresholds = "First fill level threshold must not be larger than the second threshold.";
       }
     }
     catch (error) {
@@ -153,9 +153,9 @@ export default function ProjectSettings() {
         isValid = false;
         newErrors.batteryThresholds = "Battery level thresholds must be numbers between 0 and 100.";
       }
-      if (battery1 > battery2) {
+      if (battery1 < battery2) {
         isValid = false;
-        newErrors.batteryThresholds = "First battery level threshold must be larger than the second threshold.";
+        newErrors.batteryThresholds = "First battery level threshold must not be smaller than the second threshold.";
       }
     }
     catch (error) {
