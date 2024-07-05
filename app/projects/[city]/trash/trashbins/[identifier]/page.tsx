@@ -54,6 +54,9 @@ export default function TrashbinDetail({
   params: { identifier: string };
 }) {
   const [data, setData] = useState<Trashbin | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number]>([20, 80]);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number]>([80, 20]);
+
   const historyData = generateMockData(100);
 
   // Convert historyData for the fillLevel chart
@@ -82,7 +85,7 @@ export default function TrashbinDetail({
         );
 
         const trashbin = {
-          id: response.data._id,
+          _id: response.data._id,
           identifier: response.data.identifier,
           name: response.data.name,
           coordinates: response.data.coordinates,
@@ -97,7 +100,23 @@ export default function TrashbinDetail({
           imageUrl: response.data.image
         };
 
+        // TODO: Edit Trashbin type to completely match the API response
+        // setData(response.data);
         setData(trashbin);
+
+        const projectId = localStorage.getItem("projectId");
+
+        const projectResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
+        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -119,7 +138,7 @@ export default function TrashbinDetail({
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between">
-        <PageTitle title={`Trashbin ${data.name}`} />
+        <PageTitle title={`Trashbin ${data.name} (${data.identifier})`} />
         <Button asChild className="bg-green-600 text-white">
           <Link href={getEditUrl()}>Edit Trashcan</Link>
         </Button>
@@ -139,18 +158,18 @@ export default function TrashbinDetail({
               <p className="p-4 font-semibold">Fill Level</p>
               <LineChart
                 historyData={fillLevelData}
-                green={[0, 30]}
-                yellow={[30, 70]}
-                red={[70, 100]}
+                green={[0, fillThresholds[0]]}
+                yellow={[fillThresholds[0], fillThresholds[1]]}
+                red={[fillThresholds[1], 100]}
               />
             </CardContent>
             <CardContent>
               <p className="p-4 font-semibold">Battery Level</p>
               <LineChart
                 historyData={batteryLevelData}
-                green={[80, 100]}
-                yellow={[20, 80]}
-                red={[0, 20]}
+                green={[batteryThresholds[0], 100]}
+                yellow={[batteryThresholds[1], batteryThresholds[0]]}
+                red={[0, batteryThresholds[1]]}
               />
             </CardContent>
           </section>

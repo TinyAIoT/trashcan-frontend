@@ -2,18 +2,22 @@
 import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import axios from "axios";
+import { Info } from "lucide-react";
 
 export default function AppSettings() {
-  const [noiseThreshold, setNoiseThreshold] = useState(80);               // Over 80dB
-  const [confidenceThreshold, setConfidenceThreshold] = useState(0.8);    // Over 80% confidence
-  const [activeTimeInterval, setActiveTimeInterval] = useState([22, 6]);  // 10PM to 6AM
+  const [noiseThreshold, setNoiseThreshold] = useState<string>("");
+  const [confidenceThreshold, setConfidenceThreshold] = useState<string>("");
+  const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState(false);
+  const [errors, setErrors] = useState({ noiseThreshold: "", confidenceThreshold: "", activeTimeInterval: "" });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
+
+        // TODO: Wait for backend to implement
 
         // const settingsResponse = await axios.get(
         //   `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/settings`,
@@ -27,9 +31,13 @@ export default function AppSettings() {
         // const { noiseThreshold, confidenceThreshold, activeTimeInterval } =
         //   settingsResponse.data.settings;
 
-        // setNoiseThreshold(noiseThreshold);
-        // setConfidenceThreshold(confidenceThreshold);
-        // setActiveTimeInterval(activeTimeInterval);
+        const noiseThreshold = String(80);          // Over 80dB
+        const confidenceThreshold = String(0.8);    // Over 80% confidence
+        const activeTimeInterval: [string, string] = ["22", "6"]; // 10PM to 6AM
+
+        setNoiseThreshold(noiseThreshold);
+        setConfidenceThreshold(confidenceThreshold);
+        setActiveTimeInterval(activeTimeInterval);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -39,15 +47,53 @@ export default function AppSettings() {
     fetchData();
   }, []);
 
-  const handleActiveTimeChange = (index: number, value: number) => {
-    const updatedInterval = [...activeTimeInterval];
-    updatedInterval[index] = value;
-    setActiveTimeInterval(updatedInterval);
-    setUpdated(false);
-  };
-
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+
+    // Validate all fields
+    let isValid = true;
+    let newErrors = { noiseThreshold: "", confidenceThreshold: "", activeTimeInterval: "" }
+    try {
+      var noiseThresholdNum = parseInt(noiseThreshold);
+      if (isNaN(noiseThresholdNum) || noiseThresholdNum < 0 || noiseThresholdNum > 120) {
+        newErrors.noiseThreshold = "Noise threshold must be a number between 0 and 120.";
+        isValid = false;
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.noiseThreshold = "Noise threshold must be a number between 0 and 120.";
+    }
+
+    try {
+      var confidenceThresholdNum = parseFloat(confidenceThreshold);
+      if (isNaN(confidenceThresholdNum) || confidenceThresholdNum < 0 || confidenceThresholdNum > 1) {
+        newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 1.";
+        isValid = false;
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 1.";
+    }
+
+    try {
+      var startHour = parseInt(activeTimeInterval[0]);
+      var endHour = parseInt(activeTimeInterval[1]);
+      if (isNaN(startHour) || startHour < 0 || startHour > 24 || isNaN(endHour) || endHour < 0 || endHour > 23) {
+        newErrors.activeTimeInterval = "Active time interval must be a number between 0 and 24.";
+        isValid = false;
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.activeTimeInterval = "Active time interval must be a number between 0 and 24.";
+    }
+
+    if (!isValid) {
+      setErrors(newErrors);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("authToken");
@@ -93,45 +139,55 @@ export default function AppSettings() {
       <PageTitle title="App Settings" />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Noise Threshold</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Noise Threshold (dB)</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Loudness of sound to be considered noise.</p>
+          </div>
           <input
-            type="number"
+            type="text"
             value={noiseThreshold}
-            onChange={(e) => setNoiseThreshold(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            onChange={(e) => setNoiseThreshold(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
+          {errors.noiseThreshold && <p className="text-red-500">{errors.noiseThreshold}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Confidence Threshold</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Confidence Threshold</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Confidence of model needed to classify sound as noise.</p>
+          </div>
           <input
-            type="number"
-            step="0.01"
+            type="text"
             value={confidenceThreshold}
-            onChange={(e) => setConfidenceThreshold(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            onChange={(e) => setConfidenceThreshold(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
         </div>
+        {errors.confidenceThreshold && <p className="text-red-500">{errors.confidenceThreshold}</p>}
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Active Time Interval (Hours)</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Active Time Interval</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Hours in which the sensor measures and which are displayed in the dashboard.</p>
+          </div>
           <div className="flex">
             <input
-              type="number"
+              type="text"
               value={activeTimeInterval[0]}
-              onChange={(e) =>
-                handleActiveTimeChange(0, Number(e.target.value))
-              }
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
+              onChange={(e) => setActiveTimeInterval([e.target.value, activeTimeInterval[1]])}
+              className="border border-gray-300 rounded-l px-3 py-2 w-[100px] mr-2"
             />
             <input
-              type="number"
+              type="text"
               value={activeTimeInterval[1]}
-              onChange={(e) =>
-                handleActiveTimeChange(1, Number(e.target.value))
-              }
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
+              onChange={(e) => setActiveTimeInterval([activeTimeInterval[0], e.target.value])}
+              className="border border-gray-300 rounded-r px-3 py-2 w-[100px]"
             />
           </div>
         </div>
+        {errors.activeTimeInterval && <p className="text-red-500">{errors.activeTimeInterval}</p>}
         <div className="flex space-x-4">
           <button
             type="submit"

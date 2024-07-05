@@ -2,15 +2,18 @@
 import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import axios from "axios";
+import { Info } from "lucide-react";
 
 export default function ProjectSettings() {
-  const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
-  const [zoomLevel, setZoomLevel] = useState(0);
-  const [fillLevelInterval, setFillLevelInterval] = useState(0);
-  const [fillThresholds, setFillThresholds] = useState([0, 0]);
-  const [batteryThresholds, setBatteryThresholds] = useState([0, 0]);
+  const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
+  const [startEndCoordinates, setStartEndCoordinates] = useState<[string, string]>(["0", "0"]);
+  const [zoomLevel, setZoomLevel] = useState<string>("0");
+  const [fillLevelInterval, setFillLevelInterval] = useState<string>("0");
+  const [fillThresholds, setFillThresholds] = useState<[string, string]>(["0", "0"]);
+  const [batteryThresholds, setBatteryThresholds] = useState<[string, string]>(["0", "0"]);
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState(false);
+  const [errors, setErrors] = useState({ mapCenter: "", startEnd: "", zoomLevel: "", fillLevelInterval: "", fillThresholds: "", batteryThresholds: ""});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,10 +33,8 @@ export default function ProjectSettings() {
         const { centerCoords, initialZoom, preferences, fillLevelChangeHours } =
           projectResponse.data.project;
 
-        setCoordinates({
-          latitude: centerCoords[0],
-          longitude: centerCoords[1],
-        });
+        setMapCenterCoordinates([centerCoords[0], centerCoords[1]]);
+        setStartEndCoordinates([centerCoords[0] + 1, centerCoords[1] + 1]);   // TODO: Wait for backend to implement
         setZoomLevel(initialZoom);
         setFillLevelInterval(fillLevelChangeHours);
         setFillThresholds(preferences.fillThresholds);
@@ -43,29 +44,141 @@ export default function ProjectSettings() {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchData();
   }, []);
 
-  const handleCoordinateChange = (key: string, value: number) => {
-    setCoordinates((prevCoordinates) => ({
-      ...prevCoordinates,
-      [key]: value,
-    }));
+  const handleMapCenterCoordinateChange = (key: string, value: string): void => {
+    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}  // Check if value contains something else than numbers or dots
+    if (key === "latitude") setMapCenterCoordinates((prevCoordinates) => [value, prevCoordinates[1]]);
+    if (key === "longitude") setMapCenterCoordinates((prevCoordinates) => [prevCoordinates[0], value]);
     setUpdated(false);
   };
 
+  const handleStartEndCoordinateChange = (key: string, value: string): void => {
+    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}  // Check if value contains something else than numbers or dots
+    if (key === "latitude") setStartEndCoordinates((prevCoordinates) => [value, prevCoordinates[1]]);
+    if (key === "longitude") setStartEndCoordinates((prevCoordinates) => [prevCoordinates[0], value]);
+    setUpdated(false);
+  }
+
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+
+    // Validate all fields
+    let isValid = true;
+    let newErrors = { mapCenter: "", startEnd: "", zoomLevel: "", fillLevelInterval: "", fillThresholds: "", batteryThresholds: ""};
+
+    // Check latitude and longitude of map center
+    try {
+      var mapCenterLat = parseFloat(mapCenterCoordinates[0]);
+      var mapCenterLng = parseFloat(mapCenterCoordinates[1]);
+      if (
+        mapCenterLat < -90 || mapCenterLat > 90 ||
+        mapCenterLng < -180 || mapCenterLng > 180
+      ) {
+        isValid = false;
+        newErrors.mapCenter = "Map center coordinates must be valid latitude (-90 to 90) and longitude (-180 to 180).";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.mapCenter = "Map center coordinates must be real numbers.";
+    }
+    // Check latitude and longitude of start and end location of routes
+    try {
+      var startEndLat = parseFloat(startEndCoordinates[0]);
+      var startEndLng = parseFloat(startEndCoordinates[1]);
+      if (
+        startEndLat < -90 || startEndLat > 90 ||
+        startEndLng < -180 || startEndLng > 180
+      ) {
+        isValid = false;
+        newErrors.startEnd = "Start and end coordinates must be valid latitude (-90 to 90) and longitude (-180 to 180).";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.startEnd = "Start and end coordinates must be real numbers.";
+    }
+
+    // Check zoom level
+    try {
+      var zoom = parseFloat(zoomLevel);
+      if (zoom < 0 || zoom > 20) {
+        isValid = false;
+        newErrors.zoomLevel = "Zoom level must be a number between 0 and 20.";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.zoomLevel = "Zoom level must be a real number.";
+    }
+
+    // Check fill level interval
+    try {
+      var interval = parseFloat(fillLevelInterval);
+      if (interval < 0) {
+        isValid = false;
+        newErrors.fillLevelInterval = "Fill level interval must be a positive number.";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.fillLevelInterval = "Fill level interval must be a real number.";
+    }
+
+    // Check fill level thresholds
+    try {
+      var fill1 = parseFloat(fillThresholds[0]);
+      var fill2 = parseFloat(fillThresholds[1]);
+      if (fill1 < 0 || fill1 > 100 || fill2 < 0 || fill2 > 100) {
+        isValid = false;
+        newErrors.fillThresholds = "Fill level thresholds must be numbers between 0 and 100.";
+      }
+      // First number must be smaller than the second number
+      if (fill1 > fill2) {
+        isValid = false;
+        newErrors.fillThresholds = "First fill level threshold must not be larger than the second threshold.";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.fillThresholds = "Fill level thresholds must be real numbers.";
+    }
+
+    // Check battery level thresholds
+    try {
+      var battery1 = parseFloat(batteryThresholds[0]);
+      var battery2 = parseFloat(batteryThresholds[1]);
+      if (battery1 < 0 || battery1 > 100 || battery2 < 0 || battery2 > 100) {
+        isValid = false;
+        newErrors.batteryThresholds = "Battery level thresholds must be numbers between 0 and 100.";
+      }
+      if (battery1 < battery2) {
+        isValid = false;
+        newErrors.batteryThresholds = "First battery level threshold must not be smaller than the second threshold.";
+      }
+    }
+    catch (error) {
+      isValid = false;
+      newErrors.batteryThresholds = "Battery level thresholds must be real numbers.";
+    }
+
+    if (!isValid) {
+      setErrors(newErrors);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
 
+      // TODO: Patch startEndCoords (wait for backend to implement)
+
       await axios.patch(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
         {
-          centerCoords: [coordinates.latitude, coordinates.longitude],
+          centerCoords: [mapCenterCoordinates[0], mapCenterCoordinates[1]],
           initialZoom: zoomLevel,
           preferences: {
             fillThresholds,
@@ -103,110 +216,142 @@ export default function ProjectSettings() {
   }
 
   return (
-    <div className="p-6">
+    <div className="px-1">
       <PageTitle title="Project Settings" />
-      <form onSubmit={handleSubmit} className="space-y-4">
-
-      <div className="flex flex-col">
-          <label className="mb-1 font-medium">Latitude & Longitude of map center</label>
+      <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of city center.</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">The maps are centered on this coordinate.</p>
+          </div>
           <div className="flex">
             <input
-              type="number"
-              value={coordinates.latitude}
-              onChange={(e) =>
-                handleCoordinateChange("latitude", Number(e.target.value))
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              type="text"
+              value={mapCenterCoordinates[0]}
+              onChange={(e) => handleMapCenterCoordinateChange("latitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
             />
             <input
-              type="number"
-              value={coordinates.longitude}
-              onChange={(e) =>
-                handleCoordinateChange("longitude", Number(e.target.value))
-              }
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              type="text"
+              value={mapCenterCoordinates[1]}
+              onChange={(e) => handleMapCenterCoordinateChange("longitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
+          {errors.mapCenter && <p className="text-red-500">{errors.mapCenter}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Zoom Level</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of depot.</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">The route planning takes these coordinates as start and end point.</p>
+          </div>
+          <div className="flex">
+            <input
+              type="text"
+              value={startEndCoordinates[0]}
+              onChange={(e) => handleStartEndCoordinateChange("latitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
+            />
+            <input
+              type="text"
+              value={startEndCoordinates[1]}
+              onChange={(e) => handleStartEndCoordinateChange("longitude", e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+            />
+          </div>
+          {errors.startEnd && <p className="text-red-500">{errors.startEnd}</p>}
+        </div>
+        <div className="flex flex-col">
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Zoom Level</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Factor how much the map is zoomed in.</p>
+          </div>
           <input
-            type="number"
+            type="text"
             value={zoomLevel}
-            onChange={(e) => setZoomLevel(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          />
+            onChange={(e) => setZoomLevel(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
+            />
+          {errors.zoomLevel && <p className="text-red-500">{errors.zoomLevel}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">
-            Fill Level Interval (Hours)
-          </label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Fill Level Interval</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Over how many hours the fill level change will be computed.</p>
+          </div>
           <input
-            type="number"
+            type="text"
             value={fillLevelInterval}
-            onChange={(e) => setFillLevelInterval(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            onChange={(e) => setFillLevelInterval(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
+          {errors.fillLevelInterval && <p className="text-red-500">{errors.fillLevelInterval}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Fill Level Thresholds</label>
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Fill Level Thresholds</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
+          </div>
           <div className="flex">
+            <div className="w-1/5 h-12 bg-green-600"/>
             <input
-              type="number"
+              type="text"
               value={fillThresholds[0]}
-              onChange={(e) =>
-                setFillThresholds([Number(e.target.value), fillThresholds[1]])
-              }
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
+              onChange={(e) => setFillThresholds([e.target.value, fillThresholds[1]])}
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-yellow-400"/>
             <input
-              type="number"
+              type="text"
               value={fillThresholds[1]}
-              onChange={(e) =>
-                setFillThresholds([fillThresholds[0], Number(e.target.value)])
-              }
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
+              onChange={(e) => setFillThresholds([fillThresholds[0], e.target.value])}
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
             />
+            <div className="w-1/5 h-12 bg-red-600"/>
           </div>
+          {errors.fillThresholds && <p className="text-red-500">{errors.fillThresholds}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 font-medium">Battery Level Thresholds</label>
-          <div className="flex">
-            <input
-              type="number"
-              value={batteryThresholds[0]}
-              onChange={(e) =>
-                setBatteryThresholds([
-                  Number(e.target.value),
-                  batteryThresholds[1],
-                ])
-              }
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/2"
-            />
-            <input
-              type="number"
-              value={batteryThresholds[1]}
-              onChange={(e) =>
-                setBatteryThresholds([
-                  batteryThresholds[0],
-                  Number(e.target.value),
-                ])
-              }
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/2"
-            />
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Battery Level Thresholds</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
           </div>
+          <div className="flex">
+            <div className="w-1/5 h-12 bg-green-600"/>
+            <input
+              type="text"
+              value={batteryThresholds[0]}
+              onChange={(e) => setBatteryThresholds([e.target.value, batteryThresholds[1]])}
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
+            />
+            <div className="w-1/5 h-12 bg-yellow-400"/>
+            <input
+              type="text"
+              value={batteryThresholds[1]}
+              onChange={(e) => setBatteryThresholds([batteryThresholds[0], e.target.value])}
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
+            />
+            <div className="w-1/5 h-12 bg-red-600"/>
+          </div>
+          {errors.batteryThresholds && <p className="text-red-500">{errors.batteryThresholds}</p>}
         </div>
         <div className="flex space-x-4">
           <button
             type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded-md"
+            className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
             Save Settings
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 bg-red-600 text-white rounded-md"
+            className="px-4 py-2 bg-red-600 text-white rounded-md w-[200px]"
           >
             Cancel
           </button>
