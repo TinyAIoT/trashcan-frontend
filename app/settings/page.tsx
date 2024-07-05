@@ -19,11 +19,19 @@ export default function Component() {
     window.location.href = '/login';  // Redirect to the login page
   }
 
+  // TODO: Make it more robust by fetching the email by API, not storing it in local storage
+  const getEmail = (): string => {
+    if (typeof window !== 'undefined') {
+      const email = localStorage.getItem('email'); // Safe to use localStorage here
+      if (email) return email;
+    }
+    return 'Email not found';
+  };
+
   return (
     <div>
       <div className="px-4 space-y-6 sm:px-6">
-        {/* TODO: Make it more robust by fetching the email by API, not storing it in local storage! */}
-        <PageTitle title={localStorage.getItem("email") || "Email not found"} />
+        <PageTitle title={getEmail()} />
         <Button onClick={handleLogout} variant="destructive" className="w-[150px]">
           Logout
         </Button>
