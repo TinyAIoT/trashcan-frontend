@@ -7,13 +7,23 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Trashbin } from '@/app/types';
+import { Trashbin } from "@/app/types";
 import { Info } from "lucide-react";
 
-
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
-  const [trashbin, setTrashbin] = useState<Trashbin | null>(null);
-  const [errors, setErrors] = useState({ name: "", coordinates: "", location: "", imageUrl: "" });
+  type trashBinUpdate = {
+    coordinates: [number | null, number | null];
+    location: string;
+    name: string;
+    imageUrl: string;
+  };
+  const [trashbin, setTrashbin] = useState<trashBinUpdate | null>(null);
+  const [errors, setErrors] = useState({
+    name: "",
+    coordinates: "",
+    location: "",
+    imageUrl: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,65 +53,62 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!trashbin) return;
-  
+
     // Validate all fields
     let isValid = true;
     let newErrors = { name: "", coordinates: "", location: "", imageUrl: "" };
-    
+
     // Check name
     if (trashbin.name === "") {
       isValid = false;
       newErrors.name = "Name cannot be empty.";
     }
-  
+
     // Check coordinates
     try {
       const lat = parseFloat(trashbin.coordinates[0]?.toString() || "0");
       const lng = parseFloat(trashbin.coordinates[1]?.toString() || "0");
-      if (
-        lat < -90 || lat > 90 ||
-        lng < -180 || lng > 180
-      ) {
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
         isValid = false;
-        newErrors.coordinates = "Coordinates must be valid latitude (-90 to 90) and longitude (-180 to 180).";
+        newErrors.coordinates =
+          "Coordinates must be valid latitude (-90 to 90) and longitude (-180 to 180).";
       }
-    }
-    catch (error) {
+    } catch (error) {
       isValid = false;
       newErrors.coordinates = "Coordinates must be real numbers.";
     }
-  
+
     // Check location
     // Currently nothing to check
-  
+
     // Check image URL
     try {
-      new URL(trashbin.imageUrl);
+      new URL(trashbin.image || "");
     } catch (err) {
       newErrors.imageUrl = "Image URL must be a valid URL.";
     }
-  
+
     if (!isValid) {
       setErrors(newErrors);
       return;
     }
-  
-    // console.log("Submitting form.", trashbin);
 
     try {
       const token = localStorage.getItem("authToken");
-  
+
       // Ensure coordinates are numbers
       const payload = {
         ...trashbin,
         coordinates: [
           parseFloat(trashbin.coordinates[0]?.toString() || "0"),
-          parseFloat(trashbin.coordinates[1]?.toString() || "0")
-        ]
+          parseFloat(trashbin.coordinates[1]?.toString() || "0"),
+        ],
       };
-  
+
+      console.log(trashbin);
+
       await axios.patch(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${trashbin._id}`,
         payload,
@@ -123,7 +130,9 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      <PageTitle title={`Edit Trashbin ${trashbin.name} (${trashbin.identifier})`} />
+      <PageTitle
+        title={`Edit Trashbin ${trashbin.name} (${trashbin.identifier})`}
+      />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block">Name</label>
@@ -138,7 +147,10 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         {errors.name && <p className="text-red-500">{errors.name}</p>}
         <div className="flex items-center justify-start">
           <Info className="text-gray-500 mr-2" />
-          <p className="text-lg text-gray-500">Latitude and longitude are the first entry in the list when right-clicking on the map in Google Maps.</p>
+          <p className="text-lg text-gray-500">
+            Latitude and longitude are the first entry in the list when
+            right-clicking on the map in Google Maps.
+          </p>
         </div>
         <div className="flex justify-between">
           <div className="w-1/2 pr-2">
@@ -147,7 +159,15 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
               type="number"
               name="lat"
               value={trashbin.coordinates[0]?.toString() || ""}
-              onChange={(e) => setTrashbin({ ...trashbin, coordinates: [parseFloat(e.target.value), trashbin.coordinates[1]] })}
+              onChange={(e) =>
+                setTrashbin({
+                  ...trashbin,
+                  coordinates: [
+                    parseFloat(e.target.value),
+                    trashbin.coordinates[1],
+                  ],
+                })
+              }
               className="w-full border px-2 py-1"
               step="any"
             />
@@ -158,20 +178,32 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
               type="number"
               name="lng"
               value={trashbin.coordinates[1]?.toString() || ""}
-              onChange={(e) => setTrashbin({ ...trashbin, coordinates: [trashbin.coordinates[0], parseFloat(e.target.value)] })}
+              onChange={(e) =>
+                setTrashbin({
+                  ...trashbin,
+                  coordinates: [
+                    trashbin.coordinates[0],
+                    parseFloat(e.target.value),
+                  ],
+                })
+              }
               className="w-full border px-2 py-1"
               step="any"
             />
           </div>
         </div>
-        {errors.coordinates && <p className="text-red-500">{errors.coordinates}</p>}
+        {errors.coordinates && (
+          <p className="text-red-500">{errors.coordinates}</p>
+        )}
         <div>
           <label className="block">Location</label>
           <input
             type="text"
             name="location"
             value={trashbin.location || ""}
-            onChange={(e) => setTrashbin({ ...trashbin, location: e.target.value })}
+            onChange={(e) =>
+              setTrashbin({ ...trashbin, location: e.target.value })
+            }
             className="w-full border px-2 py-1"
           />
         </div>
@@ -181,8 +213,10 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           <input
             type="text"
             name="imageUrl"
-            value={trashbin.imageUrl || ""}
-            onChange={(e) => setTrashbin({ ...trashbin, imageUrl: e.target.value })}
+            value={trashbin.image || ""}
+            onChange={(e) =>
+              setTrashbin({ ...trashbin, image: e.target.value })
+            }
             className="w-full border px-2 py-1"
           />
         </div>
