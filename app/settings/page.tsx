@@ -15,8 +15,7 @@ export default function Component() {
   // const [theme, setTheme] = useState('light');
 
   const handleLogout = () => {
-    localStorage.setItem("authToken", "");  // Clear the token
-    window.location.href = '/login';  // Redirect to the login page
+    window.location.href = '/login';      // Redirect to the login page (where the authToken is cleared)
   }
 
   // TODO: Make it more robust by fetching the email by API, not storing it in local storage

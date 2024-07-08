@@ -38,7 +38,7 @@ export default function RootLayout({
     if (!token && !noAuthPaths.includes(pathname)) {
       window.location.href = "/login"; // Redirect to login page
     }
-    const SECRET_KEY = process.env.JWT_SECRET_KEY;
+    const SECRET_KEY = process.env.JWT_SECRET_KEY || "";
     if (token) {
       try {
         // Validate the token

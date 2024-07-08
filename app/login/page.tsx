@@ -15,11 +15,23 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
+function removeLocalData() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("email");
+    localStorage.removeItem("projectId");
+    localStorage.removeItem("cityName");
+    localStorage.removeItem("projectType");
+  }
+}
+
 export default function Component() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+
+  removeLocalData();
 
   const handleLogin = async () => {
 

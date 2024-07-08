@@ -15,14 +15,14 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     coordinates: [number | null, number | null];
     location: string;
     name: string;
-    imageUrl: string;
+    image: string;
   };
   const [trashbin, setTrashbin] = useState<trashBinUpdate | null>(null);
   const [errors, setErrors] = useState({
     name: "",
     coordinates: "",
     location: "",
-    imageUrl: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
     // Validate all fields
     let isValid = true;
-    let newErrors = { name: "", coordinates: "", location: "", imageUrl: "" };
+    let newErrors = { name: "", coordinates: "", location: "", image: "" };
 
     // Check name
     if (trashbin.name === "") {
@@ -87,7 +87,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     try {
       new URL(trashbin.image || "");
     } catch (err) {
-      newErrors.imageUrl = "Image URL must be a valid URL.";
+      newErrors.image = "Image URL must be a valid URL.";
     }
 
     if (!isValid) {
@@ -212,7 +212,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
           <label className="block">Image URL</label>
           <input
             type="text"
-            name="imageUrl"
+            name="image"
             value={trashbin.image || ""}
             onChange={(e) =>
               setTrashbin({ ...trashbin, image: e.target.value })
@@ -220,7 +220,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             className="w-full border px-2 py-1"
           />
         </div>
-        {errors.imageUrl && <p className="text-red-500">{errors.imageUrl}</p>}
+        {errors.image && <p className="text-red-500">{errors.image}</p>}
         <div className="flex gap-4">
           <Button
             type="submit"
