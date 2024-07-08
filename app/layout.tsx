@@ -6,6 +6,9 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +20,6 @@ export default function RootLayout({
   const [showNavigation, setShowNavigation] = useState(false);
   const [token, setToken] = useState<string>("");
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     // This effect will run only on the client side, after the component mounts
@@ -34,7 +36,18 @@ export default function RootLayout({
     const pathname = window.location.pathname;
     const noAuthPaths = ["/login", "/signup"];
     if (!token && !noAuthPaths.includes(pathname)) {
-      window.location.href = '/login'; // Redirect to login page
+      window.location.href = "/login"; // Redirect to login page
+    }
+    const SECRET_KEY = process.env.JWT_SECRET_KEY;
+    if (token) {
+      try {
+        // Validate the token
+        jwt.verify(token, SECRET_KEY);
+      } catch (error) {
+        // If token validation fails, redirect to the login page
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
+      }
     }
   }, [token, loading]); // Depend on `token` to re-run this effect when it changes
 
@@ -67,14 +80,16 @@ export default function RootLayout({
         )}
       >
         {/* Only show the navigation bar on certain pages */}
-        {showNavigation ? 
+        {showNavigation ? (
           <div className="h-screen">
             <SideNavbar />
-          </div> : <></>}
+          </div>
+        ) : (
+          <></>
+        )}
 
         {/* Main page */}
         <div className="p-8 w-full">{children}</div>
-
       </body>
     </html>
   );
