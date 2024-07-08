@@ -1,5 +1,3 @@
-// app/trashbins/[id]/edit/page.tsx
-
 "use client"; // Ensure this runs on the client side
 
 import React, { useEffect, useState } from "react";
@@ -7,22 +5,23 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Trashbin } from "@/app/types";
 import { Info } from "lucide-react";
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
-  type trashBinUpdate = {
+  type TrashBinUpdate = {
+    _id: string;
+    identifier: string;
     coordinates: [number | null, number | null];
     location: string;
     name: string;
-    imageUrl: string;
+    image: string;
   };
-  const [trashbin, setTrashbin] = useState<trashBinUpdate | null>(null);
+  const [trashbin, setTrashbin] = useState<TrashBinUpdate | null>(null);
   const [errors, setErrors] = useState({
     name: "",
     coordinates: "",
     location: "",
-    imageUrl: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
 
     // Validate all fields
     let isValid = true;
-    let newErrors = { name: "", coordinates: "", location: "", imageUrl: "" };
+    let newErrors = { name: "", coordinates: "", location: "", image: "" };
 
     // Check name
     if (trashbin.name === "") {
@@ -87,7 +86,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     try {
       new URL(trashbin.image || "");
     } catch (err) {
-      newErrors.imageUrl = "Image URL must be a valid URL.";
+      newErrors.image = "Image URL must be a valid URL.";
     }
 
     if (!isValid) {
@@ -134,27 +133,25 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         title={`Edit Trashbin ${trashbin.name} (${trashbin.identifier})`}
       />
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block">Name</label>
+        <div className="flex flex-col">
+          <label className="mb-1 text-lg">Name</label>
           <input
             type="text"
             name="name"
             value={trashbin.name || ""}
             onChange={(e) => setTrashbin({ ...trashbin, name: e.target.value })}
-            className="w-full border px-2 py-1"
+            className="border border-gray-300 rounded px-3 py-2 w-[300px] mr-2"
           />
+          {errors.name && <p className="text-red-500">{errors.name}</p>}
         </div>
-        {errors.name && <p className="text-red-500">{errors.name}</p>}
-        <div className="flex items-center justify-start">
-          <Info className="text-gray-500 mr-2" />
-          <p className="text-lg text-gray-500">
-            Latitude and longitude are the first entry in the list when
-            right-clicking on the map in Google Maps.
-          </p>
-        </div>
-        <div className="flex justify-between">
-          <div className="w-1/2 pr-2">
-            <label className="block">Latitude</label>
+        <div className="flex flex-col">
+          <div className="flex items-center justify-start">
+            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of trashbin.</label>
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <p className="text-lg text-gray-500">Latitude and longitude are the first entry in the list when
+            right-clicking on the map in Google Maps.</p>
+          </div>
+          <div className="flex">
             <input
               type="number"
               name="lat"
@@ -168,12 +165,9 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
                   ],
                 })
               }
-              className="w-full border px-2 py-1"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
               step="any"
             />
-          </div>
-          <div className="w-1/2 pl-2">
-            <label className="block">Longitude</label>
             <input
               type="number"
               name="lng"
@@ -187,16 +181,14 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
                   ],
                 })
               }
-              className="w-full border px-2 py-1"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
               step="any"
             />
           </div>
+          {errors.coordinates && (<p className="text-red-500">{errors.coordinates}</p>)}
         </div>
-        {errors.coordinates && (
-          <p className="text-red-500">{errors.coordinates}</p>
-        )}
-        <div>
-          <label className="block">Location</label>
+        <div className="flex flex-col">
+          <label className="mb-1 text-lg">Location</label>
           <input
             type="text"
             name="location"
@@ -204,35 +196,35 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             onChange={(e) =>
               setTrashbin({ ...trashbin, location: e.target.value })
             }
-            className="w-full border px-2 py-1"
+            className="border border-gray-300 rounded px-3 py-2 w-[300px] mr-2"
           />
+          {errors.name && <p className="text-red-500">{errors.name}</p>}
         </div>
-        {errors.location && <p className="text-red-500">{errors.location}</p>}
-        <div>
-          <label className="block">Image URL</label>
+        <div className="flex flex-col">
+          <label className="mb-1 text-lg">Image URL</label>
           <input
             type="text"
-            name="imageUrl"
+            name="image"
             value={trashbin.image || ""}
             onChange={(e) =>
               setTrashbin({ ...trashbin, image: e.target.value })
             }
-            className="w-full border px-2 py-1"
+            className="border border-gray-300 rounded px-3 py-2 w-[600px] mr-2"
           />
+          {errors.location && <p className="text-red-500">{errors.location}</p>}
         </div>
-        {errors.imageUrl && <p className="text-red-500">{errors.imageUrl}</p>}
         <div className="flex gap-4">
           <Button
             type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded-md"
+            className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
-            Update
+            Save
           </Button>
           <Button
-            className="px-4 py-2 bg-red-600 text-white rounded-md"
+            className="px-4 py-2 bg-red-600 text-white rounded-md w-[200px]"
             onClick={goBack}
           >
-            <Link href="">Abort</Link>
+            <Link href="">Cancel</Link>
           </Button>
         </div>
       </form>

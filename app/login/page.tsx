@@ -15,11 +15,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
+function removeLocalData() {
+  if (typeof window !== "undefined") {
+    localStorage.clear();
+  }
+}
+
 export default function Component() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+
+  removeLocalData();
 
   const handleLogin = async () => {
 

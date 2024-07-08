@@ -1,20 +1,18 @@
 type Trashbin = {
   _id: string;
   identifier: string;
-  name: string;
-  coordinates: [number | null, number | null];
+  coordinates: [number, number];
   location: string;
-  project: string;
+  name: string;
   fillLevel: number;
   fillLevelChange: number;
   batteryLevel: number;
   signalStrength: number;
+  image: string;
   lastEmptied: Date;
-  assigned: boolean;
-  imageUrl: string;
-  // sensors: any[];
-  // createdAt: Date;
-  // updatedAt: Date;
+  assignee: {
+    _id: string
+  }
 };
 
 export type { Trashbin };

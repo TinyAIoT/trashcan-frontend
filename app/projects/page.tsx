@@ -15,15 +15,26 @@ interface Project {
   cityName: string;
 }
 
+function removeProjectDataLocally() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("projectId");
+    localStorage.removeItem("cityName");
+    localStorage.removeItem("projectType");
+  }
+}
+
 function saveProjectDataLocally(project: any) {
-  localStorage.setItem("projectId", project.id);
-  localStorage.setItem("cityName", project.cityName);
-  localStorage.setItem("projectType", project.projectType);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("projectId", project.id);
+    localStorage.setItem("cityName", project.cityName);
+    localStorage.setItem("projectType", project.projectType);
+  }
 }
 
 export default function Projects() {
-
   const [projectData, setProjectData] = useState<Project[]>([]);
+
+  removeProjectDataLocally();
 
   useEffect(() => {
     const fetchData = async () => {

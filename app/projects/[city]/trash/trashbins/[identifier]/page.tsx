@@ -83,26 +83,7 @@ export default function TrashbinDetail({
             },
           }
         );
-
-        const trashbin = {
-          _id: response.data._id,
-          identifier: response.data.identifier,
-          name: response.data.name,
-          coordinates: response.data.coordinates,
-          location: response.data.location,  // Could use Google Reverse Geocoding API to get location
-          project: response.data.project,
-          fillLevel: response.data.fillLevel,
-          fillLevelChange: response.data.fillLevelChange,
-          batteryLevel: response.data.batteryLevel,
-          signalStrength: response.data.signalStrength,
-          lastEmptied: new Date(response.data.lastEmptied),
-          assigned: response.data.assigned,
-          imageUrl: response.data.image
-        };
-
-        // TODO: Edit Trashbin type to completely match the API response
-        // setData(response.data);
-        setData(trashbin);
+        setData(response.data);
 
         const projectId = localStorage.getItem("projectId");
 
@@ -197,7 +178,7 @@ export default function TrashbinDetail({
                 </Link>
               </Button>
             </div>
-            <p>Last Emptied: {data.lastEmptied.toString()}</p>
+            <p>Last Emptied: {data.lastEmptied ? data.lastEmptied.toString() : "Not available"}</p>
             <p>Signal Strength: {data.signalStrength}</p>
           </section>
       

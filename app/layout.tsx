@@ -6,9 +6,6 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import { useEffect, useState } from "react";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,17 +34,6 @@ export default function RootLayout({
     const noAuthPaths = ["/login", "/signup"];
     if (!token && !noAuthPaths.includes(pathname)) {
       window.location.href = "/login"; // Redirect to login page
-    }
-    const SECRET_KEY = process.env.JWT_SECRET_KEY;
-    if (token) {
-      try {
-        // Validate the token
-        jwt.verify(token, SECRET_KEY);
-      } catch (error) {
-        // If token validation fails, redirect to the login page
-        localStorage.removeItem("authToken");
-        window.location.href = "/login";
-      }
     }
   }, [token, loading]); // Depend on `token` to re-run this effect when it changes
 
