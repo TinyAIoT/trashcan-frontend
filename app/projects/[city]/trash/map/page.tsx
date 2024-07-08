@@ -36,23 +36,7 @@ const MapPage = () => {
             },
           }
         );
-
-        const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
-          return {
-            // id: item._id,
-            identifier: item.identifier,
-            name: item.name,
-            // coordinates: item.coordinates,
-            coordinates: item.coordinates,
-            fillLevel: item.fillLevel,
-            fillLevelChange: item.fillLevelChange,
-            batteryLevel: item.batteryLevel,
-            signalStrength: item.signalStrength,
-            imageUrl: item.image,
-          };
-        });
-
-        setTrashbinData(transformedTrashbinData);
+        setTrashbinData(trashbinResponse.data.trashbins);
 
         const projectResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
