@@ -17,11 +17,7 @@ import { useRouter } from "next/navigation";
 
 function removeLocalData() {
   if (typeof window !== "undefined") {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("email");
-    localStorage.removeItem("projectId");
-    localStorage.removeItem("cityName");
-    localStorage.removeItem("projectType");
+    localStorage.clear();
   }
 }
 
