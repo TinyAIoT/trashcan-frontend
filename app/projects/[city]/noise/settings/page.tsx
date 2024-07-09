@@ -5,9 +5,9 @@ import axios from "axios";
 import { Info } from "lucide-react";
 
 export default function AppSettings() {
+  const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
   const [noiseThreshold, setNoiseThreshold] = useState<string>("");
   const [confidenceThreshold, setConfidenceThreshold] = useState<string>("");
-  const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState(false);
   const [errors, setErrors] = useState({ noiseThreshold: "", confidenceThreshold: "", activeTimeInterval: "" });
@@ -16,28 +16,24 @@ export default function AppSettings() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
+        const projectId = localStorage.getItem("projectId");
 
-        // TODO: Wait for backend to implement
+        const projectResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
 
-        // const settingsResponse = await axios.get(
-        //   `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/settings`,
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-        //     },
-        //   }
-        // );
-
-        // const { noiseThreshold, confidenceThreshold, activeTimeInterval } =
-        //   settingsResponse.data.settings;
-
-        const noiseThreshold = String(80);          // Over 80dB
-        const confidenceThreshold = String(0.8);    // Over 80% confidence
-        const activeTimeInterval: [string, string] = ["22", "6"]; // 10PM to 6AM
+        const { activeTimeInterval, noiseThreshold, confidenceThreshold } =
+          projectResponse.data.project;
 
         setNoiseThreshold(noiseThreshold);
         setConfidenceThreshold(confidenceThreshold);
         setActiveTimeInterval(activeTimeInterval);
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -53,8 +49,10 @@ export default function AppSettings() {
     // Validate all fields
     let isValid = true;
     let newErrors = { noiseThreshold: "", confidenceThreshold: "", activeTimeInterval: "" }
+    var noiseThresholdNum = 0, confidenceThresholdNum = 0, startHour = 0, endHour = 0;
+
     try {
-      var noiseThresholdNum = parseInt(noiseThreshold);
+      noiseThresholdNum = parseInt(noiseThreshold);
       if (isNaN(noiseThresholdNum) || noiseThresholdNum < 0 || noiseThresholdNum > 120) {
         newErrors.noiseThreshold = "Noise threshold must be a number between 0 and 120.";
         isValid = false;
@@ -66,7 +64,7 @@ export default function AppSettings() {
     }
 
     try {
-      var confidenceThresholdNum = parseFloat(confidenceThreshold);
+      confidenceThresholdNum = parseFloat(confidenceThreshold);
       if (isNaN(confidenceThresholdNum) || confidenceThresholdNum < 0 || confidenceThresholdNum > 1) {
         newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 1.";
         isValid = false;
@@ -78,8 +76,8 @@ export default function AppSettings() {
     }
 
     try {
-      var startHour = parseInt(activeTimeInterval[0]);
-      var endHour = parseInt(activeTimeInterval[1]);
+      startHour = parseInt(activeTimeInterval[0]);
+      endHour = parseInt(activeTimeInterval[1]);
       if (isNaN(startHour) || startHour < 0 || startHour > 24 || isNaN(endHour) || endHour < 0 || endHour > 23) {
         newErrors.activeTimeInterval = "Active time interval must be a number between 0 and 24.";
         isValid = false;
@@ -97,13 +95,15 @@ export default function AppSettings() {
 
     try {
       const token = localStorage.getItem("authToken");
+      const projectId = localStorage.getItem("projectId");
 
       await axios.patch(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/settings`,
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
         {
-          noiseThreshold,
-          confidenceThreshold,
-          activeTimeInterval,
+          // activeTimeInterval: [startHour, endHour],
+          activeTimeInterval: startHour,
+          confidenceThreshold: confidenceThresholdNum,
+          noiseThreshold: noiseThresholdNum,
         },
         {
           headers: {
@@ -146,7 +146,7 @@ export default function AppSettings() {
           </div>
           <input
             type="text"
-            value={noiseThreshold}
+            value={noiseThreshold ? noiseThreshold : ""}
             onChange={(e) => setNoiseThreshold(e.target.value)}
             className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
@@ -160,7 +160,7 @@ export default function AppSettings() {
           </div>
           <input
             type="text"
-            value={confidenceThreshold}
+            value={confidenceThreshold ? confidenceThreshold : ""}
             onChange={(e) => setConfidenceThreshold(e.target.value)}
             className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
@@ -175,14 +175,18 @@ export default function AppSettings() {
           <div className="flex">
             <input
               type="text"
-              value={activeTimeInterval[0]}
-              onChange={(e) => setActiveTimeInterval([e.target.value, activeTimeInterval[1]])}
+              value={activeTimeInterval ? activeTimeInterval[0] : ""}
+              onChange={(e) => setActiveTimeInterval(
+                activeTimeInterval ? [e.target.value, activeTimeInterval[1]] : [e.target.value, '']
+              )}
               className="border border-gray-300 rounded-l px-3 py-2 w-[100px] mr-2"
             />
             <input
               type="text"
-              value={activeTimeInterval[1]}
-              onChange={(e) => setActiveTimeInterval([activeTimeInterval[0], e.target.value])}
+              value={activeTimeInterval ? activeTimeInterval[1] : ""}
+              onChange={(e) => setActiveTimeInterval(
+                activeTimeInterval ? [activeTimeInterval[0], e.target.value] : ['', e.target.value]
+              )}
               className="border border-gray-300 rounded-r px-3 py-2 w-[100px]"
             />
           </div>

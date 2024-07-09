@@ -1,16 +1,48 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import { Info, Settings } from "lucide-react";
 import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
+import axios from "axios";
 
-// TODO: Fetch from project settings
-const noiseThreshold = 80;       
-const confidenceThreshold = 0.8; 
-const activeTimeInterval = [ 22, 6 ]; 
 
 export default function NoiseDashboard() {
+  const [activeTimeInterval, setActiveTimeInterval] = useState<[number, number]>([0, 0]);
+  const [noiseThreshold, setNoiseThreshold] = useState<number>(0);
+  const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const projectId = localStorage.getItem("projectId");
+
+        const projectResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+
+        const { activeTimeInterval, noiseThreshold, confidenceThreshold } =
+          projectResponse.data.project;
+
+        setNoiseThreshold(parseInt(noiseThreshold));
+        setConfidenceThreshold(parseFloat(confidenceThreshold));
+        // TODO: Handle both values when implemented by backend
+        setActiveTimeInterval([parseInt(activeTimeInterval), parseInt(activeTimeInterval)]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Noise Dashboard" />
