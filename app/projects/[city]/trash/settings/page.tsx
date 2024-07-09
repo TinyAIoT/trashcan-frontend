@@ -30,11 +30,11 @@ export default function ProjectSettings() {
           }
         );
 
-        const { centerCoords, initialZoom, preferences, fillLevelChangeHours } =
+        const { centerCoords, startEndCoords, initialZoom, preferences, fillLevelChangeHours } =
           projectResponse.data.project;
 
         setMapCenterCoordinates([centerCoords[0], centerCoords[1]]);
-        setStartEndCoordinates([centerCoords[0] + 1, centerCoords[1] + 1]);   // TODO: Wait for backend to implement
+        setStartEndCoordinates([startEndCoords[0], startEndCoords[1]]);
         setZoomLevel(initialZoom);
         setFillLevelInterval(fillLevelChangeHours);
         setFillThresholds(preferences.fillThresholds);
@@ -179,6 +179,7 @@ export default function ProjectSettings() {
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
         {
           centerCoords: [mapCenterCoordinates[0], mapCenterCoordinates[1]],
+          startEndCoords: [startEndCoordinates[0], startEndCoordinates[1]],
           initialZoom: zoomLevel,
           preferences: {
             fillThresholds,

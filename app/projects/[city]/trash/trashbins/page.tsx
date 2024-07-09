@@ -9,6 +9,9 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Trashbin } from '@/app/types';
 
+// Bins currently always assigned to a single collector
+// Treated like a boolean for now: assigned or not assigned
+const COLLECTOR_ID = "66800deb530fb584255e1f8f";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -78,7 +81,7 @@ const columns: ColumnDef<Trashbin>[] = [
 ];
 
 export default function TrashbinsOverview() {
-  const [trashbinData, setTrashbinData] = useState([]);
+  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const router = useRouter();
 
   const handleClick = useCallback((trashbin: Trashbin) => {
@@ -93,7 +96,7 @@ export default function TrashbinsOverview() {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const response = await axios.get(
+        const allTrashbinsResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -101,25 +104,29 @@ export default function TrashbinsOverview() {
             },
           }
         );
+        var transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
-        const transformedData = response.data.trashbins.map((item: any) => {
+        // Get the currently assigned bins
+        const assignedTrashbinsResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id);
+        console.log(assignedTrashbins);
+
+        // Set the assigned property for each trashbin to true, if its id is in the assignedTrashbins array
+        transformedTrashbinData = transformedTrashbinData.map((item: Trashbin) => {
           return {
-            id: item._id,
-            identifier: item.identifier,
-            name: item.name,
-            coordinates: item.coordinates,
-            location: item.location,
-            project: item.project,
-            // createdAt: new Date(item.createdAt),
-            // updatedAt: new Date(item.updatedAt),
-            fillLevel: item.fillLevel,
-            fillLevelChange: item.fillLevelChange,
-            batteryLevel: item.batteryLevel,
-            signalStrength: item.signalStrength,
+            ...item,
+            assigned: assignedTrashbins.includes(item._id),
           };
         });
 
-        setTrashbinData(transformedData);
+        setTrashbinData(transformedTrashbinData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
