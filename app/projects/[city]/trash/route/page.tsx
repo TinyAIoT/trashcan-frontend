@@ -8,13 +8,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
-// import { Input } from "@/components/ui/input";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Copy, Info } from 'lucide-react';
+// import { Input } from "@/components/ui/input";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trashbin } from '@/app/types';
+
+// Bins currently always assigned to a single collector
+// Treated like a boolean for now: assigned or not assigned
+const COLLECTOR_ID = "66800deb530fb584255e1f8f";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -67,7 +71,6 @@ const RoutePlanning = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Trashbin data fetched from the our backend
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
-  const [unassignedTrashbins, setUnassignedTrashbins] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [startEndCoordinates, setStartEndCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
@@ -80,7 +83,7 @@ const RoutePlanning = () => {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const trashbinResponse = await axios.get(
+        const allTrashbinsResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -89,22 +92,20 @@ const RoutePlanning = () => {
           }
         );
 
-        const transformedTrashbinData = trashbinResponse.data.trashbins.map((item: any) => {
-          return {
-            _id: item._id,
-            identifier: item.identifier,
-            name: item.name,
-            coordinates: item.coordinates,
-            fillLevel: item.fillLevel,
-            fillLevelChange: item.fillLevelChange,
-            batteryLevel: item.batteryLevel,
-            signalStrength: item.signalStrength,
-            assigned: item.assigned
-          };
-        });
+        const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
-        setTrashbinData(transformedTrashbinData);
-        setUnassignedTrashbins(transformedTrashbinData.filter((item: any) => item.assigned === undefined));
+        const assignedTrashbinsResponse = await axios.get(
+          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+
+        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins;
+        const unassignedTrashbins = transformedTrashbinData.filter((bin) => !assignedTrashbins.some((assignedBin: Trashbin) => assignedBin._id === bin._id));
+        setTrashbinData(unassignedTrashbins);
 
         const projectResponse = await axios.get(
           `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
@@ -223,18 +224,26 @@ const RoutePlanning = () => {
 
     const token = localStorage.getItem("authToken");
 
-    // Bins currently always assigned to a single collector
-    // Treated like a boolean for now: assigned or not assigned
-    const collectorId = '66800deb530fb584255e1f8f'
+    // Get the currently assigned bins
+    const assignedTrashbinsResponse = await axios.get(
+      `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+      {
+        headers: {
+          Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+        },
+      }
+    );
+    const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins;
 
-    console.log(selectedBins);
+    // Create the union of the currently assigned bins and the selected bins
+    const allAssignedBins = [...assignedTrashbins, ...selectedBins];
 
     try {
       const response = await axios.post(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
         {
-          trashCollector: collectorId,
-          assignedTrashbins: selectedBins.map(bin => bin._id),
+          trashCollector: COLLECTOR_ID,
+          assignedTrashbins: allAssignedBins.map(bin => bin._id),
         },
         {
           headers: {
@@ -242,21 +251,6 @@ const RoutePlanning = () => {
           },
         }
       );
-
-      // TODO: Remove (DEBUGGING)
-      // Get information for the first bin of assignedTrashbins
-      const bin = response.data.assignedTrashbins[0];
-      const response2 = await axios.get(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${bin.identifier}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-          },
-        }
-      );
-
-      console.log(response2.data);
-      await new Promise(resolve => setTimeout(resolve, 100000));
 
       // Reload the page to not show assigned bins anymore
       if (response.status === 200) {
@@ -269,17 +263,13 @@ const RoutePlanning = () => {
 
   // Unassigns all bins
   const unassignAllBins = async () => {
-    const token = localStorage.getItem("authToken");
-
-    // Bins currently always assigned to a single collector
-    // Treated like a boolean for now: assigned or not assigned
-    const collectorId = '66800deb530fb584255e1f8f'
 
     try {
+      const token = localStorage.getItem("authToken");
       const response = await axios.post(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
         {
-          trashCollector: collectorId,
+          trashCollector: COLLECTOR_ID,
           assignedTrashbins: [],
         },
         {
@@ -330,9 +320,8 @@ const RoutePlanning = () => {
         <TabsContent value="map">
           { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && startEndCoordinates &&(
           <div className="w-full h-[80vh] relative z-0">
-            {/* Instead of trashbinData={trashbinData} */}
-            <Map 
-              trashbinData={unassignedTrashbins}
+            <Map
+              trashbinData={trashbinData}
               centerCoordinates={centerCoordinates}
               initialZoom={initialZoom}
               fillThresholds={fillThresholds}
