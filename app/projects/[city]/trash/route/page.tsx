@@ -69,7 +69,7 @@ const RoutePlanning = () => {
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [unassignedTrashbins, setUnassignedTrashbins] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
-  const [tripStartEnd, setTripStartEnd] = useState<LatLngTuple | null>(null);
+  const [startEndCoordinates, setStartEndCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
@@ -103,9 +103,6 @@ const RoutePlanning = () => {
           };
         });
 
-        console.log(transformedTrashbinData)
-        // await new Promise(resolve => setTimeout(resolve, 100000));
-
         setTrashbinData(transformedTrashbinData);
         setUnassignedTrashbins(transformedTrashbinData.filter((item: any) => item.assigned === undefined));
 
@@ -117,13 +114,15 @@ const RoutePlanning = () => {
             },
           }
         );
-        setInitialZoom(projectResponse.data.project.initialZoom);
-        // TODO: Wait for backend to implement
-        // setTripStartEnd(projectResponse.data.project.tripStartEnd);
-        setTripStartEnd([52.070195792078444, 7.3630479127876205]);
-        setCenterCoordinates(projectResponse.data.project.centerCoords);
-        setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
-        setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
+
+        const { centerCoords, startEndCoords, initialZoom, preferences } =
+          projectResponse.data.project;
+          
+        setCenterCoordinates(centerCoords);
+        setStartEndCoordinates(startEndCoords);
+        setInitialZoom(initialZoom);
+        setFillThresholds(preferences.fillThresholds);
+        setBatteryThresholds(preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -142,13 +141,13 @@ const RoutePlanning = () => {
   // Fetch optimized route from OSRM Trip Service
   const fetchOptimizedRoute = async (): Promise<Trashbin[]> => {
     // If no bins are selected, we cannot plan a route
-    if (selectedBins.length === 0 || !tripStartEnd) return [];
+    if (selectedBins.length === 0 || !startEndCoordinates) return [];
     
-    // The roundtrip starts and ends at the location indicated by `tripStartEnd`
+    // The roundtrip starts and ends at the location indicated by `startEndCoordinates`
     const coordinates: string[] = [
-      `${tripStartEnd[1]},${tripStartEnd[0]}`,
+      `${startEndCoordinates[1]},${startEndCoordinates[0]}`,
       ...selectedBins.map(bin => `${bin.coordinates[1]},${bin.coordinates[0]}`),
-      `${tripStartEnd[1]},${tripStartEnd[0]}`
+      `${startEndCoordinates[1]},${startEndCoordinates[0]}`
     ];
 
     // OSRM Trip Service API URL
@@ -195,7 +194,7 @@ const RoutePlanning = () => {
 
   // Generate GoogleMaps link for the route and show it in a dialog
   const showGoogleMapsLink = async () => {
-    if (!tripStartEnd) return;
+    if (!startEndCoordinates) return;
 
     // Fetch optimized route, if not already done
     var orderedBins: Trashbin[] = [];
@@ -207,9 +206,9 @@ const RoutePlanning = () => {
 
     // Use orderedBins here instead of optimizedBins, as optimizedBins might not be updated yet
     const coordinates: string[] = [
-      `${tripStartEnd[0]},${tripStartEnd[1]}`,
+      `${startEndCoordinates[0]},${startEndCoordinates[1]}`,
       ...orderedBins.map(bin => `${bin.coordinates[0]},${bin.coordinates[1]}`),
-      `${tripStartEnd[0]},${tripStartEnd[1]}`
+      `${startEndCoordinates[0]},${startEndCoordinates[1]}`
     ];
   
     const googleMapsUrl = `https://www.google.com/maps/dir/${coordinates.join('/')}`;
@@ -329,7 +328,7 @@ const RoutePlanning = () => {
           <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
         </TabsList>
         <TabsContent value="map">
-          { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && tripStartEnd &&(
+          { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && startEndCoordinates &&(
           <div className="w-full h-[80vh] relative z-0">
             {/* Instead of trashbinData={trashbinData} */}
             <Map 
@@ -340,7 +339,7 @@ const RoutePlanning = () => {
               batteryThresholds={batteryThresholds}
               isRoutePlanning={true}
               onTrashbinClick={handleTrashbinClick}
-              tripStartEnd={tripStartEnd}
+              tripStartEnd={startEndCoordinates}
               selectedBins={selectedBins}
               optimizedBins={optimizedBins}
               showRoute={showRoute}
