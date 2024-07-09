@@ -33,8 +33,7 @@ export default function NoiseDashboard() {
 
         setNoiseThreshold(parseInt(noiseThreshold));
         setConfidenceThreshold(parseFloat(confidenceThreshold));
-        // TODO: Handle both values when implemented by backend
-        setActiveTimeInterval([parseInt(activeTimeInterval), parseInt(activeTimeInterval)]);
+        setActiveTimeInterval([activeTimeInterval[0], activeTimeInterval[1]]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

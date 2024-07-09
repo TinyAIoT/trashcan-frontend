@@ -245,18 +245,18 @@ const RoutePlanning = () => {
 
       // TODO: Remove (DEBUGGING)
       // Get information for the first bin of assignedTrashbins
-      // const bin = response.data.assignedTrashbins[0];
-      // const response2 = await axios.get(
-      //   `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${bin.identifier}`,
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-      //     },
-      //   }
-      // );
+      const bin = response.data.assignedTrashbins[0];
+      const response2 = await axios.get(
+        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin/${bin.identifier}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+          },
+        }
+      );
 
-      // console.log(response2.data);
-      // await new Promise(resolve => setTimeout(resolve, 100000));
+      console.log(response2.data);
+      await new Promise(resolve => setTimeout(resolve, 100000));
 
       // Reload the page to not show assigned bins anymore
       if (response.status === 200) {

@@ -100,8 +100,8 @@ export default function AppSettings() {
       await axios.patch(
         `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
         {
-          // activeTimeInterval: [startHour, endHour],
-          activeTimeInterval: startHour,
+          activeTimeInterval: [startHour, endHour],
+          // activeTimeInterval: startHour,
           confidenceThreshold: confidenceThresholdNum,
           noiseThreshold: noiseThresholdNum,
         },
