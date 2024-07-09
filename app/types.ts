@@ -10,9 +10,6 @@ type Trashbin = {
   signalStrength: number;
   image: string;
   lastEmptied: Date;
-  assignee: {
-    _id: string
-  }
 };
 
 export type { Trashbin };
