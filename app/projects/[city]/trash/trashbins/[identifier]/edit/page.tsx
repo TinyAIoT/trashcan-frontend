@@ -100,10 +100,8 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
       // Ensure coordinates are numbers
       const payload = {
         ...trashbin,
-        coordinates: [
-          parseFloat(trashbin.coordinates[0]?.toString() || "0"),
-          parseFloat(trashbin.coordinates[1]?.toString() || "0"),
-        ],
+        latitude: parseFloat(trashbin.coordinates[0]?.toString() || "0"),
+        longitude: parseFloat(trashbin.coordinates[1]?.toString() || "0"),
       };
 
       console.log(trashbin);
