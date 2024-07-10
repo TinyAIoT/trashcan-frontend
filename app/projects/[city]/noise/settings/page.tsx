@@ -54,26 +54,26 @@ export default function AppSettings() {
 
     try {
       noiseThresholdNum = parseInt(noiseThreshold);
-      if (isNaN(noiseThresholdNum) || noiseThresholdNum < 0 || noiseThresholdNum > 120) {
-        newErrors.noiseThreshold = "Noise threshold must be a number between 0 and 120.";
+      if (isNaN(noiseThresholdNum) || noiseThresholdNum > 0 || noiseThresholdNum < -100) {
+        newErrors.noiseThreshold = "Noise threshold (dBFS) must be a number between -100 and 0.";
         isValid = false;
       }
     }
     catch (error) {
       isValid = false;
-      newErrors.noiseThreshold = "Noise threshold must be a number between 0 and 120.";
+      newErrors.noiseThreshold = "Noise threshold (dBFS) must be a number between -100 and 0.";
     }
 
     try {
       confidenceThresholdNum = parseFloat(confidenceThreshold);
-      if (isNaN(confidenceThresholdNum) || confidenceThresholdNum < 0 || confidenceThresholdNum > 1) {
-        newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 1.";
+      if (isNaN(confidenceThresholdNum) || confidenceThresholdNum < 0 || confidenceThresholdNum > 100) {
+        newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 100.";
         isValid = false;
       }
     }
     catch (error) {
       isValid = false;
-      newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 1.";
+      newErrors.confidenceThreshold = "Confidence threshold must be a number between 0 and 100.";
     }
 
     try {
@@ -102,7 +102,6 @@ export default function AppSettings() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
         {
           activeTimeInterval: [startHour, endHour],
-          // activeTimeInterval: startHour,
           confidenceThreshold: confidenceThresholdNum,
           noiseThreshold: noiseThresholdNum,
         },
@@ -139,10 +138,10 @@ export default function AppSettings() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Noise Threshold (dB)</label>
+            <label className="mb-1 text-lg">Noise Threshold (dBFS)</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Loudness of sound to be considered noise.</span>
+              <span className="info-tooltip-text">Loudness of sound to be considered noise. The scale is in decibels relative to full scale (dBFS).</span>
             </span>
           </div>
           <input

@@ -13,7 +13,6 @@ import Link from "next/link";
 import { Trashbin } from '@/app/types';
 import LoadingComponent from "@/components/LoadingComponent";
 
-
 interface HistoryDataItem {
   timestamp: Date;
   fillLevel: number;

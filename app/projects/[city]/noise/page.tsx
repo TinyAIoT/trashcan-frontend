@@ -82,7 +82,7 @@ export default function NoiseDashboard() {
       <PageTitle title="Noise Dashboard" />
       <section className="grid grid-cols-1  gap-4 transition-all">
         <CardContent>
-          <p className="p-4 font-semibold">Noise Level (dB)</p>
+          <p className="p-4 font-semibold">Noise Level in decibels relative to full scale (dBFS)</p>
           { noiseData.length > 0 && 
             <NoiseChart
               noiseData={noiseData}
@@ -115,7 +115,7 @@ export default function NoiseDashboard() {
             <div className="flex items-center justify-start">
               <p className="text-lg">Above the threshold of&nbsp;
                 <span className="text-blue-500 info-tooltip">
-                  {noiseThreshold}dB
+                  {noiseThreshold}dBFS
                   <span className="info-tooltip-text">This value can be changed in the settings</span>
                 </span>
               </p>
@@ -128,7 +128,7 @@ export default function NoiseDashboard() {
             <div className="flex items-center justify-start">
               <p className="text-lg">Classified as noise with a confidence greater than&nbsp;
                 <span className="text-blue-500 info-tooltip">
-                {confidenceThreshold * 100}%
+                {confidenceThreshold}%
                   <span className="info-tooltip-text">This value can be changed in the settings</span>
                 </span>
               </p>
