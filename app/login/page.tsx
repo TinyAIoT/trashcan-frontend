@@ -25,8 +25,11 @@ export default function Component() {
   const handleLogin = async () => {
 
     try {
+
+      console.log(process.env.NEXT_BACKEND_URL);
+      
       const response = await axios.post(
-        `http://${process.env.NEXT_BACKEND_URL}/api/v1/auth/login`,
+        `${process.env.NEXT_BACKEND_URL}/api/v1/auth/login`,
         {
           email,
           password,

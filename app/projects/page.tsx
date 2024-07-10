@@ -42,7 +42,7 @@ export default function Projects() {
         const token = localStorage.getItem("authToken");
 
         const response = await axios.get(
-          `http://${process.env.NEXT_BACKEND_URL}/api/v1/project`,
+          `${process.env.NEXT_BACKEND_URL}/api/v1/project`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
