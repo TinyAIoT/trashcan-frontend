@@ -22,7 +22,7 @@ export default function ProjectSettings() {
         const projectId = localStorage.getItem("projectId");
 
         const projectResponse = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          `http://${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -176,7 +176,7 @@ export default function ProjectSettings() {
       // TODO: Patch startEndCoords (wait for backend to implement)
 
       await axios.patch(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+        `http://${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
         {
           centerCoords: [mapCenterCoordinates[0], mapCenterCoordinates[1]],
           startEndCoords: [startEndCoordinates[0], startEndCoordinates[1]],

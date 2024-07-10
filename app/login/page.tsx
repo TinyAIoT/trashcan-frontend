@@ -1,19 +1,12 @@
 "use client";
 
-import {
-  CardTitle,
-  CardDescription,
-  CardHeader,
-  CardContent,
-  Card,
-} from "@/components/ui/card";
-
-import axios from "axios";
 import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card";
 
 function removeLocalData() {
   if (typeof window !== "undefined") {
@@ -33,7 +26,7 @@ export default function Component() {
 
     try {
       const response = await axios.post(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/auth/login`,
+        `http://${process.env.NEXT_BACKEND_URL}/api/v1/auth/login`,
         {
           email,
           password,
@@ -51,6 +44,7 @@ export default function Component() {
     } catch (error: any) {
       // Login failed
       // Show an error message for a few seconds
+      console.log(error);
       console.log(error.response.data.message);
       setErrorMessage(error.response.data.message);
       setTimeout(() => {

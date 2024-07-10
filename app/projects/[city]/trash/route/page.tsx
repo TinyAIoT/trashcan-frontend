@@ -84,7 +84,7 @@ const RoutePlanning = () => {
         const projectId = localStorage.getItem("projectId");
 
         const allTrashbinsResponse = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trashbin?project=${projectId}`,
+          `http://${process.env.NEXT_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -95,7 +95,7 @@ const RoutePlanning = () => {
         const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
         const assignedTrashbinsResponse = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `http://${process.env.NEXT_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -108,7 +108,7 @@ const RoutePlanning = () => {
         setTrashbinData(unassignedTrashbins);
 
         const projectResponse = await axios.get(
-          `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/project/${projectId}`,
+          `http://${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -226,7 +226,7 @@ const RoutePlanning = () => {
 
     // Get the currently assigned bins
     const assignedTrashbinsResponse = await axios.get(
-      `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+      `http://${process.env.NEXT_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
       {
         headers: {
           Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -240,7 +240,7 @@ const RoutePlanning = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
+        `http://${process.env.NEXT_BACKEND_URL}/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,
           assignedTrashbins: allAssignedBins.map(bin => bin._id),
@@ -267,7 +267,7 @@ const RoutePlanning = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.post(
-        `http://localhost:${process.env.NEXT_PUBLIC_PORT}/api/v1/trash-collector/assign`,
+        `http://${process.env.NEXT_BACKEND_URL}/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,
           assignedTrashbins: [],
