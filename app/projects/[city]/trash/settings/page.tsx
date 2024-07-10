@@ -223,8 +223,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Coordinates (latitude, longitude) of city center.</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">The maps are centered on this coordinate.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">The maps are centered on this coordinate.</span>
+            </span>
           </div>
           <div className="flex">
             <input
@@ -245,8 +247,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Coordinates (latitude, longitude) of depot.</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">The route planning takes these coordinates as start and end point.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">The route planning takes these coordinates as start and end point.</span>
+            </span>
           </div>
           <div className="flex">
             <input
@@ -267,8 +271,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Zoom Level</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Factor how much the map is zoomed in.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Factor how much the map is zoomed in.</span>
+            </span>
           </div>
           <input
             type="text"
@@ -281,8 +287,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Fill Level Interval</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Over how many hours the fill level change will be computed.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Over how many hours the fill level change will be computed.</span>
+            </span>
           </div>
           <input
             type="text"
@@ -295,8 +303,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Fill Level Thresholds</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Basis for color coding throughout the dashboard.</span>
+            </span>
           </div>
           <div className="flex">
             <div className="w-1/5 h-12 bg-green-600"/>
@@ -320,8 +330,10 @@ export default function ProjectSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Battery Level Thresholds</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Basis for color coding throughout the dashboard.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Basis for color coding throughout the dashboard.</span>
+            </span>
           </div>
           <div className="flex">
             <div className="w-1/5 h-12 bg-green-600"/>

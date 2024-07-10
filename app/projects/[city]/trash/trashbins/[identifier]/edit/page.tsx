@@ -145,9 +145,11 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Coordinates (latitude, longitude) of trashbin.</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Latitude and longitude are the first entry in the list when
-            right-clicking on the map in Google Maps.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Latitude and longitude are the first entry in the list when
+              right-clicking on the map in Google Maps.</span>
+            </span>
           </div>
           <div className="flex">
             <input

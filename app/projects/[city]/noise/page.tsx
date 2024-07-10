@@ -6,7 +6,23 @@ import { Info, Settings } from "lucide-react";
 import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
+function redirectToSettings() {
+  // const city = localStorage.getItem("cityName");
+  // const type = localStorage.getItem("projectType");
+  
+  // Append /settings to the current URL
+  window.location.href = window.location.href + "/settings";
+
+  // Initialize the router
+  // const router = useRouter();
+
+  // console.log("Redirecting to settings page", `/projects/${city}/${type}/settings`);
+
+  // // Alternatively, use the router to navigate to the settings page
+  // router.push(`/projects/${city}/${type}/settings`);
+}
 
 export default function NoiseDashboard() {
   const [activeTimeInterval, setActiveTimeInterval] = useState<[number, number]>([0, 0]);
@@ -60,12 +76,14 @@ export default function NoiseDashboard() {
       <div className="flex flex-col gap-2">
       <div className="flex items-center justify-start">
         <p className="text-lg">Active time interval of noise detector:&nbsp;
-          <span className="text-blue-500 settings-tooltip">
+          <span className="text-blue-500 info-tooltip">
             {activeTimeInterval[0].toString().padStart(2, '0')}:00 - {activeTimeInterval[1].toString().padStart(2, '0')}:00
-            <span className="settings-tooltip-text">This value can be changed in the settings</span>
+            <span className="info-tooltip-text">This value can be changed in the settings</span>
           </span>
         </p>
-        <Settings className="text-blue-500 ml-2 settings-tooltip"/>
+        <button onClick={redirectToSettings} className="text-blue-500 ml-2 info-tooltip">
+          <Settings />
+        </button>
       </div>
         <p className="text-lg">
           <span className="text-red-500">Red points</span> are irregularities, as they satisfy both of the following conditions:
@@ -74,23 +92,27 @@ export default function NoiseDashboard() {
           <li>
             <div className="flex items-center justify-start">
               <p className="text-lg">Above the threshold of&nbsp;
-                <span className="text-blue-500 settings-tooltip">
+                <span className="text-blue-500 info-tooltip">
                   {noiseThreshold}dB
-                  <span className="settings-tooltip-text">This value can be changed in the settings</span>
+                  <span className="info-tooltip-text">This value can be changed in the settings</span>
                 </span>
               </p>
-              <Settings className="text-blue-500 ml-2 settings-tooltip"/>
+              <button onClick={redirectToSettings} className="text-blue-500 ml-2 info-tooltip">
+                <Settings />
+              </button>
             </div>
           </li>
           <li>
             <div className="flex items-center justify-start">
               <p className="text-lg">Classified as noise with a confidence greater than&nbsp;
-                <span className="text-blue-500 settings-tooltip">
+                <span className="text-blue-500 info-tooltip">
                 {confidenceThreshold * 100}%
-                  <span className="settings-tooltip-text">This value can be changed in the settings</span>
+                  <span className="info-tooltip-text">This value can be changed in the settings</span>
                 </span>
               </p>
-              <Settings className="text-blue-500 ml-2 settings-tooltip"/>
+              <button onClick={redirectToSettings} className="text-blue-500 ml-2 info-tooltip">
+                <Settings />
+              </button>
             </div>   
           </li>
         </ul>
