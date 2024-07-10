@@ -6,6 +6,7 @@ import { CardContent } from "@/components/Card";
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import LoadingComponent from "@/components/LoadingComponent";
 
 interface Project {
   _id: string;
@@ -69,6 +70,10 @@ export default function Projects() {
     };
     fetchData();
   }, []);
+
+  if (!projectData) {
+    return <LoadingComponent />;
+  }
 
   return (
     <div className="flex flex-col gap-5 w-full">

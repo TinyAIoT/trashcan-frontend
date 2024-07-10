@@ -12,6 +12,7 @@ import { CardContent } from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Trashbin } from '@/app/types';
+import LoadingComponent from "@/components/LoadingComponent";
 
 function generateMockData(numPoints: number) {
   const data = [];
@@ -107,7 +108,7 @@ export default function TrashbinDetail({
   }, [params.identifier]);
 
   if (!data) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />;
   }
 
   function getEditUrl(): string {

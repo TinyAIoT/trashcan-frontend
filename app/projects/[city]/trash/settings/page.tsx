@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/PageTitle";
 import axios from "axios";
 import { Info } from "lucide-react";
+import LoadingComponent from "@/components/LoadingComponent";
 
 export default function ProjectSettings() {
   const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
@@ -213,7 +214,7 @@ export default function ProjectSettings() {
   }, [updated]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />;
   }
 
   return (

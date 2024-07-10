@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from 'react-dom/client';
 import { Trash2, BatteryFull, Signal } from "lucide-react";
 import L, { LatLngTuple } from "leaflet";
@@ -183,7 +183,7 @@ const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins:
   }
 };
 
-const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {
+const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {  
   const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
