@@ -18,7 +18,7 @@ import { Trashbin } from '@/app/types';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "66800deb530fb584255e1f8f";
+const COLLECTOR_ID = "668e6bc9e921750c7a2fe090";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (

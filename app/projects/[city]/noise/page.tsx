@@ -6,25 +6,13 @@ import { Info, Settings } from "lucide-react";
 import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 function redirectToSettings() {
-  // const city = localStorage.getItem("cityName");
-  // const type = localStorage.getItem("projectType");
-  
-  // Append /settings to the current URL
   window.location.href = window.location.href + "/settings";
-
-  // Initialize the router
-  // const router = useRouter();
-
-  // console.log("Redirecting to settings page", `/projects/${city}/${type}/settings`);
-
-  // // Alternatively, use the router to navigate to the settings page
-  // router.push(`/projects/${city}/${type}/settings`);
 }
 
 export default function NoiseDashboard() {
+  const [noiseData, setNoiseData] = useState<any[]>([]);
   const [activeTimeInterval, setActiveTimeInterval] = useState<[number, number]>([0, 0]);
   const [noiseThreshold, setNoiseThreshold] = useState<number>(0);
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0);
@@ -44,12 +32,43 @@ export default function NoiseDashboard() {
           }
         );
 
+        console.log(projectResponse.data);
+
         const { activeTimeInterval, noiseThreshold, confidenceThreshold } =
           projectResponse.data.project;
 
         setNoiseThreshold(parseInt(noiseThreshold));
         setConfidenceThreshold(parseFloat(confidenceThreshold));
         setActiveTimeInterval([activeTimeInterval[0], activeTimeInterval[1]]);
+
+        // Fetch history data of the noise sensor
+        // Fetch real data in the emsdetten project, else mock data
+        const city = localStorage.getItem("cityName");
+        console.log(city);
+        var sensorId = "";
+        if (city === 'emsdetten') {
+          sensorId = "668e92ca094613ff3bade435";
+        } else {
+          sensorId = "668e6b79e921750c7a2fe08d";
+        }
+
+        const historyResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        if (historyResponse.data) {
+          const measurements = historyResponse.data.map((item: any) => ({
+            timestamp: new Date(item.createdAt),
+            measurement: item.measurement,
+            noisePrediction: item.noisePrediction,
+          }));
+          setNoiseData(measurements);
+        }
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -64,9 +83,12 @@ export default function NoiseDashboard() {
       <section className="grid grid-cols-1  gap-4 transition-all">
         <CardContent>
           <p className="p-4 font-semibold">Noise Level (dB)</p>
-          <NoiseChart
-            noiseThreshold={noiseThreshold}
-            confidenceThreshold={confidenceThreshold} />
+          { noiseData.length > 0 && 
+            <NoiseChart
+              noiseData={noiseData}
+              noiseThreshold={noiseThreshold}
+              confidenceThreshold={confidenceThreshold} />
+          }
         </CardContent>
       </section>
       <div className="flex items-center justify-start">

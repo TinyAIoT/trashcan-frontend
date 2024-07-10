@@ -1,4 +1,3 @@
-// app/trashbins/[identifier]/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -14,26 +13,9 @@ import Link from "next/link";
 import { Trashbin } from '@/app/types';
 import LoadingComponent from "@/components/LoadingComponent";
 
-function generateMockData(numPoints: number) {
-  const data = [];
-  const startDate = new Date().getTime(); // current timestamp
-
-  for (let i = 0; i < numPoints; i++) {
-    const timestamp = new Date(startDate - i * 1000 * 60 * 120); // every 120 minutes
-    const fillLevel = Math.floor(Math.random() * 100); // fill between 0 and 100
-    const batteryLevel = Math.floor(Math.random() * 100); // fill between 0 and 100
-    data.push({
-      timestamp: timestamp.toISOString(),
-      fillLevel: fillLevel,
-      batteryLevel: batteryLevel,
-    });
-  }
-
-  return data;
-}
 
 interface HistoryDataItem {
-  timestamp: string;
+  timestamp: Date;
   fillLevel: number;
   batteryLevel: number;
 }
@@ -54,28 +36,21 @@ export default function TrashbinDetail({
 }: {
   params: { identifier: string };
 }) {
-  const [data, setData] = useState<Trashbin | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number]>([20, 80]);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number]>([80, 20]);
-
-  const historyData = generateMockData(100);
-
-  // Convert historyData for the fillLevel chart
-  const fillLevelData: DataItem[] = historyData.map(item => ({
-    timestamp: new Date(item.timestamp),
-    measurement: item.fillLevel,
-  }));
   
-  // Convert historyData for the batteryLevel chart
-  const batteryLevelData: DataItem[] = historyData.map(item => ({
-    timestamp: new Date(item.timestamp),
-    measurement: item.batteryLevel,
-  }));
+  const [data, setData] = useState<Trashbin | null>(null);
+  const [fillLevelData, setFillLevelData] = useState<DataItem[]>([]);
+  const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
+
+  const [history, setHistory] = useState<HistoryDataItem[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
+
+        // Fetch trashbin data
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
           {
@@ -86,8 +61,8 @@ export default function TrashbinDetail({
         );
         setData(response.data);
 
+        // Fetch project settings
         const projectId = localStorage.getItem("projectId");
-
         const projectResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
@@ -99,6 +74,54 @@ export default function TrashbinDetail({
         setFillThresholds(projectResponse.data.project.preferences.fillThresholds);
         setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
 
+        // Sensor IDs of the trashbin
+        const sensorIds = response.data.sensors;
+        // Fetch history data of the two sensors
+        const historyResponse0 = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        if (historyResponse0.data) {
+          const measurements = historyResponse0.data.map((item: any) => ({
+            timestamp: new Date(item.createdAt),
+            measurement: item.measurement,
+          }));
+          const measureType = historyResponse0.data[0].measureType;
+
+          if (measureType === "fill_level") {
+            setFillLevelData(measurements);
+          }
+          if (measureType === "battery_level") {
+            setBatteryLevelData(measurements);
+          }
+        }
+
+        const historyResponse1 = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[1]}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        if (historyResponse1.data) {
+          const measurements = historyResponse1.data.map((item: any) => ({
+            timestamp: new Date(item.createdAt),
+            measurement: item.measurement,
+          }));
+          const measureType = historyResponse1.data[0].measureType;
+
+          if (measureType === "fill_level") {
+            setFillLevelData(measurements);
+          }
+          if (measureType === "battery_level") {
+            setBatteryLevelData(measurements);
+          }
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -106,6 +129,25 @@ export default function TrashbinDetail({
 
     fetchData();
   }, [params.identifier]);
+
+  // Hook to combine the two sensor data to one HistoryDataItem array
+  useEffect(() => {
+    var historyData: HistoryDataItem[] = [];
+    
+    const timestamps = new Set([...fillLevelData.map(item => item.timestamp), ...batteryLevelData.map(item => item.timestamp)]);
+    const fillLevels = new Map(fillLevelData.map(item => [item.timestamp, item.measurement]));
+    const batteryLevels = new Map(batteryLevelData.map(item => [item.timestamp, item.measurement]));
+
+    timestamps.forEach(timestamp => {
+      historyData.push({
+        timestamp: timestamp,
+        fillLevel: fillLevels.get(timestamp) || 0,
+        batteryLevel: batteryLevels.get(timestamp) || 0,
+      });
+    });
+
+    setHistory(historyData);
+  }, [fillLevelData, batteryLevelData]);
 
   if (!data) {
     return <LoadingComponent />;
@@ -122,7 +164,7 @@ export default function TrashbinDetail({
       <div className="flex justify-between">
         <PageTitle title={`Trashbin ${data.name} (${data.identifier})`} />
         <Button asChild className="bg-green-600 text-white">
-          <Link href={getEditUrl()}>Edit Trashcan</Link>
+          <Link href={getEditUrl()}>Edit Trashbin</Link>
         </Button>
       </div>
       <Tabs defaultValue="visual" className="">
@@ -138,21 +180,25 @@ export default function TrashbinDetail({
           <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
             <CardContent>
               <p className="p-4 font-semibold">Fill Level</p>
-              <LineChart
-                historyData={fillLevelData}
-                green={[0, fillThresholds[0]]}
-                yellow={[fillThresholds[0], fillThresholds[1]]}
-                red={[fillThresholds[1], 100]}
-              />
+              { fillLevelData.length > 0 &&
+                <LineChart
+                  historyData={fillLevelData}
+                  green={[0, fillThresholds[0]]}
+                  yellow={[fillThresholds[0], fillThresholds[1]]}
+                  red={[fillThresholds[1], 100]}
+                />
+              }
             </CardContent>
             <CardContent>
               <p className="p-4 font-semibold">Battery Level</p>
-              <LineChart
-                historyData={batteryLevelData}
-                green={[batteryThresholds[0], 100]}
-                yellow={[batteryThresholds[1], batteryThresholds[0]]}
-                red={[0, batteryThresholds[1]]}
-              />
+              { batteryLevelData.length > 0 &&
+                <LineChart
+                  historyData={batteryLevelData}
+                  green={[batteryThresholds[0], 100]}
+                  yellow={[batteryThresholds[1], batteryThresholds[0]]}
+                  red={[0, batteryThresholds[1]]}
+                />
+              }
             </CardContent>
           </section>
         </TabsContent>
@@ -160,7 +206,7 @@ export default function TrashbinDetail({
           <div className="h-[510px] overflow-y-auto">
             <DataTable
               columns={columns}
-              data={historyData}
+              data={history}
               showSearchBar={false}
               showExportButton={false}
             />
