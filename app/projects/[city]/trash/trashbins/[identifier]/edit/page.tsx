@@ -6,6 +6,7 @@ import PageTitle from "@/components/PageTitle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
+import LoadingComponent from "@/components/LoadingComponent";
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   type TrashBinUpdate = {
@@ -122,7 +123,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   };
 
   if (!trashbin) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />;
   }
 
   return (

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import { Info } from "lucide-react";
+import LoadingComponent from "@/components/LoadingComponent";
 
 export default function AppSettings() {
   const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
@@ -131,7 +132,7 @@ export default function AppSettings() {
   }, [updated]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />;
   }
 
   return (
