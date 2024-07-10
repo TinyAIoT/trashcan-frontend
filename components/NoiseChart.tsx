@@ -47,7 +47,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = 10 * noiseData.length;
+    const fullWidth = 20 * noiseData.length;
   
     d3.select(mainChartRef.current).selectAll('*').remove();
 
@@ -58,11 +58,11 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleTime()
-      .domain([new Date(noiseData[noiseData.length - 1].timestamp), new Date(noiseData[0].timestamp)])
+      .domain([new Date(noiseData[0].timestamp), new Date(noiseData[noiseData.length - 1].timestamp)])
       .range([0, fullWidth]);
 
     const y = d3.scaleLinear()
-      .domain([0, 120])
+      .domain([-100, 0])
       .range([height, 0]);
 
     const line = d3.line<DataItem>()
@@ -70,7 +70,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
       .y(d => y(d.measurement));
 
     const xAxis = d3.axisBottom(x)
-      .ticks(d3.timeHour.every(2))
+      .ticks(d3.timeMinute.every(1))
       .tickFormat((domainValue) => {
         // Ensure the value is a Date before formatting
         if (domainValue instanceof Date) {
@@ -134,7 +134,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
         tooltip.transition()
           .duration(200)
           .style('opacity', .95);
-        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>measurement: ${d.measurement}<br/> Confidence: ${d.noisePrediction}`)
+        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M:%S')(new Date(d.timestamp))}<br/>Measurement: ${d.measurement}<br/> Confidence: ${d.noisePrediction}`)
           .style('left', `${event.pageX - 260}px`)
           .style('top', `${event.pageY + 10}px`);
       })
@@ -146,7 +146,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
 
     d3.select(yAxisRef.current).selectAll('*').remove();
     const yAxis = d3.axisLeft(y)
-      .tickValues([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]);
+      .tickValues([-100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0]);
 
     d3.select(yAxisRef.current)
       .attr('width', margin.left)
