@@ -23,11 +23,7 @@ export default function Component() {
   removeLocalData();
 
   const handleLogin = async () => {
-
-    try {
-
-      console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
-      
+    try {      
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
         {

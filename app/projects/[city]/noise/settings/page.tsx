@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import PageTitle from "@/components/PageTitle";
 import axios from "axios";
+import PageTitle from "@/components/PageTitle";
 import { Info } from "lucide-react";
 
 export default function AppSettings() {
@@ -141,8 +141,10 @@ export default function AppSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Noise Threshold (dB)</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Loudness of sound to be considered noise.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Loudness of sound to be considered noise.</span>
+            </span>
           </div>
           <input
             type="text"
@@ -155,8 +157,10 @@ export default function AppSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Confidence Threshold</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Confidence of model needed to classify sound as noise.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Confidence of model needed to classify sound as noise.</span>
+            </span>
           </div>
           <input
             type="text"
@@ -169,8 +173,10 @@ export default function AppSettings() {
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
             <label className="mb-1 text-lg">Active Time Interval</label>
-            <Info className="text-gray-500 ml-4 mr-2" />
-            <p className="text-lg text-gray-500">Hours in which the sensor measures and which are displayed in the dashboard.</p>
+            <span className="text-blue-500 info-tooltip">
+              <Info className="text-gray-500 ml-4 mr-2" />
+              <span className="info-tooltip-text">Hours in which the sensor measures and which are displayed in the dashboard.</span>
+            </span>
           </div>
           <div className="flex">
             <input
