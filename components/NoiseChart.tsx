@@ -169,9 +169,9 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {
     if (scrollableDivRef.current) {
-      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
+      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth;
     }
-  }, []);
+  }, [dimensions]);
 
   return (
     <div className="relative w-full h-[400px]">
