@@ -1,44 +1,26 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import * as d3Tip from 'd3-tip';
 import ResizeObserver from 'resize-observer-polyfill';
 
-function generateMockData(numPoints: number) {
-  const data = [];
-  const startDate = new Date().getTime(); // current timestamp
-
-  for (let i = 0; i < numPoints; i++) {
-    const timestamp = new Date(startDate - i * 1000 * 60 * 10); // every 10 minutes
-    const dBValue = Math.floor(Math.random() * 81) + 20; // dB value between 20 and 100
-    const confidence = parseFloat(Math.random().toFixed(4));
-    data.push({
-      timestamp: timestamp.toISOString(),
-      dB: dBValue,
-      confidence: confidence,
-    });
-  }
-
-  return data;
-}
 
 interface DataItem {
   timestamp: string;
-  dB: number;
-  confidence: number;
+  measurement: number;
+  noisePrediction: number;
 }
 
 interface NoiseChartProps {
+  noiseData: DataItem[];
   noiseThreshold: number;
   confidenceThreshold: number;
 }
 
-const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThreshold }) => {
-  const mockData = generateMockData(250);
+const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, confidenceThreshold }) => {
   const yAxisRef = useRef<SVGSVGElement>(null);
   const mainChartRef = useRef<SVGSVGElement>(null);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  
+
   useEffect(() => {
       const resizeObserver = new ResizeObserver(entries => {
         if (!entries || entries.length === 0) return;
@@ -65,7 +47,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = 10 * mockData.length;
+    const fullWidth = 10 * noiseData.length;
   
     d3.select(mainChartRef.current).selectAll('*').remove();
 
@@ -76,7 +58,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleTime()
-      .domain([new Date(mockData[mockData.length - 1].timestamp), new Date(mockData[0].timestamp)])
+      .domain([new Date(noiseData[noiseData.length - 1].timestamp), new Date(noiseData[0].timestamp)])
       .range([0, fullWidth]);
 
     const y = d3.scaleLinear()
@@ -85,7 +67,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
 
     const line = d3.line<DataItem>()
       .x(d => x(new Date(d.timestamp)))
-      .y(d => y(d.dB));
+      .y(d => y(d.measurement));
 
     const xAxis = d3.axisBottom(x)
       .ticks(d3.timeHour.every(2))
@@ -114,20 +96,20 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .attr('opacity', 0.15);
 
     svg.append('path')
-      .datum(mockData)
+      .datum(noiseData)
       .attr('fill', 'none')
       .attr('stroke', 'black')
       .attr('stroke-width', 1.5)
       .attr('d', line);
 
     svg.selectAll('.dot')
-      .data(mockData)
+      .data(noiseData)
       .enter().append('circle')
       .attr('class', 'dot')
       .attr('stroke', 'black')
-      .attr('fill', d => (d.dB >= noiseThreshold && d.confidence >= confidenceThreshold) ? 'red' : 'black')
+      .attr('fill', d => (d.measurement >= noiseThreshold && d.noisePrediction >= confidenceThreshold) ? 'red' : 'black')
       .attr('cx', d => x(new Date(d.timestamp)))
-      .attr('cy', d => y(d.dB))
+      .attr('cy', d => y(d.measurement))
       .attr('r', 4);
 
     const tooltip = d3.select('body').append('div')
@@ -141,18 +123,18 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .style('opacity', 0);
 
     svg.selectAll('.dot-overlay')
-      .data(mockData)
+      .data(noiseData)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
       .attr('cx', d => x(new Date(d.timestamp)))
-      .attr('cy', d => y(d.dB))
+      .attr('cy', d => y(d.measurement))
       .attr('r', 10)
       .style('opacity', 0)
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)
           .style('opacity', .95);
-        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>dB: ${d.dB}<br/>${d.dB > noiseThreshold ? ' Confidence: ' + d.confidence : ''}`)
+        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>measurement: ${d.measurement}<br/> Confidence: ${d.noisePrediction}`)
           .style('left', `${event.pageX - 260}px`)
           .style('top', `${event.pageY + 10}px`);
       })
@@ -182,7 +164,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseThreshold, confidenceThres
       .style('text-anchor', 'middle')
       .text('dB Level');
 
-  }, [dimensions, mockData, noiseThreshold, confidenceThreshold]);
+  }, [dimensions, noiseData, noiseThreshold, confidenceThreshold]);
 
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {

@@ -112,8 +112,6 @@ export default function AppSettings() {
           },
         }
       );
-
-      console.log("Settings updated successfully!");
       setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);

@@ -15,9 +15,9 @@ interface LineChartProps {
 }
 
 function determineColor(d: number, green: [number, number], yellow: [number, number], red: [number, number]) {
-  if (d >= green[0] && d < green[1]) return "green";
+  if (d >= green[0] && d <= green[1]) return "green";
   if (d >= yellow[0] && d < yellow[1]) return "yellow";
-  if (d >= red[0] && d < red[1]) return "red";
+  if (d >= red[0] && d <= red[1]) return "red";
   return "black";
 }
 
@@ -167,7 +167,7 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
         tooltip.transition()
           .duration(200)
           .style('opacity', .95);
-        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>Measurement: ${d.measurement}%`)
+        tooltip.html(`Timestamp: ${d3.timeFormat('%Y-%m-%d %H:%M')(new Date(d.timestamp))}<br/>Measurement: ${Math.round(d.measurement)}%`)
           .style('left', `${event.pageX - 260}px`)
           .style('top', `${event.pageY + 10}px`);
       })

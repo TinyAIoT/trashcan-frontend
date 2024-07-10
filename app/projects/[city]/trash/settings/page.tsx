@@ -194,8 +194,6 @@ export default function ProjectSettings() {
           },
         }
       );
-
-      console.log("Settings updated successfully!");
       setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);

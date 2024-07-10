@@ -43,8 +43,6 @@ export default function Component() {
     } catch (error: any) {
       // Login failed
       // Show an error message for a few seconds
-      console.log(error);
-      console.log(error.response.data.message);
       setErrorMessage(error.response.data.message);
       setTimeout(() => {
         setErrorMessage(null);
