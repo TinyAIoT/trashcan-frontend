@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Trashbin } from '@/app/types';
 import LoadingComponent from "@/components/LoadingComponent";
+import { time } from "console";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -131,22 +132,39 @@ export default function TrashbinDetail({
 
   // Hook to combine the two sensor data to one HistoryDataItem array
   useEffect(() => {
-    var historyData: HistoryDataItem[] = [];
-    
-    const timestamps = new Set([...fillLevelData.map(item => item.timestamp), ...batteryLevelData.map(item => item.timestamp)]);
-    const fillLevels = new Map(fillLevelData.map(item => [item.timestamp, item.measurement]));
-    const batteryLevels = new Map(batteryLevelData.map(item => [item.timestamp, item.measurement]));
+    const roundToNearestSecond = (date: Date) => {
+      return new Date(Math.round(date.getTime() / 1000) * 1000);
+    };
+
+    const roundedFillLevelData = fillLevelData.map(item => ({
+      timestamp: roundToNearestSecond(item.timestamp),
+      measurement: item.measurement,
+    }));
+
+    const roundedBatteryLevelData = batteryLevelData.map(item => ({
+      timestamp: roundToNearestSecond(item.timestamp),
+      measurement: item.measurement,
+    }));
+
+    const timestamps = new Set([...roundedFillLevelData.map(item => item.timestamp.getTime()), ...roundedBatteryLevelData.map(item => item.timestamp.getTime())]);
+    const fillLevels = new Map(roundedFillLevelData.map(item => [item.timestamp.getTime(), item.measurement]));
+    const batteryLevels = new Map(roundedBatteryLevelData.map(item => [item.timestamp.getTime(), item.measurement]));
+
+    const historyData: HistoryDataItem[] = [];
 
     timestamps.forEach(timestamp => {
       historyData.push({
-        timestamp: timestamp,
-        fillLevel: fillLevels.get(timestamp) || 0,
-        batteryLevel: batteryLevels.get(timestamp) || 0,
+        timestamp: new Date(timestamp),
+        fillLevel: fillLevels.get(timestamp) ?? 0,
+        batteryLevel: batteryLevels.get(timestamp) ?? 0,
       });
     });
 
+    historyData.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
     setHistory(historyData);
   }, [fillLevelData, batteryLevelData]);
+
 
   if (!data) {
     return <LoadingComponent />;
