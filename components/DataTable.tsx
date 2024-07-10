@@ -159,14 +159,14 @@ export function DataTable<TData, TValue>({
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
-          <Info className="text-gray-500 ml-4 mr-2" />
-          <p className="text-lg text-gray-500">
-            Search by name, location, or identifier
-          </p>
-          <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
-          <p className="text-lg text-gray-500">
-            Sort by clicking on the column headers
-          </p>
+          <span className="text-blue-500 info-tooltip">
+            <Info className="text-gray-500 ml-4 mr-2" />
+            <span className="info-tooltip-text">Search by name, location, or identifier.</span>
+          </span>
+          <span className="text-blue-500 info-tooltip">
+            <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
+            <span className="info-tooltip-text">Sort by clicking on the column headers.</span>
+          </span>
           { showExportButton && (
             <Button
               variant="outline"
