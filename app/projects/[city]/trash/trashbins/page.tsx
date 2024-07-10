@@ -97,7 +97,7 @@ export default function TrashbinsOverview() {
         const projectId = localStorage.getItem("projectId");
 
         const allTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -108,7 +108,7 @@ export default function TrashbinsOverview() {
 
         // Get the currently assigned bins
         const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

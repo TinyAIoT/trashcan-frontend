@@ -26,10 +26,10 @@ export default function Component() {
 
     try {
 
-      console.log(process.env.NEXT_BACKEND_URL);
+      console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
       
       const response = await axios.post(
-        `${process.env.NEXT_BACKEND_URL}/api/v1/auth/login`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
         {
           email,
           password,

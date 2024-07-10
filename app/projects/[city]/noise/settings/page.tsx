@@ -19,7 +19,7 @@ export default function AppSettings() {
         const projectId = localStorage.getItem("projectId");
 
         const projectResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -98,7 +98,7 @@ export default function AppSettings() {
       const projectId = localStorage.getItem("projectId");
 
       await axios.patch(
-        `${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
         {
           activeTimeInterval: [startHour, endHour],
           // activeTimeInterval: startHour,

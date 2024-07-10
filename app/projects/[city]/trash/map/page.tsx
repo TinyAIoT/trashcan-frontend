@@ -29,7 +29,7 @@ const MapPage = () => {
         const projectId = localStorage.getItem("projectId");
 
         const trashbinResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -39,7 +39,7 @@ const MapPage = () => {
         setTrashbinData(trashbinResponse.data.trashbins);
 
         const projectResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

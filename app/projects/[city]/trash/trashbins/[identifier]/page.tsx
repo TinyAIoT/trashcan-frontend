@@ -76,7 +76,7 @@ export default function TrashbinDetail({
       try {
         const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -88,7 +88,7 @@ export default function TrashbinDetail({
         const projectId = localStorage.getItem("projectId");
 
         const projectResponse = await axios.get(
-          `${process.env.NEXT_BACKEND_URL}/api/v1/project/${projectId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
