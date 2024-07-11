@@ -9,9 +9,10 @@ To get a local copy running, follow these steps:
 1. Clone the repository: `git clone git@github.com:tinyaiot-ps/frontend.git`
 2. Install [NodeJS](https://nodejs.org/en/download/)
 3. Install the dependencies: `npm install`
-4. Run the development server: `npm run dev`
-5. Open http://localhost:3000 in the browser
-6. The website auto-updates while editing the code
+4. Obtain the `.env` variables (-> cf. documentation)
+5. Run the development server: `npm run dev`
+6. Open http://localhost:3000 in the browser
+7. The website auto-updates while editing the code
 
 ## Features/Subpages
 
