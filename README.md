@@ -30,10 +30,6 @@ To get a local copy running, follow these steps:
 - **Login Page**: Login (TODO: Signup)
 - **Account Settings**: Logout (TODO: Change password, theme, language)
 
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
 ## Acknowledgments
 
 - [Next.js](https://nextjs.org/)
