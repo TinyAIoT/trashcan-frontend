@@ -1,9 +1,10 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
-import { Info } from "lucide-react";
 import LoadingComponent from "@/components/LoadingComponent";
+import { Info } from "lucide-react";
 
 export default function AppSettings() {
   const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
@@ -111,6 +112,7 @@ export default function AppSettings() {
           },
         }
       );
+
       setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);

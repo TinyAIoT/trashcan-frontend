@@ -188,7 +188,12 @@ export default function TrashbinDetail({
           <Link href={getEditUrl()}>Edit Trashbin</Link>
         </Button>
       </div>
-      { (fillLevelData.length !== 0 || batteryLevelData.length !== 0) ?
+      { (fillLevelData.length === 0 && batteryLevelData.length === 0) ?
+        <div className="h-40px">
+          <CardContent>
+            <LoadingComponent text="History loading..."/>
+          </CardContent>
+        </div> : 
         <Tabs defaultValue="visual" className="">
           <TabsList className="w-full">
             <TabsTrigger value="visual" className="w-full">
@@ -234,12 +239,7 @@ export default function TrashbinDetail({
               />
             </div>
           </TabsContent>
-        </Tabs> :
-        <div className="h-40px">
-        <CardContent>
-          <LoadingComponent text="History loading..."/>
-        </CardContent>
-        </div>
+        </Tabs>
       }
       <section className="">
             <div className="flex gap-3 items-center">

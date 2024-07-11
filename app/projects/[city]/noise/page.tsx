@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import PageTitle from "@/components/PageTitle";
-import { Info, Settings } from "lucide-react";
 import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
-import axios from "axios";
+import LoadingComponent from "@/components/LoadingComponent";
+import { Info, Settings } from "lucide-react";
 
 function redirectToSettings() {
   window.location.href = window.location.href + "/settings";
@@ -16,6 +17,7 @@ export default function NoiseDashboard() {
   const [activeTimeInterval, setActiveTimeInterval] = useState<[number, number]>([0, 0]);
   const [noiseThreshold, setNoiseThreshold] = useState<number>(0);
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +40,9 @@ export default function NoiseDashboard() {
         setNoiseThreshold(parseInt(noiseThreshold));
         setConfidenceThreshold(parseFloat(confidenceThreshold));
         setActiveTimeInterval([activeTimeInterval[0], activeTimeInterval[1]]);
+
+        // Here we have enough data so we can show the page
+        setLoading(false);
 
         // Fetch history data of the noise sensor
         // Fetch real data in the emsdetten project, else mock data
@@ -74,19 +79,26 @@ export default function NoiseDashboard() {
     fetchData();
   }, []);
 
+  if (loading) return <LoadingComponent/>;
+
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Noise Dashboard" />
       <section className="grid grid-cols-1  gap-4 transition-all">
-        <CardContent>
-          <p className="p-4 font-semibold">Noise Level in decibels relative to full scale (dBFS)</p>
-          { noiseData.length > 0 && 
-            <NoiseChart
-              noiseData={noiseData}
-              noiseThreshold={noiseThreshold}
-              confidenceThreshold={confidenceThreshold} />
-          }
-        </CardContent>
+          { noiseData.length === 0 ? 
+            <div className="h-40px">
+              <CardContent>
+                <LoadingComponent text="History loading..."/>
+              </CardContent>
+            </div> :
+          <CardContent>
+            <p className="p-4 font-semibold">Noise Level in decibels relative to full scale (dBFS)</p>
+              <NoiseChart
+                noiseData={noiseData}
+                noiseThreshold={noiseThreshold}
+                confidenceThreshold={confidenceThreshold} />
+          </CardContent>
+        }
       </section>
       <div className="flex items-center justify-start">
         <Info className="text-gray-500 mr-2" />
