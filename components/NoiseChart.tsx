@@ -47,7 +47,8 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = 20 * noiseData.length;
+    const pointWidth = 10;
+    const fullWidth = pointWidth * noiseData.length;
   
     d3.select(mainChartRef.current).selectAll('*').remove();
 
@@ -57,27 +58,20 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = d3.scaleTime()
-      .domain([new Date(noiseData[0].timestamp), new Date(noiseData[noiseData.length - 1].timestamp)])
-      .range([0, fullWidth]);
+    const x = d3.scalePoint()
+      .domain(noiseData.map(d => new Date(d.timestamp).toString()))
+      .range([0, fullWidth])
+      .padding(0.5);
 
-    const y = d3.scaleLinear()
-      .domain([-100, 0])
-      .range([height, 0]);
+    const y = d3.scaleLinear().domain([-100, 0]).range([height, 0]);
 
     const line = d3.line<DataItem>()
-      .x(d => x(new Date(d.timestamp)))
+      .x(d => x(new Date(d.timestamp).toString()) || 0)
       .y(d => y(d.measurement));
-
+    
     const xAxis = d3.axisBottom(x)
-      .ticks(d3.timeMinute.every(1))
-      .tickFormat((domainValue) => {
-        // Ensure the value is a Date before formatting
-        if (domainValue instanceof Date) {
-          return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
-        }
-        return '';
-      });
+      .tickValues(x.domain().filter((_d, i) => i % 10 === 9))
+      .tickFormat((domainValue: string) => d3.timeFormat('%Y-%m-%d %H:%M')(new Date(domainValue)));
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -108,7 +102,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
       .attr('class', 'dot')
       .attr('stroke', 'black')
       .attr('fill', d => (d.measurement >= noiseThreshold && d.noisePrediction >= confidenceThreshold) ? 'red' : 'black')
-      .attr('cx', d => x(new Date(d.timestamp)))
+      .attr('cx', d => String(x(new Date(d.timestamp).toString())))
       .attr('cy', d => y(d.measurement))
       .attr('r', 4);
 
@@ -126,7 +120,7 @@ const NoiseChart: React.FC<NoiseChartProps> = ({ noiseData, noiseThreshold, conf
       .data(noiseData)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
-      .attr('cx', d => x(new Date(d.timestamp)))
+      .attr('cx', d => String(x(new Date(d.timestamp).toString())))
       .attr('cy', d => y(d.measurement))
       .attr('r', 10)
       .style('opacity', 0)

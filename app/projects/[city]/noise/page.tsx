@@ -32,8 +32,6 @@ export default function NoiseDashboard() {
           }
         );
 
-        console.log(projectResponse.data);
-
         const { activeTimeInterval, noiseThreshold, confidenceThreshold } =
           projectResponse.data.project;
 
@@ -44,7 +42,6 @@ export default function NoiseDashboard() {
         // Fetch history data of the noise sensor
         // Fetch real data in the emsdetten project, else mock data
         const city = localStorage.getItem("cityName");
-        console.log(city);
         var sensorId = "";
         if (city === 'emsdetten') {
           sensorId = "668e92ca094613ff3bade435";

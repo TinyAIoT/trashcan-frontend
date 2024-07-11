@@ -24,6 +24,7 @@ function determineColor(d: number, green: [number, number], yellow: [number, num
 const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }) => {
   const yAxisRef = useRef<SVGSVGElement>(null);
   const mainChartRef = useRef<SVGSVGElement>(null);
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -52,7 +53,8 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
 
     const margin = { top: 5, right: 5, bottom: 100, left: 40 };
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = 10 * historyData.length;
+    const pointWidth = 10;
+    const fullWidth = pointWidth * historyData.length;
 
     d3.select(mainChartRef.current).selectAll("*").remove();
 
@@ -63,25 +65,39 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const x = d3
-      .scaleTime()
-      .domain([historyData[0].timestamp, historyData[historyData.length-1].timestamp])
-      .range([0, fullWidth]);
+    const x = d3.scalePoint()
+      .domain(historyData.map(d => new Date(d.timestamp).toString()))
+      .range([0, fullWidth])
+      .padding(0.5);
+
+    // const x = d3
+    //   .scaleTime()
+    //   .domain([historyData[0].timestamp, historyData[historyData.length-1].timestamp])
+    //   .range([0, fullWidth]);
 
     const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
 
-    const historyLine = d3.line()
-      .x((d: any) => x(d.timestamp))
-      .y((d: any) => y(d.measurement));
+    const line = d3.line<DataItem>()
+      .x(d => x(new Date(d.timestamp).toString()) || 0)
+      .y(d => y(d.measurement));
+
+    // const historyLine = d3.line()
+    //   .x((d: any) => x(d.timestamp))
+    //   .y((d: any) => y(d.measurement));
 
     const xAxis = d3.axisBottom(x)
-      .ticks(d3.timeHour.every(12))
-      .tickFormat((domainValue) => {
-        if (domainValue instanceof Date) {
-          return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
-        }
-        return '';
-      });
+      .tickValues(x.domain().filter((_d, i) => i % 10 === 9))
+      .tickFormat((domainValue: string) => d3.timeFormat('%Y-%m-%d %H:%M')(new Date(domainValue)));
+
+
+    // const xAxis = d3.axisBottom(x)
+    //   .ticks(d3.timeHour.every(12))
+    //   .tickFormat((domainValue) => {
+    //     if (domainValue instanceof Date) {
+    //       return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
+    //     }
+    //     return '';
+    //   });
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -124,7 +140,7 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("fill", "none")
       .attr("stroke", "black")
       .attr("stroke-width", 1.5)
-      .attr("d", historyLine as any);
+      .attr("d", line);
 
     // svg
     //   .append("text")
@@ -140,9 +156,9 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .append("circle")
       .attr("class", "dot")
       .attr("stroke", "black")
-      .attr("fill", (d) => determineColor(d.measurement, green, yellow, red))
-      .attr("cx", (d) => x(d.timestamp))
-      .attr("cy", (d) => y(d.measurement))
+      .attr("fill", d => determineColor(d.measurement, green, yellow, red))
+      .attr("cx", d => String(x(new Date(d.timestamp).toString())))
+      .attr("cy", d => y(d.measurement))
       .attr("r", 3);
 
     const tooltip = d3.select('body').append('div')
@@ -159,10 +175,11 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .data(historyData)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
-      .attr('cx', d => x(new Date(d.timestamp)))
+      .attr('cx', d => x(new Date(d.timestamp).toString()) ?? 0) // Ensure x is called with a string and provide a fallback value
       .attr('cy', d => y(d.measurement))
       .attr('r', 10)
       .style('opacity', 0)
+      .style('fill', d => determineColor(d.measurement, green, yellow, red)) // Correctly applying color
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)
@@ -200,10 +217,17 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
 
   }, [dimensions, historyData, green, yellow, red]);
 
+    // Scroll to the right when the component is mounted to see the latest data
+    useEffect(() => {
+      if (scrollableDivRef.current) {
+        scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth;
+      }
+    }, [dimensions]);
+
   return (
     <div className="relative w-full h-[400px]">
       <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
-      <div className="overflow-x-scroll h-full ml-10">
+      <div className="overflow-x-scroll h-full ml-10" ref={scrollableDivRef}>
         <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
       </div>
     </div>
