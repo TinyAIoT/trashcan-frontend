@@ -71,9 +71,7 @@ export default function Projects() {
     fetchData();
   }, []);
 
-  if (!projectData) {
-    return <LoadingComponent />;
-  }
+  if (!projectData) return <LoadingComponent />;
 
   return (
     <div className="flex flex-col gap-5 w-full">

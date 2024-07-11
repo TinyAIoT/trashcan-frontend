@@ -211,9 +211,7 @@ export default function ProjectSettings() {
     }
   }, [updated]);
 
-  if (loading) {
-    return <LoadingComponent />;
-  }
+  if (loading) return <LoadingComponent />
 
   return (
     <div className="px-1">

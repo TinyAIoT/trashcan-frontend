@@ -130,9 +130,7 @@ export default function AppSettings() {
     }
   }, [updated]);
 
-  if (loading) {
-    return <LoadingComponent />;
-  }
+  if (loading) return <LoadingComponent />;
 
   return (
     <div className="p-6">

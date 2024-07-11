@@ -88,7 +88,7 @@ export default function NoiseDashboard() {
           { noiseData.length === 0 ? 
             <div className="h-40px">
               <CardContent>
-                <LoadingComponent text="History loading..."/>
+                <LoadingComponent text="Loading history..."/>
               </CardContent>
             </div> :
           <CardContent>

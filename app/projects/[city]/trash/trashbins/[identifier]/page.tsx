@@ -170,9 +170,7 @@ export default function TrashbinDetail({
     setHistory(historyData);
   }, [fillLevelData, batteryLevelData]);
 
-  if (!trashbinData) {
-    return <LoadingComponent />;
-  }
+  if (!trashbinData) return <LoadingComponent />;
 
   function getEditUrl(): string {
     const city = localStorage.getItem("cityName");
@@ -191,7 +189,7 @@ export default function TrashbinDetail({
       { (fillLevelData.length === 0 && batteryLevelData.length === 0) ?
         <div className="h-40px">
           <CardContent>
-            <LoadingComponent text="History loading..."/>
+            <LoadingComponent text="Loading history..."/>
           </CardContent>
         </div> : 
         <Tabs defaultValue="visual" className="">
