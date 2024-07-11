@@ -72,7 +72,7 @@ export default function Component() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="superadmin@tinyaiot.com"
+                placeholder="Your email address"
                 required
                 type="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -82,6 +82,7 @@ export default function Component() {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                placeholder="Your password"
                 required
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
