@@ -13,18 +13,7 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
   }
 
   return (
-    // Wrapper div: a rect on top of the viz area
-    <div
-      style={{
-        width,
-        height,
-        position: "absolute",
-        top: 0,
-        left: 0,
-        pointerEvents: "none",
-      }}
-    >
-      {/* Actual tooltip */}
+    <div className={`absolute top-0 left-0 w-[${width}] h-[${height}] pointer-events-none`}>
       <div
         className="tooltip tooltip absolute bg-white border border-gray-300 p-2.5 rounded-md pointer-events-none opacity-95"
         style={{

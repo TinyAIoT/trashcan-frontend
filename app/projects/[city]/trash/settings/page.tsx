@@ -1,9 +1,10 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import PageTitle from "@/components/PageTitle";
 import axios from "axios";
-import { Info } from "lucide-react";
+import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
+import { Info } from "lucide-react";
 
 export default function ProjectSettings() {
   const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
@@ -49,14 +50,15 @@ export default function ProjectSettings() {
   }, []);
 
   const handleMapCenterCoordinateChange = (key: string, value: string): void => {
-    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}  // Check if value contains something else than numbers or dots
+    // Check if value contains something else than numbers or dots
+    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}
     if (key === "latitude") setMapCenterCoordinates((prevCoordinates) => [value, prevCoordinates[1]]);
     if (key === "longitude") setMapCenterCoordinates((prevCoordinates) => [prevCoordinates[0], value]);
     setUpdated(false);
   };
 
   const handleStartEndCoordinateChange = (key: string, value: string): void => {
-    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}  // Check if value contains something else than numbers or dots
+    if ( !/^[0-9.-]*$/.test(value) ) {value = "0"}
     if (key === "latitude") setStartEndCoordinates((prevCoordinates) => [value, prevCoordinates[1]]);
     if (key === "longitude") setStartEndCoordinates((prevCoordinates) => [prevCoordinates[0], value]);
     setUpdated(false);
@@ -173,8 +175,6 @@ export default function ProjectSettings() {
     try {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
-
-      // TODO: Patch startEndCoords (wait for backend to implement)
 
       await axios.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,

@@ -1,10 +1,9 @@
-/** @format */
-
 import PageTitle from "@/components/PageTitle";
 import Card, { CardContent, CardProps } from "@/components/Card";
 import { HeatmapFillLevel } from "@/components/Heatmap/HeatmapFillLevel";
 import { HeatmapBatteryLevel } from "@/components/Heatmap/HeatmapBatteryLevel";
 
+// Currently using mocked data, as API endpoints are not available
 const cardData: CardProps[] = [
   {
     label: "Total number",
@@ -34,13 +33,11 @@ export default function Home() {
       <PageTitle title="Dashboard" />
       <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
         <CardContent>
-          <p className="p-4 font-semibold">Distribution of fill level of all bins</p>
-          {/* https://www.react-graph-gallery.com/heatmap */}
+          <p className="p-4 text-xl font-semibold">Distribution of fill levels of all bins</p>
           <HeatmapFillLevel />
         </CardContent>
         <CardContent>
-          <p className="p-4 font-semibold">Distribution of battery level of all bins</p>
-          {/* https://www.react-graph-gallery.com/heatmap */}
+          <p className="p-4 text-xl font-semibold">Distribution of battery levels of all bins</p>
           <HeatmapBatteryLevel />
         </CardContent>
       </section>

@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
-import PageTitle from "@/components/PageTitle";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import axios from 'axios';
+import { LatLngTuple } from 'leaflet';
+import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import LoadingComponent from '@/components/LoadingComponent';
+import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 // import { Input } from "@/components/ui/input";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trashbin } from '@/app/types';
-import LoadingComponent from '@/components/LoadingComponent';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
@@ -55,6 +55,7 @@ const columns: ColumnDef<Trashbin>[] = [
     },
 ];
 
+// TODO: We need to host our own OSRM server for production
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
 const RoutePlanning = () => {

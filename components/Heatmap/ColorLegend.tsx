@@ -25,9 +25,9 @@ export const ColorLegend = ({
   const max = domain[domain.length - 1];
   const xScale = d3.scaleLinear().range([0, boundsWidth]).domain([0, 10]);
 
-  const allTicks = xScale.ticks(4).map((tick) => {
+  const allTicks = xScale.ticks(4).map((tick, index) => {
     return (
-      <>
+      <g key={index}>
         <line
           x1={xScale(tick)}
           x2={xScale(tick)}
@@ -43,7 +43,7 @@ export const ColorLegend = ({
         >
           {tick === 10 ? "10+" : tick}
         </text>
-      </>
+      </g>
     );
   });
 

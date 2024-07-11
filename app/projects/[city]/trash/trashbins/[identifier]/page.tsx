@@ -7,7 +7,7 @@ import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Card, { CardContent } from "@/components/Card";
+import { CardContent } from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import LineChart from "@/components/LineChart";
 import LoadingComponent from "@/components/LoadingComponent";

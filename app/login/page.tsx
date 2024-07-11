@@ -33,7 +33,6 @@ export default function Component() {
       );
 
       if (response.status === 200) {
-        // Login was successful
         // Save the token in local storage for future requests
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("email", email);
@@ -41,8 +40,6 @@ export default function Component() {
         router.push("/");
       }
     } catch (error: any) {
-      // Login failed
-      // Show an error message for a few seconds
       setErrorMessage(error.response.data.message);
       setTimeout(() => {
         setErrorMessage(null);

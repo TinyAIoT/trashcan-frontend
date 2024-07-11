@@ -3,11 +3,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from 'react-dom/client';
-import { Trash2, BatteryFull, Signal } from "lucide-react";
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { Trash2, BatteryFull, Signal } from "lucide-react";
 import { Trashbin } from '@/app/types';
 
 interface MapProps {

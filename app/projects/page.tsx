@@ -1,11 +1,10 @@
-/** @format */
 "use client";
 
-import PageTitle from "@/components/PageTitle";
-import { CardContent } from "@/components/Card";
-import Link from 'next/link';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import PageTitle from "@/components/PageTitle";
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/Card";
 import LoadingComponent from "@/components/LoadingComponent";
 
 interface Project {
@@ -33,8 +32,9 @@ function saveProjectDataLocally(project: any) {
 }
 
 export default function Projects() {
-  const [projectData, setProjectData] = useState<Project[]>([]);
+  const [projectData, setProjectData] = useState<Project[] | null>(null);
 
+  // Remove any project data that might be stored locally when navigating back to the projects page
   removeProjectDataLocally();
 
   useEffect(() => {
@@ -71,27 +71,26 @@ export default function Projects() {
     fetchData();
   }, []);
 
-  if (!projectData) return <LoadingComponent />;
-
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Your Projects" />
-      <section className="grid grid-cols-1 gap-4 transition-all lg:grid-cols-3">
-        {projectData.map((project) => (
-          <Link
-            href={`/projects/${project.cityName}/${project.projectType}`}
-            key={project.identifier}
-            onClick={() => saveProjectDataLocally(project)}
-          >
-              <CardContent>
-                <p>
-                  {project.name}
-                  <span className="text-gray-500 ml-4">({project.identifier})</span>
-                </p>
-              </CardContent>
-          </Link>
-        ))}
-      </section>
+      { !projectData ?
+        <LoadingComponent text="Loading projects..." /> :
+        <section className="grid grid-cols-1 gap-4 transition-all lg:grid-cols-3">
+          {projectData.map((project) => (
+            <Button
+              variant="outline"
+              onClick={() => {
+                saveProjectDataLocally(project);
+                window.location.href = `/projects/${project.cityName}/${project.projectType}`;
+              }}
+              key={project.identifier}
+            >
+              <span className="text-2xl">{project.name}</span>
+            </Button>
+          ))}
+        </section>
+      }
     </div>
   );
 }
