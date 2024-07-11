@@ -1,12 +1,12 @@
-"use client"; // Ensure this runs on the client side
+"use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
 import LoadingComponent from "@/components/LoadingComponent";
+import { Info } from "lucide-react";
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   type TrashBinUpdate = {
@@ -18,12 +18,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     image: string;
   };
   const [trashbin, setTrashbin] = useState<TrashBinUpdate | null>(null);
-  const [errors, setErrors] = useState({
-    name: "",
-    coordinates: "",
-    location: "",
-    image: "",
-  });
+  const [errors, setErrors] = useState({ name: "", coordinates: "", location: "", image: "" });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,9 +115,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     }
   };
 
-  if (!trashbin) {
-    return <LoadingComponent />;
-  }
+  if (!trashbin) return <LoadingComponent />;
 
   return (
     <div className="flex flex-col gap-5 w-full">

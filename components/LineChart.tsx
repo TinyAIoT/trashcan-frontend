@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import * as d3 from "d3";
 import ResizeObserver from "resize-observer-polyfill";
+import * as d3 from "d3";
 
 interface DataItem {
   timestamp: Date;
@@ -70,34 +70,15 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .range([0, fullWidth])
       .padding(0.5);
 
-    // const x = d3
-    //   .scaleTime()
-    //   .domain([historyData[0].timestamp, historyData[historyData.length-1].timestamp])
-    //   .range([0, fullWidth]);
-
     const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
 
     const line = d3.line<DataItem>()
       .x(d => x(new Date(d.timestamp).toString()) || 0)
       .y(d => y(d.measurement));
 
-    // const historyLine = d3.line()
-    //   .x((d: any) => x(d.timestamp))
-    //   .y((d: any) => y(d.measurement));
-
     const xAxis = d3.axisBottom(x)
       .tickValues(x.domain().filter((_d, i) => i % 10 === 9))
       .tickFormat((domainValue: string) => d3.timeFormat('%Y-%m-%d %H:%M')(new Date(domainValue)));
-
-
-    // const xAxis = d3.axisBottom(x)
-    //   .ticks(d3.timeHour.every(12))
-    //   .tickFormat((domainValue) => {
-    //     if (domainValue instanceof Date) {
-    //       return d3.timeFormat('%Y-%m-%d %H:%M')(domainValue);
-    //     }
-    //     return '';
-    //   });
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -142,13 +123,6 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("stroke-width", 1.5)
       .attr("d", line);
 
-    // svg
-    //   .append("text")
-    //   .attr("x", fullWidth / 2)
-    //   .attr("y", height + margin.bottom)
-    //   .style("text-anchor", "middle")
-    //   .text("Hours");
-
     svg
       .selectAll(".dot")
       .data(historyData)
@@ -175,11 +149,11 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .data(historyData)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
-      .attr('cx', d => x(new Date(d.timestamp).toString()) ?? 0) // Ensure x is called with a string and provide a fallback value
+      .attr('cx', d => x(new Date(d.timestamp).toString()) ?? 0)
       .attr('cy', d => y(d.measurement))
       .attr('r', 10)
       .style('opacity', 0)
-      .style('fill', d => determineColor(d.measurement, green, yellow, red)) // Correctly applying color
+      .style('fill', d => determineColor(d.measurement, green, yellow, red))
       .on('mouseover', (event, d) => {
         tooltip.transition()
           .duration(200)

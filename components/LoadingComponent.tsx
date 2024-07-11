@@ -1,17 +1,13 @@
 import React from 'react';
 
-const LoadingComponent: React.FC = () => {
+interface LoadingComponentProps {
+  text?: string;
+}
+
+const LoadingComponent: React.FC<LoadingComponentProps> = ({ text = 'Loading...' }) => {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      userSelect: 'none',
-      fontSize: '20px',
-    //   fontWeight: 'bold'
-    }}>
-      Loading...
+    <div className="flex justify-center items-center select-none text-lg">
+      {text}
     </div>
   );
 };

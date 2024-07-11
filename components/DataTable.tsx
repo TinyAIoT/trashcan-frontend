@@ -1,9 +1,7 @@
 /** @format */
-
 "use client";
 
 import * as React from "react";
-
 import {
   ColumnDef,
   flexRender,
@@ -111,43 +109,6 @@ export function DataTable<TData, TValue>({
     a.click();
     document.body.removeChild(a);
   };  
-
-  
-
-  // const makeCSV = () => {
-  //   // Define fields to include in CSV
-  //   const csvFields = [
-  //     "id",
-  //     "identifier",
-  //     "name",
-  //     "location",
-  //     "fillLevel",
-  //     "batteryLevel",
-  //     "fillLevelChange",
-  //     "signalStrength",
-  //   ];
-
-  //   // Generate CSV content
-  //   const csvContent = [
-  //     csvFields.join(","), // Header row
-  //     ...data.map((item) => {
-  //       return csvFields
-  //         .map((field) => `"${item[field as keyof TData] || ""}"`)
-  //         .join(",");
-  //     }),
-  //   ].join("\n");
-
-  //   // Create Blob and download link
-  //   const blob = new Blob([csvContent], { type: "text/csv" });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement("a");
-  //   a.setAttribute("hidden", "");
-  //   a.setAttribute("href", url);
-  //   a.setAttribute("download", "trashbins.csv");
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  // };
 
   return (
     <div>
