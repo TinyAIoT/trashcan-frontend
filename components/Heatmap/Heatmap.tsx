@@ -1,3 +1,4 @@
+// Component inspired by: https://www.react-graph-gallery.com/heatmap
 "use client";
 
 import { useState, useRef, useEffect } from "react";

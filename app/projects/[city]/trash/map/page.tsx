@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import PageTitle from "@/components/PageTitle";
-import Map from "@/components/Map";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { LatLngTuple } from "leaflet";
-import { useRouter } from "next/navigation";
+import PageTitle from "@/components/PageTitle";
+import Map from "@/components/Map";
+import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from "@/app/types";
 
 const MapPage = () => {
@@ -63,7 +64,7 @@ const MapPage = () => {
         <PageTitle title="Map" />
       </div>
       {/* Make sure that all information was fetched from the backend before rendering the map */}
-      { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && (
+      { (centerCoordinates && initialZoom && fillThresholds && batteryThresholds) ?
         <Map
           trashbinData={trashbinData}
           centerCoordinates={centerCoordinates}
@@ -72,8 +73,9 @@ const MapPage = () => {
           batteryThresholds={batteryThresholds}
           isRoutePlanning={false}
           onTrashbinClick={redirectToTrashbinDetail}
-        />
-      )}
+        /> :
+        <LoadingComponent text="Loading map..."/>
+      }
     </div>
   );
 };

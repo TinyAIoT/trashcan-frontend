@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
-import PageTitle from "@/components/PageTitle";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import axios from 'axios';
+import { LatLngTuple } from 'leaflet';
+import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LatLngTuple } from 'leaflet';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import LoadingComponent from '@/components/LoadingComponent';
+import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 // import { Input } from "@/components/ui/input";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trashbin } from '@/app/types';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
@@ -54,9 +55,10 @@ const columns: ColumnDef<Trashbin>[] = [
     },
 ];
 
+// TODO: We need to host our own OSRM server for production
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
-const RoutePlanning = () => {  
+const RoutePlanning = () => {
   // Bins selected by user by clicking on map or table-row
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
   // Optimized order of bins based on route optimization
@@ -312,43 +314,45 @@ const RoutePlanning = () => {
         <Button className="bg-green-600 text-white" onClick={assignRoute}>Assign Route</Button>
         <Button className="bg-red-600 text-white" onClick={unassignAllBins}>Unassign All Bins</Button>
       </section>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
-          <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
-        </TabsList>
-        <TabsContent value="map">
-          { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && handleTrashbinClick && startEndCoordinates &&(
-          <div className="w-full h-[80vh] relative z-0">
-            <Map
-              trashbinData={trashbinData}
-              centerCoordinates={centerCoordinates}
-              initialZoom={initialZoom}
-              fillThresholds={fillThresholds}
-              batteryThresholds={batteryThresholds}
-              isRoutePlanning={true}
-              onTrashbinClick={handleTrashbinClick}
-              tripStartEnd={startEndCoordinates}
-              selectedBins={selectedBins}
-              optimizedBins={optimizedBins}
-              showRoute={showRoute}
+      {/* Only render the tabs when all information was fetched */}
+      { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && startEndCoordinates ? 
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
+            <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
+          </TabsList>
+          <TabsContent value="map">
+            <div className="w-full h-[80vh] relative z-0">
+              <Map
+                trashbinData={trashbinData}
+                centerCoordinates={centerCoordinates}
+                initialZoom={initialZoom}
+                fillThresholds={fillThresholds}
+                batteryThresholds={batteryThresholds}
+                isRoutePlanning={true}
+                onTrashbinClick={handleTrashbinClick}
+                tripStartEnd={startEndCoordinates}
+                selectedBins={selectedBins}
+                optimizedBins={optimizedBins}
+                showRoute={showRoute}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="table">
+            <div className="w-full h-[80vh] overflow-auto">
+            <DataTable
+              columns={columns}
+              data={trashbinData}
+              onRowClick={handleTrashbinClick}
+              selectedRows={selectedBins}
+              showSearchBar={true}
+              showExportButton={false}
             />
-          </div>
-          )}
-        </TabsContent>
-        <TabsContent value="table">
-          <div className="w-full h-[80vh] overflow-auto">
-          <DataTable
-            columns={columns}
-            data={trashbinData}
-            onRowClick={handleTrashbinClick}
-            selectedRows={selectedBins}
-            showSearchBar={true}
-            showExportButton={false}
-          />
-          </div>
-        </TabsContent>
-      </Tabs>
+            </div>
+          </TabsContent>
+        </Tabs> :
+        <LoadingComponent text="Loading map..."/>
+      }
       {/* Commented out, as options are not supported yet */}
       {/* <div className="flex-col">
         <h1 className="text-2xl font-bold">Options</h1>
