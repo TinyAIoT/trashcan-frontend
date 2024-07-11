@@ -1,18 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LineChart from "@/components/LineChart";
-import { CardContent } from "@/components/Card";
+import Card, { CardContent } from "@/components/Card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Trashbin } from '@/app/types';
+import LineChart from "@/components/LineChart";
 import LoadingComponent from "@/components/LoadingComponent";
-import { time } from "console";
+import { Trashbin } from '@/app/types';
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -36,13 +35,11 @@ export default function TrashbinDetail({
 }: {
   params: { identifier: string };
 }) {
-  const [fillThresholds, setFillThresholds] = useState<[number, number]>([20, 80]);
-  const [batteryThresholds, setBatteryThresholds] = useState<[number, number]>([80, 20]);
-  
-  const [data, setData] = useState<Trashbin | null>(null);
+  const [fillThresholds, setFillThresholds] = useState<[number, number]>([0, 0]);
+  const [batteryThresholds, setBatteryThresholds] = useState<[number, number]>([0, 0]);
+  const [trashbinData, setTrashbinData] = useState<Trashbin | null>();
   const [fillLevelData, setFillLevelData] = useState<DataItem[]>([]);
   const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
-
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
 
   useEffect(() => {
@@ -59,7 +56,7 @@ export default function TrashbinDetail({
             },
           }
         );
-        setData(response.data);
+        setTrashbinData(response.data);
 
         // Fetch project settings
         const projectId = localStorage.getItem("projectId");
@@ -76,7 +73,8 @@ export default function TrashbinDetail({
 
         // Sensor IDs of the trashbin
         const sensorIds = response.data.sensors;
-        // Fetch history data of the two sensors
+        // Fetch history data of fill level and battery level
+        // Fetch first history data
         const historyResponse0 = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,
           {
@@ -92,6 +90,7 @@ export default function TrashbinDetail({
           }));
           const measureType = historyResponse0.data[0].measureType;
 
+          // We don't know which sensor is which, so we have to check the measureType
           if (measureType === "fill_level") {
             setFillLevelData(measurements);
           }
@@ -99,7 +98,7 @@ export default function TrashbinDetail({
             setBatteryLevelData(measurements);
           }
         }
-
+        // Fetch second history data
         const historyResponse1 = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[1]}`,
           {
@@ -130,19 +129,25 @@ export default function TrashbinDetail({
     fetchData();
   }, [params.identifier]);
 
-  // Hook to combine the two sensor data to one HistoryDataItem array
+  // Combine fillLevel and batteryLevel data to one object to display in the table
   useEffect(() => {
-    const roundToNearestSecond = (date: Date) => {
-      return new Date(Math.round(date.getTime() / 1000) * 1000);
+    // Round timestamps to the next n seconds
+    // (e.g. 2 seconds to group data in 2 second intervals)
+    // This is necessary because the timestamps differ slightly
+    const n = 2;
+    const roundToNextNSeconds = (date: Date, n: number) => {
+      const seconds = Math.ceil(date.getTime() / 1000);
+      const roundedSeconds = seconds + (n - (seconds % n));
+      return new Date(roundedSeconds * 1000);
     };
 
     const roundedFillLevelData = fillLevelData.map(item => ({
-      timestamp: roundToNearestSecond(item.timestamp),
+      timestamp: roundToNextNSeconds(item.timestamp, n),
       measurement: item.measurement,
     }));
 
     const roundedBatteryLevelData = batteryLevelData.map(item => ({
-      timestamp: roundToNearestSecond(item.timestamp),
+      timestamp: roundToNextNSeconds(item.timestamp, n),
       measurement: item.measurement,
     }));
 
@@ -165,8 +170,7 @@ export default function TrashbinDetail({
     setHistory(historyData);
   }, [fillLevelData, batteryLevelData]);
 
-
-  if (!data) {
+  if (!trashbinData) {
     return <LoadingComponent />;
   }
 
@@ -179,71 +183,78 @@ export default function TrashbinDetail({
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between">
-        <PageTitle title={`Trashbin ${data.name} (${data.identifier})`} />
+        <PageTitle title={`Trashbin ${trashbinData.name} (${trashbinData.identifier})`} />
         <Button asChild className="bg-green-600 text-white">
           <Link href={getEditUrl()}>Edit Trashbin</Link>
         </Button>
       </div>
-      <Tabs defaultValue="visual" className="">
-        <TabsList className="w-full">
-          <TabsTrigger value="visual" className="w-full">
-            Graphical View
-          </TabsTrigger>
-          <TabsTrigger value="table" className="w-full">
-            Table View
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="visual">
-          <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
-            <CardContent>
-              <p className="p-4 font-semibold">Fill Level</p>
+      { (fillLevelData.length !== 0 || batteryLevelData.length !== 0) ?
+        <Tabs defaultValue="visual" className="">
+          <TabsList className="w-full">
+            <TabsTrigger value="visual" className="w-full">
+              Graphical View
+            </TabsTrigger>
+            <TabsTrigger value="table" className="w-full">
+              Table View
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="visual">
+            <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
               { fillLevelData.length > 0 &&
-                <LineChart
-                  historyData={fillLevelData}
-                  green={[0, fillThresholds[0]]}
-                  yellow={[fillThresholds[0], fillThresholds[1]]}
-                  red={[fillThresholds[1], 100]}
-                />
+              <><CardContent>
+                  <p className="p-4 font-semibold">Fill Level</p>
+                  <LineChart
+                    historyData={fillLevelData}
+                    green={[0, fillThresholds[0]]}
+                    yellow={[fillThresholds[0], fillThresholds[1]]}
+                    red={[fillThresholds[1], 100]} />
+              </CardContent></>
               }
-            </CardContent>
-            <CardContent>
-              <p className="p-4 font-semibold">Battery Level</p>
               { batteryLevelData.length > 0 &&
-                <LineChart
-                  historyData={batteryLevelData}
-                  green={[batteryThresholds[0], 100]}
-                  yellow={[batteryThresholds[1], batteryThresholds[0]]}
-                  red={[0, batteryThresholds[1]]}
-                />
+              <><CardContent>
+                <p className="p-4 font-semibold">Battery Level</p>
+                
+                  <LineChart
+                    historyData={batteryLevelData}
+                    green={[batteryThresholds[0], 100]}
+                    yellow={[batteryThresholds[1], batteryThresholds[0]]}
+                    red={[0, batteryThresholds[1]]}
+                  />
+              </CardContent></>
               }
-            </CardContent>
-          </section>
-        </TabsContent>
-        <TabsContent value="table">
-          <div className="h-[510px] overflow-y-auto">
-            <DataTable
-              columns={columns}
-              data={history}
-              showSearchBar={false}
-              showExportButton={false}
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
-      <section className="mt-5 mr-4 gap-3">
+            </section>
+          </TabsContent>
+          <TabsContent value="table">
+            <div className="h-[510px] overflow-y-auto">
+              <DataTable
+                columns={columns}
+                data={history}
+                showSearchBar={false}
+                showExportButton={false}
+              />
+            </div>
+          </TabsContent>
+        </Tabs> :
+        <div className="h-40px">
+        <CardContent>
+          <LoadingComponent text="History loading..."/>
+        </CardContent>
+        </div>
+      }
+      <section className="">
             <div className="flex gap-3 items-center">
-              <p className="inline">Location: {data.location} ({data.coordinates[0]}, {data.coordinates[1]})</p>
+              <p className="inline text-lg"><strong className="font-bold">Location:</strong> {trashbinData.location} ({trashbinData.coordinates[0]}, {trashbinData.coordinates[1]})</p>
               <Button className="bg-green-600 text-white">
                 <Link
-                  href={`https://www.google.com/maps/@${data.coordinates[0]},${data.coordinates[1]},z=18?q=${data.coordinates[0]},${data.coordinates[1]}`}
+                  href={`https://www.google.com/maps/@${trashbinData.coordinates[0]},${trashbinData.coordinates[1]},z=18?q=${trashbinData.coordinates[0]},${trashbinData.coordinates[1]}`}
                   target="_blank"
                 >
-                  See on Google Maps
+                  View on Google Maps
                 </Link>
               </Button>
             </div>
-            <p>Last Emptied: {data.lastEmptied ? data.lastEmptied.toString() : "Not available"}</p>
-            <p>Signal Strength: {data.signalStrength}</p>
+            <p className="text-lg"><strong className="font-bold">Last Emptied:</strong> {trashbinData.lastEmptied ? trashbinData.lastEmptied.toString() : "N/A"}</p>
+            <p className="text-lg"><strong className="font-bold">Signal Strength:</strong> {trashbinData.signalStrength}</p>
           </section>
       
     </div>
