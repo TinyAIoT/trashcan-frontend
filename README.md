@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2947cded-18ff-4548-ade1-f9cb067881b0/deploy-status)](https://app.netlify.com/sites/beamish-cendol-b3537c/deploys)
+
 # TinyAIoT Dashboard
 
 This is a frontend dashboard application for displaying information collected by IoT devices. It is built with the React framework [Next.js](https://nextjs.org/).
