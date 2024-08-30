@@ -39,3 +39,7 @@ To get a local copy running, follow these steps:
 - [shadcn/ui](https://ui.shadcn.com/docs)
 - [Lucide Icons](https://lucide.dev/icons/)
 - [axios](https://axios-http.com/)
+
+## Wiki
+
+For more detailed explanations, please take a look at our [Wiki](https://github.com/tinyaiot-ps/frontend/wiki)
