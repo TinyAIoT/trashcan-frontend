@@ -2,7 +2,7 @@
 
 # TinyAIoT Dashboard
 
-This is a frontend dashboard application for displaying information collected by IoT devices. It is built with the React framework [Next.js](https://nextjs.org/). For more detailed explanations, please take a look at our [wiki](https://github.com/tinyaiot-ps/frontend/wiki)
+This is a frontend dashboard application for displaying information collected by IoT devices. It is built with the React framework [Next.js](https://nextjs.org/). For more detailed explanations, please take a look at our [wiki](https://github.com/tinyaiot-ps/frontend/wiki).
 
 
 ## Getting Started
