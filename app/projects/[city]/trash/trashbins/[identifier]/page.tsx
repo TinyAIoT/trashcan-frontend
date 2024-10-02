@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import LineChart from "@/components/LineChart";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from '@/app/types';
+import { io } from 'socket.io-client';
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -41,6 +42,13 @@ export default function TrashbinDetail({
   const [fillLevelData, setFillLevelData] = useState<DataItem[]>([]);
   const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
+  const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+
+  socket.on('newData', (data) => {
+    debugger;
+    console.log('Received new data:', data);
+    // Update your frontend UI with the new data
+  });
 
   useEffect(() => {
     const fetchData = async () => {
