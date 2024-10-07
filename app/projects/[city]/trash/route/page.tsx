@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import axios from 'axios';
+import api from '@/lib/axios-api'
 import { LatLngTuple } from 'leaflet';
 import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
@@ -19,7 +19,7 @@ import { Copy, Info } from 'lucide-react';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "668e6bc9e921750c7a2fe090";
+const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -85,7 +85,7 @@ const RoutePlanning = () => {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const allTrashbinsResponse = await axios.get(
+        const allTrashbinsResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -96,7 +96,7 @@ const RoutePlanning = () => {
 
         const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
-        const assignedTrashbinsResponse = await axios.get(
+        const assignedTrashbinsResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
@@ -109,7 +109,7 @@ const RoutePlanning = () => {
         const unassignedTrashbins = transformedTrashbinData.filter((bin) => !assignedTrashbins.some((assignedBin: Trashbin) => assignedBin._id === bin._id));
         setTrashbinData(unassignedTrashbins);
 
-        const projectResponse = await axios.get(
+        const projectResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
@@ -157,7 +157,7 @@ const RoutePlanning = () => {
     const url = `${OSRM_SERVER_URL}/trip/v1/driving/${coordinates.join(';')}?source=first&destination=last&roundtrip=false`;
 
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
 
       // Only handle case where we get exactly one trip
       if (response.data.trips.length === 1) {
@@ -227,7 +227,7 @@ const RoutePlanning = () => {
     const token = localStorage.getItem("authToken");
 
     // Get the currently assigned bins
-    const assignedTrashbinsResponse = await axios.get(
+    const assignedTrashbinsResponse = await api.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
       {
         headers: {
@@ -241,7 +241,7 @@ const RoutePlanning = () => {
     const allAssignedBins = [...assignedTrashbins, ...selectedBins];
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,
@@ -268,7 +268,7 @@ const RoutePlanning = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await axios.post(
+      const response = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,

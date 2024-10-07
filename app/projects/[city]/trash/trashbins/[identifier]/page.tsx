@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import axios from "axios";
+import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -56,7 +56,7 @@ export default function TrashbinDetail({
         const token = localStorage.getItem("authToken");
 
         // Fetch trashbin data
-        const response = await axios.get(
+        const response = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
@@ -68,7 +68,7 @@ export default function TrashbinDetail({
 
         // Fetch project settings
         const projectId = localStorage.getItem("projectId");
-        const projectResponse = await axios.get(
+        const projectResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
@@ -83,7 +83,7 @@ export default function TrashbinDetail({
         const sensorIds = response.data.sensors;
         // Fetch history data of fill level and battery level
         // Fetch first history data
-        const historyResponse0 = await axios.get(
+        const historyResponse0 = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,
           {
             headers: {
@@ -107,7 +107,7 @@ export default function TrashbinDetail({
           }
         }
         // Fetch second history data
-        const historyResponse1 = await axios.get(
+        const historyResponse1 = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[1]}`,
           {
             headers: {

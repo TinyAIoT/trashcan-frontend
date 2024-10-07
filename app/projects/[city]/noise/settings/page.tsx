@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
@@ -20,7 +20,7 @@ export default function AppSettings() {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const projectResponse = await axios.get(
+        const projectResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
           {
             headers: {
@@ -99,7 +99,7 @@ export default function AppSettings() {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
 
-      await axios.patch(
+      await api.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
         {
           activeTimeInterval: [startHour, endHour],

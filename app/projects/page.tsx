@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/Card";
@@ -42,7 +42,7 @@ export default function Projects() {
       try {
         const token = localStorage.getItem("authToken");
 
-        const response = await axios.get(
+        const response = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project`,
           {
             headers: {

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -11,7 +11,7 @@ import { Trashbin } from '@/app/types';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "668e6bc9e921750c7a2fe090";
+const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -96,7 +96,7 @@ export default function TrashbinsOverview() {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const allTrashbinsResponse = await axios.get(
+        const allTrashbinsResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -107,7 +107,7 @@ export default function TrashbinsOverview() {
         var transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
         // Get the currently assigned bins
-        const assignedTrashbinsResponse = await axios.get(
+        const assignedTrashbinsResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {

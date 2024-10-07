@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import axios from "axios";
+import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import LoadingComponent from "@/components/LoadingComponent";
@@ -24,7 +24,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get(
+        const response = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
@@ -100,7 +100,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         longitude: parseFloat(trashbin.coordinates[1]?.toString() || "0"),
       };
 
-      await axios.patch(
+      await api.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${trashbin._id}`,
         payload,
         {
