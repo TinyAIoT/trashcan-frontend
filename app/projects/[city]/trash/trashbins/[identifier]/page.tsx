@@ -42,13 +42,54 @@ export default function TrashbinDetail({
   const [fillLevelData, setFillLevelData] = useState<DataItem[]>([]);
   const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
-  const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+  const [socket, setSocket] = useState(null);
 
-  socket.on('newData', (data) => {
-    debugger;
-    console.log('Received new data:', data);
-    // Update your frontend UI with the new data
-  });
+  useEffect(() => {
+    if (!socket) {
+      const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+
+      newSocket.on('newData', (data) => {
+        if(data.message.fill_level) {
+          let adjustedFillLevel = (data.message.fill_level<1) ? data.message.fill_level*100 : data.message.fill_level;
+          setTrashbinData(trashbinData => {
+            if(trashbinData) {
+              return {
+                ...trashbinData,  // Copy the previous state
+                fillLevel: adjustedFillLevel,  // Update only the 'status' field
+              };
+            }
+            return trashbinData;
+          });
+          setFillLevelData(fillLevelData => [...fillLevelData,{'timestamp':new Date(data.message.received_at), 'measurement':adjustedFillLevel}]);
+        }
+        if(data.message.battery_level) {
+          let adjustedBatteryLevel = (data.message.battery_level<1) ? data.message.battery_level*100 : data.message.battery_level;
+          setTrashbinData(trashbinData => {
+            if(trashbinData) {
+              return {
+                ...trashbinData,  // Copy the previous state
+                batteryLevel: adjustedBatteryLevel,  // Update only the 'status' field
+              };
+            }
+            return trashbinData;
+          });
+          setBatteryLevelData(batteryLevelData => [...batteryLevelData,{'timestamp':new Date(data.message.received_at), 'measurement':adjustedBatteryLevel}]);
+        }
+        
+        console.log('Received new data:', data);
+        // Update your frontend UI with the new data
+      });
+
+      setSocket(newSocket);
+    }
+
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [socket]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,7 +189,6 @@ export default function TrashbinDetail({
       const roundedSeconds = seconds + (n - (seconds % n));
       return new Date(roundedSeconds * 1000);
     };
-
     const roundedFillLevelData = fillLevelData.map(item => ({
       timestamp: roundToNextNSeconds(item.timestamp, n),
       measurement: item.measurement,
