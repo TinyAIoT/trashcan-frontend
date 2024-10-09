@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import LineChart from "@/components/LineChart";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from '@/app/types';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -42,11 +42,11 @@ export default function TrashbinDetail({
   const [fillLevelData, setFillLevelData] = useState<DataItem[]>([]);
   const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     if (!socket) {
-      const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+      const newSocket: Socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
 
       newSocket.on('newData', (data) => {
         if(data.message.fill_level) {
@@ -132,7 +132,7 @@ export default function TrashbinDetail({
             },
           }
         );
-        if (historyResponse0.data) {
+        if (historyResponse0.data[0]) {
           const measurements = historyResponse0.data.map((item: any) => ({
             timestamp: new Date(item.createdAt),
             measurement: item.measurement,
@@ -146,6 +146,9 @@ export default function TrashbinDetail({
           if (measureType === "battery_level") {
             setBatteryLevelData(measurements);
           }
+        } else {
+          setFillLevelData([]);
+          setBatteryLevelData([]);
         }
         // Fetch second history data
         const historyResponse1 = await api.get(
@@ -156,7 +159,7 @@ export default function TrashbinDetail({
             },
           }
         );
-        if (historyResponse1.data) {
+        if (historyResponse1.data[0]) {
           const measurements = historyResponse1.data.map((item: any) => ({
             timestamp: new Date(item.createdAt),
             measurement: item.measurement,
@@ -169,6 +172,9 @@ export default function TrashbinDetail({
           if (measureType === "battery_level") {
             setBatteryLevelData(measurements);
           }
+        } else {
+          setFillLevelData([]);
+          setBatteryLevelData([]);
         }
       } catch (error) {
         console.error("Error fetching data:", error);

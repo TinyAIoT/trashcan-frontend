@@ -13,7 +13,7 @@ api.interceptors.response.use(
     // TODO: forwarding all unauthorized requests to the login page could lead to problems in the future if different user roles have different rights
     if (error.response && error.response.status === 401) {
       // TODO: why cant I use the redirect from next/navigation for this?
-      window.location = '/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

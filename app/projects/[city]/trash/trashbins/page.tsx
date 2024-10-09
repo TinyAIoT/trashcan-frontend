@@ -8,6 +8,7 @@ import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Trashbin } from '@/app/types';
+import { io, Socket } from 'socket.io-client';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
@@ -83,12 +84,57 @@ const columns: ColumnDef<Trashbin>[] = [
 export default function TrashbinsOverview() {
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const router = useRouter();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   const handleClick = useCallback((trashbin: Trashbin) => {
     const city = localStorage.getItem("cityName");
     const type = localStorage.getItem("projectType");
     router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
   }, [router]);
+
+  useEffect(() => {
+    if (!socket) {
+      const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+
+      newSocket.on('newData', (data) => {
+        if(data.message.fill_level) {
+          let adjustedFillLevel = (data.message.fill_level<1) ? data.message.fill_level*100 : data.message.fill_level;
+          setTrashbinData(trashbinData => {
+            if(trashbinData) {
+              return {
+                ...trashbinData,  // Copy the previous state
+                fillLevel: adjustedFillLevel,  // Update only the 'status' field
+              };
+            }
+            return trashbinData;
+          });
+        }
+        if(data.message.battery_level) {
+          let adjustedBatteryLevel = (data.message.battery_level<1) ? data.message.battery_level*100 : data.message.battery_level;
+          setTrashbinData(trashbinData => {
+            if(trashbinData) {
+              return {
+                ...trashbinData,  // Copy the previous state
+                batteryLevel: adjustedBatteryLevel,  // Update only the 'status' field
+              };
+            }
+            return trashbinData;
+          });
+        }
+        
+        console.log('Received new data:', data);
+        // Update your frontend UI with the new data
+      });
+
+      setSocket(newSocket);
+    }
+
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [socket]);
 
   useEffect(() => {
     const fetchData = async () => {
