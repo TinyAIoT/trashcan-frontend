@@ -98,25 +98,33 @@ export default function TrashbinsOverview() {
 
       newSocket.on('newData', (data) => {
         if(data.message.fill_level) {
-          let adjustedFillLevel = (data.message.fill_level<1) ? data.message.fill_level*100 : data.message.fill_level;
+          let adjustedFillLevel = (data.message.fill_level<=1) ? data.message.fill_level*100 : data.message.fill_level;
           setTrashbinData(trashbinData => {
             if(trashbinData) {
-              return {
-                ...trashbinData,  // Copy the previous state
-                fillLevel: adjustedFillLevel,  // Update only the 'status' field
-              };
+              let trashbinDataCopy = [...trashbinData];
+              trashbinDataCopy = trashbinDataCopy.map(tData => {
+                if (tData.sensors.includes(data.message.sensor_id)) {
+                  return { ...tData, fillLevel: adjustedFillLevel };
+                }
+                return tData;
+              });
+              return trashbinDataCopy;
             }
             return trashbinData;
           });
         }
         if(data.message.battery_level) {
-          let adjustedBatteryLevel = (data.message.battery_level<1) ? data.message.battery_level*100 : data.message.battery_level;
+          let adjustedBatteryLevel = (data.message.battery_level<=1) ? data.message.battery_level*100 : data.message.battery_level;
           setTrashbinData(trashbinData => {
             if(trashbinData) {
-              return {
-                ...trashbinData,  // Copy the previous state
-                batteryLevel: adjustedBatteryLevel,  // Update only the 'status' field
-              };
+              let trashbinDataCopy = [...trashbinData];
+              trashbinDataCopy = trashbinDataCopy.map(tData => {
+                if (tData.sensors.includes(data.message.sensor_id)) {
+                  return { ...tData, batteryLevel: adjustedBatteryLevel };
+                }
+                return tData;
+              });
+              return trashbinDataCopy;
             }
             return trashbinData;
           });

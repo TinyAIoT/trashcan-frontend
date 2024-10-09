@@ -52,7 +52,7 @@ export default function TrashbinDetail({
         if(data.message.fill_level) {
           let adjustedFillLevel = (data.message.fill_level<1) ? data.message.fill_level*100 : data.message.fill_level;
           setTrashbinData(trashbinData => {
-            if(trashbinData) {
+            if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
                 ...trashbinData,  // Copy the previous state
                 fillLevel: adjustedFillLevel,  // Update only the 'status' field
@@ -65,7 +65,7 @@ export default function TrashbinDetail({
         if(data.message.battery_level) {
           let adjustedBatteryLevel = (data.message.battery_level<1) ? data.message.battery_level*100 : data.message.battery_level;
           setTrashbinData(trashbinData => {
-            if(trashbinData) {
+            if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
                 ...trashbinData,  // Copy the previous state
                 batteryLevel: adjustedBatteryLevel,  // Update only the 'status' field
@@ -75,6 +75,7 @@ export default function TrashbinDetail({
           });
           setBatteryLevelData(batteryLevelData => [...batteryLevelData,{'timestamp':new Date(data.message.received_at), 'measurement':adjustedBatteryLevel}]);
         }
+        // TODO: signal_level
         
         console.log('Received new data:', data);
         // Update your frontend UI with the new data
@@ -123,6 +124,7 @@ export default function TrashbinDetail({
         // Sensor IDs of the trashbin
         const sensorIds = response.data.sensors;
         // Fetch history data of fill level and battery level
+        // TODO: I think this only works under the assumption that a trashcan has only two sensors, one for fill and one for battery
         // Fetch first history data
         const historyResponse0 = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,

@@ -10,6 +10,7 @@ type Trashbin = {
   signalStrength: number;
   image: string;
   lastEmptied: Date;
+  sensors: string[];
 };
 
 export type { Trashbin };
