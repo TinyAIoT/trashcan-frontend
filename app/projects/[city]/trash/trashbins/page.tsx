@@ -103,7 +103,7 @@ export default function TrashbinsOverview() {
             if(trashbinData) {
               let trashbinDataCopy = [...trashbinData];
               trashbinDataCopy = trashbinDataCopy.map(tData => {
-                if (tData.sensors.includes(data.message.sensor_id)) {
+                if (tData.sensors && tData.sensors.includes(data.message.sensor_id)) {
                   return { ...tData, fillLevel: adjustedFillLevel };
                 }
                 return tData;
@@ -119,7 +119,7 @@ export default function TrashbinsOverview() {
             if(trashbinData) {
               let trashbinDataCopy = [...trashbinData];
               trashbinDataCopy = trashbinDataCopy.map(tData => {
-                if (tData.sensors.includes(data.message.sensor_id)) {
+                if (tData.sensors && tData.sensors.includes(data.message.sensor_id)) {
                   return { ...tData, batteryLevel: adjustedBatteryLevel };
                 }
                 return tData;
@@ -129,7 +129,6 @@ export default function TrashbinsOverview() {
             return trashbinData;
           });
         }
-        
         console.log('Received new data:', data);
         // Update your frontend UI with the new data
       });

@@ -53,7 +53,7 @@ function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThreshol
         {!routePlanning && (
         <div className="flex items-center">
           <Signal size="16px" className="mr-1" />
-          <span>{trashbin.signalStrength}</span>
+          <span>{trashbin.signalStrength}%</span>
         </div>
         )}
       </div>
