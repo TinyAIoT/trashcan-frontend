@@ -65,8 +65,10 @@ export const Heatmap = ({ data }: HeatmapProps) => {
   const [hoveredCell, setHoveredCell] = useState<InteractionData | null>(null);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
 
+  const maxAmount = Math.max(...data.map(obj => obj.amount));
+  const thresholds = [0, Math.ceil(maxAmount/5), Math.ceil(maxAmount*2/5), Math.ceil(maxAmount*3/5), Math.ceil(maxAmount*4/5), Math.ceil(maxAmount)];
   const colorScale = d3.scaleLinear<string>()
-      .domain(THRESHOLDS)
+      .domain(thresholds)
       .range(COLORS);
 
   const allYGroups = Array.from(new Set(data.map(d => d.percentage)))
@@ -86,7 +88,7 @@ export const Heatmap = ({ data }: HeatmapProps) => {
       <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
           <Renderer
-            width={data.length * 2}
+            width={data.length * 4}
             height={340}
             data={data}
             setHoveredCell={setHoveredCell}
@@ -104,6 +106,7 @@ export const Heatmap = ({ data }: HeatmapProps) => {
             height={COLOR_LEGEND_HEIGHT}
             width={250}
             colorScale={colorScale}
+            thresholds={thresholds}
           />
       </div>
     </div>
