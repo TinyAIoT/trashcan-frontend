@@ -88,7 +88,7 @@ export const Heatmap = ({ data }: HeatmapProps) => {
       <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
           <Renderer
-            width={data.length * 4}
+            width={data.length * 8}
             height={340}
             data={data}
             setHoveredCell={setHoveredCell}
