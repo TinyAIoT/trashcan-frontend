@@ -63,6 +63,7 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
 
 export const Heatmap = ({ data }: HeatmapProps) => {
   const [hoveredCell, setHoveredCell] = useState<InteractionData | null>(null);
+  const [scaleBandWidth, setScaleBandWidth] = useState<number>(0);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
 
   const maxAmount = Math.max(...data.map(obj => obj.amount));
@@ -80,7 +81,11 @@ export const Heatmap = ({ data }: HeatmapProps) => {
     if (scrollableDivRef.current) {
       scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
     }
-  }, []);
+    const dates = data.map(r => new Date(r.time).setHours(0,0,0,0));
+    const startDate = new Date(Math.min(...dates));
+    const endDate = new Date(Math.max(...dates));
+    setScaleBandWidth((endDate.getTime()-startDate.getTime())/86400000);
+  }, [data]);
 
   return (
     <div className="relative w-full h-[400px]">
@@ -88,7 +93,7 @@ export const Heatmap = ({ data }: HeatmapProps) => {
       <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
           <Renderer
-            width={data.length * 8}
+            width={scaleBandWidth*40} // TODO: width based on widget width
             height={340}
             data={data}
             setHoveredCell={setHoveredCell}
