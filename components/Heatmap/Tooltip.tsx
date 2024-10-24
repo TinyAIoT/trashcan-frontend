@@ -23,7 +23,7 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
       >
         <span>Date: {d3.timeFormat('%Y-%m-%d')(new Date(interactionData.xLabel))}</span>
         <br/>
-        <span>{interactionData.value} bins ({Number(interactionData.yLabel) - 10}-{interactionData.yLabel}%)</span>
+        <span>{interactionData.value} bins ({Number(interactionData.yLabel) - 25}-{interactionData.yLabel}%)</span>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ interface Measurement {
   timestamp: Date;
   measurement: number;
   binName: string;
+  type: string;
 }
 
 
@@ -48,64 +49,67 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
               sensorHistories.data.data.map(sensorHistory => ({
                   binName: sensorHistories.binIdentifier,
                   timestamp: sensorHistory.createdAt,
-                  measurement: sensorHistory.measurement
+                  measurement: sensorHistory.measurement,
+                  type: sensorHistory.measureType
               }))
-          );
+          ).filter(reading => reading.type == "battery_level");;
           
         }
         
-        // Generate Heatmap Data
-        const dates = newMeasurements.map(r => new Date(r.timestamp).setHours(23,59,59,0));
-        const startDate = new Date(Math.min(...dates));
-        const endDate = new Date(Math.max(...dates));
-        
-        // Create array of all days between start and end
-        const dailySummaries: Entry[] = [];
-        const currentDate = new Date(startDate);
-        
-        while (currentDate <= endDate) {
-          // Get all readings before this day for each unique sensor
-          const relevantDate = currentDate.getTime();
-          const sensorLatestReadings = new Map<string, number>();
+        if(newMeasurements.length>0) {
+          // Generate Heatmap Data
+          const dates = newMeasurements.map(r => new Date(r.timestamp).setHours(23,59,59,0));
+          const startDate = new Date(Math.min(...dates));
+          const endDate = new Date(Math.max(...dates));
           
-          newMeasurements
-            .filter(reading => new Date(reading.timestamp).getTime() <= relevantDate)
-            .forEach(reading => {
-              // Keep only the latest reading for each sensor
-              sensorLatestReadings.set(reading.binName, reading.measurement);
+          // Create array of all days between start and end
+          const dailySummaries: Entry[] = [];
+          const currentDate = new Date(startDate);
+          
+          while (currentDate <= endDate) {
+            // Get all readings before this day for each unique sensor
+            const relevantDate = currentDate.getTime();
+            const sensorLatestReadings = new Map<string, number>();
+            
+            newMeasurements
+              .filter(reading => new Date(reading.timestamp).getTime() <= relevantDate)
+              .forEach(reading => {
+                // Keep only the latest reading for each sensor
+                sensorLatestReadings.set(reading.binName, reading.measurement);
+              });
+            
+            // Count sensors in each fill range
+            const fills = Array.from(sensorLatestReadings.values());
+            
+            dailySummaries.push({
+              time: currentDate.getTime(),
+              percentage: 25,
+              amount: fills.filter(fill => fill >= 0 && fill < 25).length
             });
-          
-          // Count sensors in each fill range
-          const fills = Array.from(sensorLatestReadings.values());
-          
-          dailySummaries.push({
-            time: currentDate.getTime(),
-            percentage: 25,
-            amount: fills.filter(fill => fill >= 0 && fill < 25).length
-          });
-          dailySummaries.push({
-            time: currentDate.getTime(),
-            percentage: 50,
-            amount: fills.filter(fill => fill >= 25 && fill < 50).length
-          });
-          dailySummaries.push({
-            time: currentDate.getTime(),
-            percentage: 75,
-            amount: fills.filter(fill => fill >= 50 && fill < 75).length
-          });
-          dailySummaries.push({
-            time: currentDate.getTime(),
-            percentage: 100,
-            amount: fills.filter(fill => fill >= 75 && fill <= 100).length
-          });
-          
-          // Move to next day
-          currentDate.setDate(currentDate.getDate() + 1);
+            dailySummaries.push({
+              time: currentDate.getTime(),
+              percentage: 50,
+              amount: fills.filter(fill => fill >= 25 && fill < 50).length
+            });
+            dailySummaries.push({
+              time: currentDate.getTime(),
+              percentage: 75,
+              amount: fills.filter(fill => fill >= 50 && fill < 75).length
+            });
+            dailySummaries.push({
+              time: currentDate.getTime(),
+              percentage: 100,
+              amount: fills.filter(fill => fill >= 75 && fill <= 100).length
+            });
+            
+            // Move to next day
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          setRealData(realData => [
+            ...realData,
+            ...dailySummaries
+          ])
         }
-        setRealData(realData => [
-          ...realData,
-          ...dailySummaries
-        ])
       } catch (error) {
         console.error("Error fetching data:", error);
       }

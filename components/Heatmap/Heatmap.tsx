@@ -36,7 +36,7 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
   const yLabels = yGroups.map((name, i) => {
     const yPos = yScale(name); // Calculate yPos using yScale with the current group name
     if (yPos === undefined) return null; // Guard against undefined yPos
-    const displayText = `${Number(name)-10}-${name}%`;
+    const displayText = `${Number(name)-25}-${name}%`;
 
     return (
       <text
