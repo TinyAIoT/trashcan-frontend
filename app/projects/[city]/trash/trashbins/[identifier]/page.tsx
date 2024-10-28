@@ -50,7 +50,7 @@ export default function TrashbinDetail({
 
       newSocket.on('newData', (data) => {
         if(data.message.fill_level) {
-          let adjustedFillLevel = (data.message.fill_level<1) ? data.message.fill_level*100 : data.message.fill_level;
+          let adjustedFillLevel = (data.message.fill_level<=1) ? data.message.fill_level*100 : data.message.fill_level;
           setTrashbinData(trashbinData => {
             if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
@@ -63,7 +63,7 @@ export default function TrashbinDetail({
           setFillLevelData(fillLevelData => [...fillLevelData,{'timestamp':new Date(data.message.received_at), 'measurement':adjustedFillLevel}]);
         }
         if(data.message.battery_level) {
-          let adjustedBatteryLevel = (data.message.battery_level<1) ? data.message.battery_level*100 : data.message.battery_level;
+          let adjustedBatteryLevel = (data.message.battery_level<=1) ? data.message.battery_level*100 : data.message.battery_level;
           setTrashbinData(trashbinData => {
             if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
