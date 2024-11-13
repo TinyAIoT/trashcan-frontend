@@ -46,7 +46,7 @@ export const HeatmapFillLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashbins
 
           // Transform into your custom objects
           newMeasurements = history.flatMap(sensorHistories => 
-              sensorHistories.data.data.map(sensorHistory => ({
+              sensorHistories.data.data.map((sensorHistory: { createdAt: any; measurement: any; measureType: any; }) => ({
                   binName: sensorHistories.binIdentifier,
                   timestamp: sensorHistory.createdAt,
                   measurement: sensorHistory.measurement,

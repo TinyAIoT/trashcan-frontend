@@ -27,7 +27,7 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
         if(trashbins.length>0){
           const historyPromises = trashbins.flatMap(bin => 
             bin.sensors.map(sensor => ({
-              binIdentifier: bin.identifier,  // or whatever property holds the name
+              binIdentifier: bin.identifier,
                 promise: api.get(
                   `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensor}`,
                   {
@@ -44,9 +44,8 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
               data: await item.promise
           })));
 
-          // Transform into your custom objects
           newMeasurements = history.flatMap(sensorHistories => 
-              sensorHistories.data.data.map(sensorHistory => ({
+              sensorHistories.data.data.map((sensorHistory: { createdAt: any; measurement: any; measureType: any; }) => ({
                   binName: sensorHistories.binIdentifier,
                   timestamp: sensorHistory.createdAt,
                   measurement: sensorHistory.measurement,

@@ -1,4 +1,5 @@
 type Trashbin = {
+  updatedAt: string | number | Date;
   _id: string;
   identifier: string;
   coordinates: [number, number];

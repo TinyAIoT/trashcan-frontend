@@ -178,6 +178,32 @@ export default function TrashbinDetail({
           setFillLevelData([]);
           setBatteryLevelData([]);
         }
+        // Fetch third history data
+        const historyResponse2 = await api.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[2]}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            },
+          }
+        );
+        if (historyResponse2.data[0]) {
+          const measurements = historyResponse2.data.map((item: any) => ({
+            timestamp: new Date(item.createdAt),
+            measurement: item.measurement,
+          }));
+          const measureType = historyResponse2.data[0].measureType;
+
+          if (measureType === "fill_level") {
+            setFillLevelData(measurements);
+          }
+          if (measureType === "battery_level") {
+            setBatteryLevelData(measurements);
+          }
+        } else {
+          setFillLevelData([]);
+          setBatteryLevelData([]);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }

@@ -84,7 +84,7 @@ export default function Home() {
         setTotalCardData(totalCardData => {
           return {
               ...totalCardData,
-              amount: transformedTrashbinData.length,
+              amount: transformedTrashbinData.length.toString(),
             };
         })
         const projectResponse = await api.get(
@@ -99,14 +99,14 @@ export default function Home() {
           const count = transformedTrashbinData.reduce((acc, item) => item.fillLevel > projectResponse.data.project.preferences.fillThresholds[1] ? acc + 1 : acc, 0);
           return {
               ...nearlyFullCardData,
-              amount: count,
+              amount: count.toString(),
             };
         })
         setLowBatteryCardData(lowBatteryCardData => {
           const count = transformedTrashbinData.reduce((acc, item) => item.batteryLevel < projectResponse.data.project.preferences.batteryThresholds[1] ? acc + 1 : acc, 0);
           return {
               ...lowBatteryCardData,
-              amount: count,
+              amount: count.toString(),
             };
         })
         setBrokenSensorsCardData(brokenSensorsCardData => {
@@ -114,7 +114,7 @@ export default function Home() {
           const count = transformedTrashbinData.filter(item => new Date(item.updatedAt) < oneWeekAgo).length;
           return {
               ...brokenSensorsCardData,
-              amount: count,
+              amount: count.toString(),
             };
         })
       } catch (error) {
@@ -127,17 +127,17 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-5  w-full">
       <PageTitle title="Dashboard" />
-      <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
+      <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-1">
         <CardContent>
           <p className="p-4 text-xl font-semibold">Distribution of fill levels of all bins</p>
           <HeatmapFillLevel 
           trashbins={trashbinData}/>
         </CardContent>
-        <CardContent>
+        {/* <CardContent>
           <p className="p-4 text-xl font-semibold">Distribution of battery levels of all bins</p>
           <HeatmapBatteryLevel 
           trashbins={trashbinData}/>
-        </CardContent>
+        </CardContent> */}
       </section>
       <section className="grid w-full grid-cols-1 gap-4 gap-x-8 transition-all sm:grid-cols-2 xl:grid-cols-4">
         
