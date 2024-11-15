@@ -54,8 +54,8 @@ export default function TrashbinDetail({
           setTrashbinData(trashbinData => {
             if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
-                ...trashbinData,  // Copy the previous state
-                fillLevel: adjustedFillLevel,  // Update only the 'status' field
+                ...trashbinData,
+                fillLevel: adjustedFillLevel,
               };
             }
             return trashbinData;
@@ -67,8 +67,8 @@ export default function TrashbinDetail({
           setTrashbinData(trashbinData => {
             if(trashbinData && trashbinData.sensors.includes(data.message.sensor_id)) {
               return {
-                ...trashbinData,  // Copy the previous state
-                batteryLevel: adjustedBatteryLevel,  // Update only the 'status' field
+                ...trashbinData,
+                batteryLevel: adjustedBatteryLevel, 
               };
             }
             return trashbinData;
@@ -78,7 +78,6 @@ export default function TrashbinDetail({
         // TODO: signal_level
         
         console.log('Received new data:', data);
-        // Update your frontend UI with the new data
       });
 
       setSocket(newSocket);
@@ -124,7 +123,7 @@ export default function TrashbinDetail({
         // Sensor IDs of the trashbin
         const sensorIds = response.data.sensors;
         // Fetch history data of fill level and battery level
-        // TODO: I think this only works under the assumption that a trashcan has only two sensors, one for fill and one for battery
+        // TODO: this is kind of a shitty solution. Maybe we should first determine what measureType a sensorId has and then do the request
         // Fetch first history data
         const historyResponse0 = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,
