@@ -75,19 +75,19 @@ const createBinIcons = (L: any) => {
   const BinIcon = L.Icon.extend({
     options: {
       shadowUrl: '/images/leaflet/bin_s.png',
-      iconSize:     [26, 33], // size of icon
-      shadowSize:   [26, 25], // size of shadow
-      iconAnchor:   [26/2, 33/2], // point of icon which will correspond to marker's location
-      shadowAnchor: [26/2 - 10, 25/2],  // the same for the shadow
-      popupAnchor:  [0, -33/4], // point from which popup should open relative to iconAnchor
-    }
+      iconSize: [26, 33], // size of icon
+      shadowSize: [26, 25], // size of shadow
+      iconAnchor: [26 / 2, 33 / 2], // point of icon which will correspond to marker's location
+      shadowAnchor: [26 / 2 - 10, 25 / 2], // the same for the shadow
+      popupAnchor: [0, -33 / 4], // point from which popup should open relative to iconAnchor
+    },
   });
 
   const BinIconSelected = BinIcon.extend({
     options: {
-      iconSize:     [35, 35], // size of icon
-      popupAnchor:  [0, -35/4], // point from which popup should open relative to iconAnchor
-    }
+      iconSize: [35, 35], // size of icon
+      popupAnchor: [0, -35 / 4], // point from which popup should open relative to iconAnchor
+    },
   });
 
   return {
@@ -97,9 +97,10 @@ const createBinIcons = (L: any) => {
     yellowBinSelected: new BinIconSelected({ iconUrl: '/images/leaflet/bin_y_b.png' }),
     redBin: new BinIcon({ iconUrl: '/images/leaflet/bin_r.png' }),
     redBinSelected: new BinIconSelected({ iconUrl: '/images/leaflet/bin_r_b.png' }),
+    greyBin: new BinIcon({ iconUrl: '/images/leaflet/bin_grey.png' }), // New grey bin icon
+    greyBinSelected: new BinIconSelected({ iconUrl: '/images/leaflet/bin_grey_b.png' }), // Selected grey bin
   };
 };
-
 // Map initialization
 const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: number, mapRef: any, markersRef: any) => {
   if (!mapRef.current) {
@@ -113,48 +114,205 @@ const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: numb
     markersRef.current.clearLayers();
   } else {
     markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });
+
+    
     if (markersRef.current) {
       mapRef.current.addLayer(markersRef.current);
+      markersRef.current.clearLayers();
+
     }
   }
 };
 
 // Markers addition
-const addMarkersToMap = (L: any, trashbinData: Trashbin[], fillThresholds: [number, number], batteryThresholds: [number, number], selectedBins: Trashbin[] | undefined, isRoutePlanning: boolean, onTrashbinClick: (trashbin: Trashbin) => void | undefined, markersRef: any) => {
-  const { greenBin, greenBinSelected, yellowBin, yellowBinSelected, redBin, redBinSelected } = createBinIcons(L);
+const addMarkersToMap = async (
+  L: any,
+  trashbinData: Trashbin[],
+  fillThresholds: [number, number],
+  batteryThresholds: [number, number],
+  selectedBins: Trashbin[] | undefined,
+  isRoutePlanning: boolean,
+  onTrashbinClick: (trashbin: Trashbin) => void | undefined,
+  markersRef: any
+) => {
+  const {
+    greenBin,
+    greenBinSelected,
+    yellowBin,
+    yellowBinSelected,
+    redBin,
+    redBinSelected,
+    greyBin,
+    greyBinSelected,
+  } = createBinIcons(L);
 
-  const filteredTrashbinData = trashbinData.filter(trashbin =>
-    trashbin.coordinates[0] !== (null && undefined) &&
-    trashbin.coordinates[1] !== (null && undefined) &&
-    trashbin.coordinates[0] >= -90 && trashbin.coordinates[0] <= 90 &&
-    trashbin.coordinates[1] >= -180 && trashbin.coordinates[1] <= 180
-  );
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2IwYTE2ZTVlOWY3MDhkMDQzZGJlMCIsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzMxOTIyNTU2LCJleHAiOjE3MzIwOTUzNTZ9.OyewrDIj8_OstP4IDrPglKkNbQLwh6_7V3eZjn_iT0I";
 
-  filteredTrashbinData.forEach(trashbin => {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const fetchSensorHistory = async (sensorId: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 404) {
+        console.warn(`No data found for sensorId: ${sensorId}`);
+        return [];
+      }
+      if (!response.ok) {
+        console.error(`Failed to fetch data for sensorId: ${sensorId}`);
+        return [];
+      }
+      const data = await response.json();
+      return data.map((item: any) => ({
+        timestamp: new Date(item.createdAt),
+        measurement: item.measurement,
+        measureType: item.measureType,
+      }));
+    } catch (error) {
+      console.error(`Error fetching sensor history for sensorId ${sensorId}`, error);
+      return [];
+    }
+  };
+
+  const seenCoordinates = new Set();
+
+  const filteredTrashbinData = trashbinData.filter((trashbin) => {
+    // Validate that coordinates are within valid ranges
+    if (
+      !trashbin.coordinates ||
+      trashbin.coordinates[0] === null ||
+      trashbin.coordinates[1] === null ||
+      trashbin.coordinates[0] < -90 ||
+      trashbin.coordinates[0] > 90 ||
+      trashbin.coordinates[1] < -180 ||
+      trashbin.coordinates[1] > 180
+    ) {
+      return false;
+    }
+  
+    // Format the coordinates as a string to ensure uniqueness
+    const coordinateKey = `${trashbin.coordinates[0].toFixed(6)},${trashbin.coordinates[1].toFixed(6)}`;
+  
+    // Check if this coordinate has already been seen
+    if (seenCoordinates.has(coordinateKey)) {
+      return false; // Skip if duplicate
+    }
+  
+    // Otherwise, add it to the set and include it in the result
+    seenCoordinates.add(coordinateKey);
+    return true;
+  });
+  
+  
+
+  const addedMarkers = new Set<string>();
+  if (markersRef.current) {
+    markersRef.current.clearLayers(); // Clear markers already added to the map
+  }
+  console.log("Trashbin data length:", trashbinData.length);
+  console.log("Unique coordinates:", new Set(trashbinData.map(bin => `${bin.coordinates[0].toFixed(6)},${bin.coordinates[1].toFixed(6)}`)).size);
+
+  for (const trashbin of filteredTrashbinData) {
+    const coordinateKey = `${trashbin.coordinates[0].toFixed(6)},${trashbin.coordinates[1].toFixed(6)}`;
+   // console.log("Trashbin data length:", trashbinData.length);
+    //console.log("Unique coordinates:", new Set(trashbinData.map(bin => `${bin.coordinates[0].toFixed(6)},${bin.coordinates[1].toFixed(6)}`)).size);
+    
+    if (addedMarkers.has(coordinateKey)) {
+      continue;
+    }
+    addedMarkers.add(coordinateKey);
+
+    let isDataMissing = false;
+    let isOldData = false;
+
+    if (
+      !trashbin.fillLevel ||
+      !trashbin.coordinates ||
+      !trashbin.identifier ||
+      !trashbin.sensors?.length
+    ) {
+      isDataMissing = true;
+    } else {
+      for (const sensorId of trashbin.sensors) {
+        const historyData = await fetchSensorHistory(sensorId);
+
+        if (historyData.length > 0) {
+          historyData.forEach((data: { measureType: string; timestamp: string | number | Date }) => {
+            if (data.measureType === "fill_level" || data.measureType === "battery_level") {
+              const lastHistoryDate = new Date(data.timestamp);
+              if (lastHistoryDate < oneWeekAgo) {
+                isOldData = true;
+              }
+            }
+          });
+        } else {
+          isDataMissing = true;
+        }
+      }
+    }
+
+    const icon =
+      isDataMissing || isOldData
+        ? greyBinSelected
+        : selectedBins?.some((bin) => bin.identifier === trashbin.identifier)
+        ? trashbin.fillLevel < fillThresholds[0]
+          ? greenBinSelected
+          : trashbin.fillLevel < fillThresholds[1]
+          ? yellowBinSelected
+          : redBinSelected
+        : trashbin.fillLevel < fillThresholds[0]
+        ? greenBin
+        : trashbin.fillLevel < fillThresholds[1]
+        ? yellowBin
+        : redBin;
+
     const marker = L.marker(
       [trashbin.coordinates[0] ?? 0, trashbin.coordinates[1] ?? 0],
       {
-        icon: selectedBins?.some((bin) => bin.identifier === trashbin.identifier)
-          ? (trashbin.fillLevel < fillThresholds[0] ? greenBinSelected : trashbin.fillLevel < fillThresholds[1] ? yellowBinSelected : redBinSelected)
-          : (trashbin.fillLevel < fillThresholds[0] ? greenBin : trashbin.fillLevel < fillThresholds[1] ? yellowBin : redBin)
+        icon,
       }
     );
 
-    const container = document.createElement('div');
-    const popupElement = <PopupContent trashbin={trashbin} routePlanning={isRoutePlanning} fillThresholds={fillThresholds} batteryThresholds={batteryThresholds} />;
+    const container = document.createElement("div");
+    const popupElement = (
+      <PopupContent
+        trashbin={trashbin}
+        routePlanning={isRoutePlanning}
+        fillThresholds={fillThresholds}
+        batteryThresholds={batteryThresholds}
+      />
+    );
     createRoot(container).render(popupElement);
     marker.bindPopup(container);
 
-    marker.on("mouseover", () => { marker.openPopup(); });
+    marker.on("mouseover", () => {
+      marker.openPopup();
+    });
     marker.on("click", () => {
       onTrashbinClick(trashbin);
     });
-    marker.on('popupopen', function (e: any) {
-      L.DomEvent.on(e.popup._contentNode, 'click', () => { onTrashbinClick(trashbin); });
+    marker.on("popupopen", function (e: any) {
+      L.DomEvent.on(e.popup._contentNode, "click", () => {
+        onTrashbinClick(trashbin);
+      });
     });
+
+    // Add the marker directly to the map or layer group
     markersRef.current.addLayer(marker);
-  });
+  }
 };
+
+
+
+
+
 
 // Route handling
 const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins: Trashbin[] | undefined, tripStartEnd: LatLngTuple | undefined, mapRef: any, routingControlRef: any) => {
@@ -185,23 +343,30 @@ const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins:
 
 const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {  
   const mapRef = useRef<null | L.Map>(null);
+  //console.log("map",mapRef)
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
+    //const markersAddedRef = useRef(false); // Track whether markers have been added
+
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined'&& mapRef.current== null) {
       // Load the leaflet library and the marker cluster plugin
+      console.log("use effect rendered")
       const L = require('leaflet');
       require('leaflet.markercluster');
       require('leaflet-routing-machine');
-
+      
       initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
+
       if (mapRef.current && markersRef.current) {
+        markersRef.current.clearLayers();
         addMarkersToMap(L, trashbinData, fillThresholds, batteryThresholds, selectedBins, isRoutePlanning, onTrashbinClick, markersRef);
         handleRoutingControl(L, showRoute, optimizedBins, tripStartEnd, mapRef, routingControlRef);
       }
     }
-  }, [trashbinData, isRoutePlanning, onTrashbinClick, selectedBins, optimizedBins, showRoute, batteryThresholds, centerCoordinates, fillThresholds, initialZoom, tripStartEnd ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <div id="map" className="flex-grow h-full"></div>;
 };
