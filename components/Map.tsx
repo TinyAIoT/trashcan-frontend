@@ -147,11 +147,11 @@ const addMarkersToMap = async (
   } = createBinIcons(L);
 
   const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2IwYTE2ZTVlOWY3MDhkMDQzZGJlMCIsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzMxOTIyNTU2LCJleHAiOjE3MzIwOTUzNTZ9.OyewrDIj8_OstP4IDrPglKkNbQLwh6_7V3eZjn_iT0I";
-
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const fetchSensorHistory = async (sensorId: string) => {
+  // Helper function to fetch sensor history
+  const fetchSensorHistory = async (sensorId: string): Promise<any[]> => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorId}`,
@@ -161,19 +161,20 @@ const addMarkersToMap = async (
           },
         }
       );
-      if (response.status === 404) {
-        console.warn(`No data found for sensorId: ${sensorId}`);
-        return [];
-      }
       if (!response.ok) {
-        console.error(`Failed to fetch data for sensorId: ${sensorId}`);
+        if (response.status === 404) {
+          console.warn(`No data found for sensorId: ${sensorId}`);
+        } else {
+          console.error(`Failed to fetch data for sensorId: ${sensorId}`);
+        }
         return [];
       }
       const data = await response.json();
       return data.map((item: any) => ({
-        timestamp: new Date(item.createdAt),
+        timestamp: new Date(item.createdAt), // Convert to Date object
         measurement: item.measurement,
         measureType: item.measureType,
+        sensor: item.sensor,
       }));
     } catch (error) {
       console.error(`Error fetching sensor history for sensorId ${sensorId}`, error);
@@ -181,10 +182,8 @@ const addMarkersToMap = async (
     }
   };
 
-  const seenCoordinates = new Set();
-
+  const seenCoordinates = new Set<string>();
   const filteredTrashbinData = trashbinData.filter((trashbin) => {
-    // Validate that coordinates are within valid ranges
     if (
       !trashbin.coordinates ||
       trashbin.coordinates[0] === null ||
@@ -196,87 +195,76 @@ const addMarkersToMap = async (
     ) {
       return false;
     }
-  
-    // Format the coordinates as a string to ensure uniqueness
     const coordinateKey = `${trashbin.coordinates[0].toFixed(6)},${trashbin.coordinates[1].toFixed(6)}`;
-  
-    // Check if this coordinate has already been seen
     if (seenCoordinates.has(coordinateKey)) {
-      return false; // Skip if duplicate
+      return false;
     }
-  
-    // Otherwise, add it to the set and include it in the result
     seenCoordinates.add(coordinateKey);
     return true;
   });
-  
-  
+
+  if (markersRef.current) {
+    markersRef.current.clearLayers(); // Clear existing markers
+  }
 
   const addedMarkers = new Set<string>();
-  if (markersRef.current) {
-    markersRef.current.clearLayers(); // Clear markers already added to the map
-  }
-  console.log("Trashbin data length:", trashbinData.length);
-  console.log("Unique coordinates:", new Set(trashbinData.map(bin => `${bin.coordinates[0].toFixed(6)},${bin.coordinates[1].toFixed(6)}`)).size);
-
   for (const trashbin of filteredTrashbinData) {
     const coordinateKey = `${trashbin.coordinates[0].toFixed(6)},${trashbin.coordinates[1].toFixed(6)}`;
-   // console.log("Trashbin data length:", trashbinData.length);
-    //console.log("Unique coordinates:", new Set(trashbinData.map(bin => `${bin.coordinates[0].toFixed(6)},${bin.coordinates[1].toFixed(6)}`)).size);
-    
+
     if (addedMarkers.has(coordinateKey)) {
-      continue;
+      continue; // Skip duplicates
     }
     addedMarkers.add(coordinateKey);
 
-    let isDataMissing = false;
-    let isOldData = false;
-
-    if (
-      !trashbin.fillLevel ||
+    // Check if required data is missing
+    const isDataMissing =
+      !trashbin.name ||
       !trashbin.coordinates ||
-      !trashbin.identifier ||
-      !trashbin.sensors?.length
-    ) {
-      isDataMissing = true;
-    } else {
-      for (const sensorId of trashbin.sensors) {
-        const historyData = await fetchSensorHistory(sensorId);
+      trashbin.coordinates.length !== 2 ||
+      !trashbin.sensors?.length;
 
-        if (historyData.length > 0) {
-          historyData.forEach((data: { measureType: string; timestamp: string | number | Date }) => {
-            if (data.measureType === "fill_level" || data.measureType === "battery_level") {
-              const lastHistoryDate = new Date(data.timestamp);
-              if (lastHistoryDate < oneWeekAgo) {
-                isOldData = true;
-              }
-            }
-          });
-        } else {
-          isDataMissing = true;
-        }
-      }
+    let allSensorsHaveOldData = false;
+
+    if (!isDataMissing && trashbin.sensors?.length > 0) {
+      const sensorData = await Promise.all(
+        trashbin.sensors.map((sensorId) => fetchSensorHistory(sensorId))
+      );
+
+      // Check if all sensors lack recent data
+      allSensorsHaveOldData = sensorData.every((historyData) =>
+        historyData.every((data: { timestamp: Date }) => {
+          const lastHistoryDate = new Date(data.timestamp);
+          console.log(
+            `Comparing lastHistoryDate (${lastHistoryDate}) with oneWeekAgo (${oneWeekAgo}):`,
+            lastHistoryDate.getTime() < oneWeekAgo.getTime()
+          );
+          return lastHistoryDate.getTime() < oneWeekAgo.getTime();
+        })
+      );
     }
 
-    const icon =
-      isDataMissing || isOldData
-        ? greyBinSelected
-        : selectedBins?.some((bin) => bin.identifier === trashbin.identifier)
-        ? trashbin.fillLevel < fillThresholds[0]
+    const getIcon = () => {
+      if (isDataMissing || allSensorsHaveOldData) {
+        return greyBinSelected; // Grey if missing data or all sensors have old data
+      }
+      if (selectedBins?.some((bin) => bin.identifier === trashbin.identifier)) {
+        return trashbin.fillLevel < fillThresholds[0]
           ? greenBinSelected
           : trashbin.fillLevel < fillThresholds[1]
           ? yellowBinSelected
-          : redBinSelected
-        : trashbin.fillLevel < fillThresholds[0]
+          : redBinSelected;
+      }
+      return trashbin.fillLevel < fillThresholds[0]
         ? greenBin
         : trashbin.fillLevel < fillThresholds[1]
         ? yellowBin
         : redBin;
+    };
 
     const marker = L.marker(
       [trashbin.coordinates[0] ?? 0, trashbin.coordinates[1] ?? 0],
       {
-        icon,
+        icon: getIcon(),
       }
     );
 
@@ -292,22 +280,21 @@ const addMarkersToMap = async (
     createRoot(container).render(popupElement);
     marker.bindPopup(container);
 
-    marker.on("mouseover", () => {
-      marker.openPopup();
-    });
-    marker.on("click", () => {
-      onTrashbinClick(trashbin);
-    });
-    marker.on("popupopen", function (e: any) {
+    marker.on("mouseover", () => marker.openPopup());
+    marker.on("click", () => onTrashbinClick(trashbin));
+    marker.on("popupopen", (e: any) => {
       L.DomEvent.on(e.popup._contentNode, "click", () => {
         onTrashbinClick(trashbin);
       });
     });
 
-    // Add the marker directly to the map or layer group
-    markersRef.current.addLayer(marker);
+    markersRef.current.addLayer(marker); // Add marker to layer
   }
 };
+
+
+
+
 
 
 
@@ -366,7 +353,7 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); 
 
   return <div id="map" className="flex-grow h-full"></div>;
 };
