@@ -69,7 +69,6 @@ function PopupContent({ trashbin, routePlanning, fillThresholds, batteryThreshol
   );
 }
 
-// Custom leaflet icons: https://leafletjs.com/examples/custom-icons/
 // Bin icons based on: https://www.vecteezy.com/vector-art/7820754-recycle-icon-garbage-icon-vector-logo-design-template
 const createBinIcons = (L: any) => {
   const BinIcon = L.Icon.extend({
@@ -113,13 +112,10 @@ const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: numb
   if (markersRef.current) {
     markersRef.current.clearLayers();
   } else {
-    markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });
-
-    
+    markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });    
     if (markersRef.current) {
       mapRef.current.addLayer(markersRef.current);
       markersRef.current.clearLayers();
-
     }
   }
 };
@@ -209,7 +205,6 @@ const addMarkersToMap = async (
       continue; // Skip duplicates
     }
     addedMarkers.add(coordinateKey);
-
     // Check if required data is missing
     const isDataMissing =
       !trashbin.name ||
@@ -233,7 +228,6 @@ const addMarkersToMap = async (
         })
       );
     }
-
     const getIcon = () => {
       if (isDataMissing || allSensorsHaveOldData) {
         return greyBinSelected; // Grey if missing data or all sensors have old data
@@ -283,15 +277,6 @@ const addMarkersToMap = async (
   }
 };
 
-
-
-
-
-
-
-
-
-
 // Route handling
 const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins: Trashbin[] | undefined, tripStartEnd: LatLngTuple | undefined, mapRef: any, routingControlRef: any) => {
   if (routingControlRef.current && mapRef.current) {
@@ -325,12 +310,9 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
     //const markersAddedRef = useRef(false); // Track whether markers have been added
-
-
   useEffect(() => {
     if (typeof window !== 'undefined'&& mapRef.current== null) {
       // Load the leaflet library and the marker cluster plugin
-   
       const L = require('leaflet');
       require('leaflet.markercluster');
       require('leaflet-routing-machine');
