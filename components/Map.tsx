@@ -162,14 +162,7 @@ const addMarkersToMap = async (
           },
         }
       );
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.warn(`No data found for sensorId: ${sensorId}`);
-        } else {
-          console.error(`Failed to fetch data for sensorId: ${sensorId}`);
-        }
-        return [];
-      }
+    
       const data = await response.json();
       return data.map((item: any) => ({
         timestamp: new Date(item.createdAt), // Convert to Date object
@@ -178,7 +171,7 @@ const addMarkersToMap = async (
         sensor: item.sensor,
       }));
     } catch (error) {
-      console.error(`Error fetching sensor history for sensorId ${sensorId}`, error);
+   
       return [];
     }
   };
@@ -235,10 +228,7 @@ const addMarkersToMap = async (
       allSensorsHaveOldData = sensorData.every((historyData) =>
         historyData.every((data: { timestamp: Date }) => {
           const lastHistoryDate = new Date(data.timestamp);
-          // console.log(
-          //   `Comparing lastHistoryDate (${lastHistoryDate}) with oneWeekAgo (${oneWeekAgo}):`,
-          //   lastHistoryDate.getTime() < oneWeekAgo.getTime()
-          // );
+       
           return lastHistoryDate.getTime() < oneWeekAgo.getTime();
         })
       );
@@ -331,7 +321,7 @@ const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins:
 
 const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {  
   const mapRef = useRef<null | L.Map>(null);
-  //console.log("map",mapRef)
+
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
     //const markersAddedRef = useRef(false); // Track whether markers have been added
@@ -340,7 +330,7 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
   useEffect(() => {
     if (typeof window !== 'undefined'&& mapRef.current== null) {
       // Load the leaflet library and the marker cluster plugin
-    //  console.log("use effect rendered")
+   
       const L = require('leaflet');
       require('leaflet.markercluster');
       require('leaflet-routing-machine');
