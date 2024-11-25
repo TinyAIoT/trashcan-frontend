@@ -146,7 +146,7 @@ const addMarkersToMap = async (
     greyBinSelected,
   } = createBinIcons(L);
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2IwYTE2ZTVlOWY3MDhkMDQzZGJlMCIsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzMxOTIyNTU2LCJleHAiOjE3MzIwOTUzNTZ9.OyewrDIj8_OstP4IDrPglKkNbQLwh6_7V3eZjn_iT0I";
+  const token = process.env.NEXT_PUBLIC_API_TOKEN;
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
