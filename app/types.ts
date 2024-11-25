@@ -1,5 +1,4 @@
 type Trashbin = {
-  lastUpdated: any;
   updatedAt: string | number | Date;
   _id: string;
   identifier: string;
