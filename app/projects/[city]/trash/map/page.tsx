@@ -9,6 +9,7 @@ import Map from "@/components/Map";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from "@/app/types";
 
+
 const MapPage = () => {
   const router = useRouter();
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
@@ -64,6 +65,7 @@ const MapPage = () => {
         <PageTitle title="Map" />
       </div>
       {/* Make sure that all information was fetched from the backend before rendering the map */}
+      
       { (centerCoordinates && initialZoom && fillThresholds && batteryThresholds) ?
         <Map
           trashbinData={trashbinData}
