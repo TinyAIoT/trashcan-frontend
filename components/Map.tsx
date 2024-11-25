@@ -146,7 +146,8 @@ const addMarkersToMap = async (
     greyBinSelected,
   } = createBinIcons(L);
 
-  const token = process.env.NEXT_PUBLIC_API_TOKEN;
+  // const token = process.env.NEXT_PUBLIC_API_TOKEN;
+  const token = localStorage.getItem("authToken");
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -234,10 +235,10 @@ const addMarkersToMap = async (
       allSensorsHaveOldData = sensorData.every((historyData) =>
         historyData.every((data: { timestamp: Date }) => {
           const lastHistoryDate = new Date(data.timestamp);
-          console.log(
-            `Comparing lastHistoryDate (${lastHistoryDate}) with oneWeekAgo (${oneWeekAgo}):`,
-            lastHistoryDate.getTime() < oneWeekAgo.getTime()
-          );
+          // console.log(
+          //   `Comparing lastHistoryDate (${lastHistoryDate}) with oneWeekAgo (${oneWeekAgo}):`,
+          //   lastHistoryDate.getTime() < oneWeekAgo.getTime()
+          // );
           return lastHistoryDate.getTime() < oneWeekAgo.getTime();
         })
       );
@@ -339,7 +340,7 @@ const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds
   useEffect(() => {
     if (typeof window !== 'undefined'&& mapRef.current== null) {
       // Load the leaflet library and the marker cluster plugin
-      console.log("use effect rendered")
+    //  console.log("use effect rendered")
       const L = require('leaflet');
       require('leaflet.markercluster');
       require('leaflet-routing-machine');
