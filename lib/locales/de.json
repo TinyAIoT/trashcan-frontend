@@ -2,6 +2,7 @@
     "menu": {
 
       "current_language": "Aktuelle Sprache",
+      "Loading projects...": "Laden von Projekten...",
       "dashboard": "Armaturenbrett",
       "Your Projects":"Ihre Projekte",
       "route_planning": "Routenplanung",
@@ -30,6 +31,7 @@
       "data": "Daten",
       "settings": "Einstellungen",
       "trashbins": "Mülleimer/papierkorb",
+      "Export to CSV":"Als CSV exportieren",
       "project": "Projekt",
       "account": "Konto",
       "location": "Ort",
@@ -52,10 +54,56 @@
       "fill_level_thresholds": "Schwellenwerte für Füllstände",
       "fill_level_thresholds_info": "Basis für Farbkodierung im gesamten Dashboard.",
       "battery_level_thresholds": "Schwellenwerte für Batteriestände",
+      "Previous":"Vorherige",
+      "Next":"Nächste",
       "battery_level_thresholds_info": "Basis für Farbkodierung im gesamten Dashboard."
     
+    }, "tooltips": {
+      "search": "Nach Name, Standort oder Kennung suchen.",
+      "sort": "Sortieren durch Klicken auf die Spaltenüberschriften."
+    },  "placeholders": {
+      "search": "Suchen..."
     },
-    "map": {
+        "trashbin": {
+    "title": "Mülleimer {{name}} ({{identifier}})",
+    "editButton": "Mülleimer bearbeiten",
+    "loadingHistory": "Verlauf wird geladen...",
+    "tabs": {
+      "graphicalView": "Grafische Ansicht",
+      "tableView": "Tabellenansicht"
+    },
+    "fillLevel": "Füllstand",
+    "batteryLevel": "Batteriestand",
+    "location": "Standort",
+    "viewOnGoogleMaps": "Auf Google Maps ansehen",
+    "lastEmptied": "Zuletzt geleert",
+    "signalStrength": "Signalstärke",
+    "notAvailable": "Nicht verfügbar"
+  },
+    "login": {
+    "title": "Anmeldung",
+    "description": "Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich bei Ihrem Konto anzumelden",
+    "email": "E-Mail",
+    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "password": "Passwort",
+    "passwordPlaceholder": "Ihr Passwort",
+    "loginButton": "Anmelden"
+  },
+  "page": {
+    "logout": "Abmelden",
+    "comingSoon": "Sprache und Theme-Einstellungen kommen bald!"
+  },
+  "editTrashbin": {
+    "title": "Mülleimer bearbeiten {{name}} ({{identifier}})",
+    "nameLabel": "Name",
+    "coordinatesLabel": "Koordinaten (Breitengrad, Längengrad) des Mülleimers.",
+    "coordinatesTooltip": "Breitengrad und Längengrad sind der erste Eintrag in der Liste, wenn Sie mit der rechten Maustaste auf die Karte in Google Maps klicken.",
+    "locationLabel": "Standort",
+    "imageLabel": "Bild-URL",
+    "saveButton": "Speichern",
+    "cancelButton": "Abbrechen"
+  },
+      "map": {
       "title": "Karte",
       "label": "Mülleimer",
       "capacity": "Kapazität",

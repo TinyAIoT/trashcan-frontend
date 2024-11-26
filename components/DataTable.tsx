@@ -27,6 +27,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Info, ArrowUpDown, MoveUp, MoveDown } from "lucide-react";
+import { useTranslation } from "@/lib/TranslationContext";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -46,6 +47,7 @@ export function DataTable<TData, TValue>({
   selectedRows,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const { t } = useTranslation();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -115,18 +117,18 @@ export function DataTable<TData, TValue>({
       {showSearchBar && (
         <div className="flex items-center py-4 px-1">
           <Input
-            placeholder="Search..."
+           placeholder={t("placeholders.search")}
             value={table.getState().globalFilter}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
-          <span className="text-blue-500 info-tooltip">
+        <span className="text-blue-500 info-tooltip">
             <Info className="text-gray-500 ml-4 mr-2" />
-            <span className="info-tooltip-text">Search by name, location, or identifier.</span>
+            <span className="info-tooltip-text">{t("tooltips.search")}</span>
           </span>
           <span className="text-blue-500 info-tooltip">
             <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
-            <span className="info-tooltip-text">Sort by clicking on the column headers.</span>
+            <span className="info-tooltip-text">{t("tooltips.sort")}</span>
           </span>
           { showExportButton && (
             <Button
@@ -135,7 +137,7 @@ export function DataTable<TData, TValue>({
               className="ml-auto"
               onClick={() => makeCSV()}
             >
-              Export to CSV
+           {t("menu.Export to CSV")}
             </Button>
           )}
         </div>
@@ -210,7 +212,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Loading...
+                     {t("menu.loading")}
                 </TableCell>
               </TableRow>
             )}
@@ -224,7 +226,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          {t("menu.Previous")}
         </Button>
         <Button
           variant="outline"
@@ -232,7 +234,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          Next
+              {t("menu.Next")}
         </Button>
       </div>
     </div>

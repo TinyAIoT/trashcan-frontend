@@ -75,7 +75,7 @@ export default function Projects() {
       {/* Translated title */}
       <PageTitle title={t("menu.Your Projects")} />
       {!projectData ? (
-        <LoadingComponent text={t("menu.Loading projects...")} />
+        <LoadingComponent text={t("Loading projects...")} />
       ) : (
         <section className="grid grid-cols-1 gap-4 transition-all lg:grid-cols-3">
           {projectData.map((project) => (

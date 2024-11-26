@@ -22,25 +22,45 @@ export default function Home() {
   const { t } = useTranslation(); // Translation hook
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [totalCardData, setTotalCardData] = useState<CardProps>({
-    label: t("menu.total_number"),
+    label: "",
     amount: "0",
     description: "",
   });
   const [nearlyFullCardData, setNearlyFullCardData] = useState<CardProps>({
-    label: t("menu.nearly_full"),
+    label: "",
     amount: "0",
     description: "",
   });
   const [lowBatteryCardData, setLowBatteryCardData] = useState<CardProps>({
-    label: t("menu.low_battery"),
+    label: "",
     amount: "0",
     description: "",
   });
   const [brokenSensorsCardData, setBrokenSensorsCardData] = useState<CardProps>({
-    label: t("menu.broken_sensors"),
+    label: "",
     amount: "0",
     description: "",
   });
+
+  useEffect(() => {
+    // Update card data when translations are loaded
+    setTotalCardData((prev) => ({
+      ...prev,
+      label: t("menu.total_number"),
+    }));
+    setNearlyFullCardData((prev) => ({
+      ...prev,
+      label: t("menu.nearly_full"),
+    }));
+    setLowBatteryCardData((prev) => ({
+      ...prev,
+      label: t("menu.low_battery"),
+    }));
+    setBrokenSensorsCardData((prev) => ({
+      ...prev,
+      label: t("menu.broken_sensors"),
+    }));
+  }, [t]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,31 +161,18 @@ export default function Home() {
         </CardContent>
       </section>
       <section className="grid w-full grid-cols-1 gap-4 gap-x-8 transition-all sm:grid-cols-2 xl:grid-cols-4">
-        <Card
-          key="0"
-          amount={totalCardData.amount}
-          description={totalCardData.description}
-          label={totalCardData.label}
-        />
-        <Card
-          key="1"
-          amount={nearlyFullCardData.amount}
-          description={nearlyFullCardData.description}
-          label={nearlyFullCardData.label}
-        />
-        <Card
-          key="2"
-          amount={lowBatteryCardData.amount}
-          description={lowBatteryCardData.description}
-          label={lowBatteryCardData.label}
-        />
-        <Card
-          key="3"
-          amount={brokenSensorsCardData.amount}
-          description={brokenSensorsCardData.description}
-          label={brokenSensorsCardData.label}
-        />
-      </section>
+  {[totalCardData, nearlyFullCardData, lowBatteryCardData, brokenSensorsCardData].map(
+    (cardData, index) => (
+      <Card
+        key={index}
+        amount={cardData.amount}
+        description={cardData.description}
+        label={cardData.label}
+      />
+    )
+  )}
+</section>
+
     </div>
   );
 }

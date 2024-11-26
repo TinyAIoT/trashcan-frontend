@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card";
+import { useTranslation } from "@/lib/TranslationContext"; // Import translation hook
+
 
 function removeLocalData() {
   if (typeof window !== "undefined") {
@@ -19,6 +21,8 @@ export default function Component() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
+  const { t } = useTranslation(); // Use translation hook for localization
+
 
   removeLocalData();
 
@@ -61,58 +65,60 @@ export default function Component() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex justify-center items-center">
-      <Card className="mx-auto max-w-sm">
-        <form onSubmit={handleSubmit}>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Login</CardTitle>
-            <CardDescription>
-              Enter your email and password to login to your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {errorMessage && (
-                <div className="p-2 text-red-500 bg-red-100 rounded">
-                  {errorMessage}
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <Card className="mx-auto max-w-sm">
+          <form onSubmit={handleSubmit}>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold">
+                {t("login.title")}
+              </CardTitle>
+              <CardDescription>
+                {t("login.description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {errorMessage && (
+                  <div className="p-2 text-red-500 bg-red-100 rounded">
+                    {errorMessage}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("login.email")}</Label>
+                  <Input
+                    id="email"
+                    placeholder={t("login.emailPlaceholder")}
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
                 </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  placeholder="Your email address"
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={handleKeyDown} // Add keydown handler
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t("login.password")}</Label>
+                  <Input
+                    id="password"
+                    placeholder={t("login.passwordPlaceholder")}
+                    required
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                </div>
+                <Button
+                  className="w-full"
+                  type="button"
+                  onClick={handleLogin}
+                >
+                  {t("login.loginButton")}
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  placeholder="Your password"
-                  required
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleKeyDown} // Add keydown handler
-                />
-              </div>
-              <Button
-                className="w-full"
-                type="button" // Change to type="button" for manual triggering
-                onClick={handleLogin} // Explicitly trigger handleLogin on click
-              >
-                Login
-              </Button>
-            </div>
-          </CardContent>
-        </form>
-      </Card>
-    </div>
-  );
-}
+            </CardContent>
+          </form>
+        </Card>
+      </div>
+    );
+  }

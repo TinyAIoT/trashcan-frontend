@@ -1,10 +1,12 @@
 {
     "menu": {
       "current_language": "Current Language",
+      "Loading projects...": "Loading Projects...",
       "overview": "overview",
       "route_planning": "Route Planning",
       "loading_map": "Loading map...",
       "show_route": "Show Route",
+      "Export to CSV":"Export to CSV",
       "export_to_maps": "Export to Maps",
       "assign_route": "Assign Route",
       "unassign_all_bins": "Unassign All Bins",
@@ -17,6 +19,8 @@
       "fill_level_change": "Fill Level Change",
       "google_maps_link": "Google Maps Link",
       "copy": "Copy",
+      "Previous":"Previous",
+      "Next":"Next",
       "Your Projects":"Your Projects",
       "Distribution of fill levels of all bins":"Distribution of fill levels of all bins",
       "dashboard": "Dashboard",
@@ -52,8 +56,51 @@
       "fill_level_thresholds_info": "Basis for color coding throughout the dashboard.",
       "battery_level_thresholds": "Battery Level Thresholds",
       "battery_level_thresholds_info": "Basis for color coding throughout the dashboard."
-    
     },
+    "tooltips": {
+      "search": "Search by name, location, or identifier.",
+      "sort": "Sort by clicking on the column headers."
+    },"placeholders": {
+    "search": "Search..."
+  },
+    "trashbin": {
+      "title": "Trashbin {{name}} ({{identifier}})",
+      "editButton": "Edit Trashbin",
+      "loadingHistory": "Loading history...",
+      "tabs": {
+        "graphicalView": "Graphical View",
+        "tableView": "Table View"
+      },
+      "fillLevel": "Fill Level",
+      "batteryLevel": "Battery Level",
+      "location": "Location",
+      "viewOnGoogleMaps": "View on Google Maps",
+      "lastEmptied": "Last Emptied",
+      "signalStrength": "Signal Strength",
+      "notAvailable": "N/A"
+    },
+    "login": {
+      "title": "Login",
+      "description": "Enter your email and password to login to your account",
+      "email": "Email",
+      "emailPlaceholder": "Your email address",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "loginButton": "Login"
+    },
+    "page": {
+    "logout": "Logout",
+    "comingSoon": "Language and theme settings coming soon!"
+  },
+  "editTrashbin": {
+    "title": "Edit Trashbin {{name}} ({{identifier}})",
+    "nameLabel": "Name",
+    "coordinatesLabel": "Coordinates (latitude, longitude) of trashbin.",
+    "coordinatesTooltip": "Latitude and longitude are the first entry in the list when right-clicking on the map in Google Maps.",
+    "locationLabel": "Location",
+    "imageLabel": "Image URL",
+    "saveButton": "Save",
+    "cancelButton": "Cancel"},
     "map": {
       "title": "Map",
       "label": "Trash Bin",
