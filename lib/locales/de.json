@@ -2,13 +2,17 @@
     "menu": {
 
       "current_language": "Aktuelle Sprache",
+<<<<<<< HEAD
       "Loading projects...": "Laden von Projekten...",
       "dashboard": "Armaturenbrett",
+=======
+      "dashboard": "Dashboard",
+>>>>>>> 60960350be16fca48cc977f238867689a22cb362
       "Your Projects":"Ihre Projekte",
       "route_planning": "Routenplanung",
       "loading_map": "Karte wird geladen...",
       "show_route": "Route anzeigen",
-      "export_to_maps": "In Karten exportieren",
+      "export_to_maps": "In Google Maps exportieren",
       "assign_route": "Route zuweisen",
       "unassign_all_bins": "Alle Mülleimer freigeben",
       "select_bins_instruction": "Wählen Sie die Mülleimer für die Route aus, indem Sie sie auf der Karte oder Tabelle anklicken",
@@ -20,7 +24,7 @@
       "fill_level_change": "Füllstandsänderung",
       "google_maps_link": "Google Maps-Link",
       "copy": "Kopieren",
-      "Distribution of fill levels of all bins":"Verteilung der Füllstände aller Behälter",
+      "Distribution of fill levels of all bins":"Füllstände aller Mülleimer",
       "nearly_full":"fast voll",
       "total_number":"Gesamtzahl",
       "low_battery":"schwache Batterie",
@@ -30,8 +34,12 @@
       "route": "Route",
       "data": "Daten",
       "settings": "Einstellungen",
+<<<<<<< HEAD
       "trashbins": "Mülleimer/papierkorb",
       "Export to CSV":"Als CSV exportieren",
+=======
+      "trashbins": "Mülleimer",
+>>>>>>> 60960350be16fca48cc977f238867689a22cb362
       "project": "Projekt",
       "account": "Konto",
       "location": "Ort",
@@ -47,7 +55,7 @@
       "coordinates_city_center_info": "Die Karten sind auf diese Koordinate zentriert.",
       "coordinates_depot": "Koordinaten (Breitengrad, Längengrad) des Depots.",
       "coordinates_depot_info": "Die Routenplanung nimmt diese Koordinaten als Start- und Endpunkt.",
-      "zoom_level": "Zoomstufe",
+      "zoom_level": "Zoom",
       "zoom_level_info": "Faktor, um wie viel die Karte vergrößert wird.",
       "fill_level_interval": "Intervall der Füllstände",
       "fill_level_interval_info": "Über wie viele Stunden die Füllstandsänderung berechnet wird.",
