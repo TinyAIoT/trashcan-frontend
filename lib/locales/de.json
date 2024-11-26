@@ -2,13 +2,9 @@
     "menu": {
 
       "current_language": "Aktuelle Sprache",
-<<<<<<< HEAD
-      "Loading projects...": "Laden von Projekten...",
-      "dashboard": "Armaturenbrett",
-=======
       "dashboard": "Dashboard",
->>>>>>> 60960350be16fca48cc977f238867689a22cb362
       "Your Projects":"Ihre Projekte",
+      "Export to CSV":"Nach CSV exportieren",
       "route_planning": "Routenplanung",
       "loading_map": "Karte wird geladen...",
       "show_route": "Route anzeigen",
@@ -34,12 +30,7 @@
       "route": "Route",
       "data": "Daten",
       "settings": "Einstellungen",
-<<<<<<< HEAD
-      "trashbins": "Mülleimer/papierkorb",
-      "Export to CSV":"Als CSV exportieren",
-=======
       "trashbins": "Mülleimer",
->>>>>>> 60960350be16fca48cc977f238867689a22cb362
       "project": "Projekt",
       "account": "Konto",
       "location": "Ort",

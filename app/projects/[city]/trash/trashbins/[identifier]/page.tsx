@@ -264,12 +264,12 @@ export default function TrashbinDetail({
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between">
-        <PageTitle
-          title={t("trashbin.title", {
-            name: trashbinData.name,
-            identifier: trashbinData.identifier,
-          })}
-        />
+   <PageTitle
+  title={t("trashbin.title")
+    .replace("{{name}}", trashbinData.name || "")
+    .replace("{{identifier}}", trashbinData.identifier || "")}
+/>
+
         <Button asChild className="bg-green-600 text-white">
           <Link href={getEditUrl()}>{t("trashbin.editButton")}</Link>
         </Button>
