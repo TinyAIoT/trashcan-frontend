@@ -2,108 +2,61 @@
 
 import React, { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import api from '@/lib/axios-api'
+import api from "@/lib/axios-api";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Trashbin } from '@/app/types';
-import { io, Socket } from 'socket.io-client';
+import { Trashbin } from "@/app/types";
+import { io, Socket } from "socket.io-client";
+import { useTranslation } from "@/lib/TranslationContext"; // Import translation hook
 
-// Bins currently always assigned to a single collector
-// Treated like a boolean for now: assigned or not assigned
 const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
 
-const headerSortButton = (column: any, displayname: string) => {
+const headerSortButton = (column: any, displayName: string) => {
   return (
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      {displayname}
+      {displayName}
     </Button>
   );
 };
 
-const columns: ColumnDef<Trashbin>[] = [
-  {
-    accessorKey: "identifier",
-    header: ({ column }) => {
-      return headerSortButton(column, "Identifier");
-    },
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return headerSortButton(column, "Name");
-    },
-  },
-  {
-    accessorKey: "fillLevel",
-    header: ({ column }) => {
-      return headerSortButton(column, "Fill Level");
-    },
-  },
-  {
-    accessorKey: "fillLevelChange",
-    header: ({ column }) => {
-      return headerSortButton(column, "Fill Level Change");
-    },
-  },
-  {
-    accessorKey: "location",
-    header: ({ column }) => {
-      return headerSortButton(column, "Location");
-    },
-  },
-  {
-    accessorKey: "lastEmptied",
-    header: ({ column }) => {
-      return headerSortButton(column, "Last Emptied");
-    },
-  },
-  {
-    accessorKey: "batteryLevel",
-    header: ({ column }) => {
-      return headerSortButton(column, "Battery Level");
-    },
-  },
-  {
-    accessorKey: "signalStrength",
-    header: ({ column }) => {
-      return headerSortButton(column, "Signal Strength");
-    },
-  },
-  { accessorKey: "assigned", 
-    header: ({ column }) => {
-      return headerSortButton(column, "Assigned");
-    },
-  },
-];
-
 export default function TrashbinsOverview() {
+  const { t } = useTranslation(); // Translation hook
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const router = useRouter();
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  const handleClick = useCallback((trashbin: Trashbin) => {
-    const city = localStorage.getItem("cityName");
-    const type = localStorage.getItem("projectType");
-    router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
-  }, [router]);
+  const handleClick = useCallback(
+    (trashbin: Trashbin) => {
+      const city = localStorage.getItem("cityName");
+      const type = localStorage.getItem("projectType");
+      router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
+    },
+    [router]
+  );
 
   useEffect(() => {
     if (!socket) {
       const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
 
-      newSocket.on('newData', (data) => {
-        if(data.message.fill_level) {
-          let adjustedFillLevel = (data.message.fill_level<=1) ? data.message.fill_level*100 : data.message.fill_level;
-          setTrashbinData(trashbinData => {
-            if(trashbinData) {
+      newSocket.on("newData", (data) => {
+        if (data.message.fill_level) {
+          let adjustedFillLevel =
+            data.message.fill_level <= 1
+              ? data.message.fill_level * 100
+              : data.message.fill_level;
+          setTrashbinData((trashbinData) => {
+            if (trashbinData) {
               let trashbinDataCopy = [...trashbinData];
-              trashbinDataCopy = trashbinDataCopy.map(tData => {
-                if (tData.sensors && tData.sensors.includes(data.message.sensor_id)) {
+              trashbinDataCopy = trashbinDataCopy.map((tData) => {
+                if (
+                  tData.sensors &&
+                  tData.sensors.includes(data.message.sensor_id)
+                ) {
                   return { ...tData, fillLevel: adjustedFillLevel };
                 }
                 return tData;
@@ -113,13 +66,19 @@ export default function TrashbinsOverview() {
             return trashbinData;
           });
         }
-        if(data.message.battery_level) {
-          let adjustedBatteryLevel = (data.message.battery_level<=1) ? data.message.battery_level*100 : data.message.battery_level;
-          setTrashbinData(trashbinData => {
-            if(trashbinData) {
+        if (data.message.battery_level) {
+          let adjustedBatteryLevel =
+            data.message.battery_level <= 1
+              ? data.message.battery_level * 100
+              : data.message.battery_level;
+          setTrashbinData((trashbinData) => {
+            if (trashbinData) {
               let trashbinDataCopy = [...trashbinData];
-              trashbinDataCopy = trashbinDataCopy.map(tData => {
-                if (tData.sensors && tData.sensors.includes(data.message.sensor_id)) {
+              trashbinDataCopy = trashbinDataCopy.map((tData) => {
+                if (
+                  tData.sensors &&
+                  tData.sensors.includes(data.message.sensor_id)
+                ) {
                   return { ...tData, batteryLevel: adjustedBatteryLevel };
                 }
                 return tData;
@@ -129,8 +88,7 @@ export default function TrashbinsOverview() {
             return trashbinData;
           });
         }
-        console.log('Received new data:', data);
-        // Update your frontend UI with the new data
+        console.log("Received new data:", data);
       });
 
       setSocket(newSocket);
@@ -157,9 +115,9 @@ export default function TrashbinsOverview() {
             },
           }
         );
-        var transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
+        var transformedTrashbinData: Trashbin[] =
+          allTrashbinsResponse.data.trashbins;
 
-        // Get the currently assigned bins
         const assignedTrashbinsResponse = await api.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
@@ -168,9 +126,10 @@ export default function TrashbinsOverview() {
             },
           }
         );
-        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id);
+        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map(
+          (item: Trashbin) => item._id
+        );
 
-        // Set the assigned property for each trashbin to true, if its id is in the assignedTrashbins array
         transformedTrashbinData = transformedTrashbinData.map((item: Trashbin) => {
           return {
             ...item,
@@ -186,9 +145,51 @@ export default function TrashbinsOverview() {
     fetchData();
   }, []);
 
+  const columns: ColumnDef<Trashbin>[] = [
+    {
+      accessorKey: "identifier",
+      header: ({ column }) => headerSortButton(column, t("menu.identifier")),
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => headerSortButton(column, t("menu.name")),
+    },
+    {
+      accessorKey: "fillLevel",
+      header: ({ column }) => headerSortButton(column, t("menu.fill_level")),
+    },
+    {
+      accessorKey: "fillLevelChange",
+      header: ({ column }) =>
+        headerSortButton(column, t("menu.fill_level_change")),
+    },
+    {
+      accessorKey: "location",
+      header: ({ column }) => headerSortButton(column, t("menu.location")),
+    },
+    {
+      accessorKey: "lastEmptied",
+      header: ({ column }) => headerSortButton(column, t("menu.last_emptied")),
+    },
+    {
+      accessorKey: "batteryLevel",
+      header: ({ column }) =>
+        headerSortButton(column, t("menu.battery_level")),
+    },
+    {
+      accessorKey: "signalStrength",
+      header: ({ column }) =>
+        headerSortButton(column, t("menu.signal_strength")),
+    },
+    {
+      accessorKey: "assigned",
+      header: ({ column }) => headerSortButton(column, t("menu.assigned")),
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-5 w-full">
-      <PageTitle title="Trashbins" />
+      <PageTitle title={t("menu.trashbins")} />
       <div className="w-[80vw]">
         <DataTable
           columns={columns}
