@@ -10,6 +10,7 @@ import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from "@/app/types";
 import { useTranslation } from "@/lib/TranslationContext";
 
+
 const MapPage = () => {
   const { t } = useTranslation(); // Translation hook
   const router = useRouter();
