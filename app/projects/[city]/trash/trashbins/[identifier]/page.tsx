@@ -270,7 +270,7 @@ export default function TrashbinDetail({
       { (fillLevelData.length === 0 && batteryLevelData.length === 0) ?
         <div className="h-40px">
           <CardContent>
-            <LoadingComponent text="Loading history..."/>
+            <LoadingComponent text="There is no history data"/>
           </CardContent>
         </div> : 
         <Tabs defaultValue="visual" className="">
