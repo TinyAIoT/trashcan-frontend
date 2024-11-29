@@ -11,7 +11,7 @@ import { Trashbin } from "@/app/types";
 import { io, Socket } from "socket.io-client";
 import { useTranslation } from "@/lib/TranslationContext"; // Import translation hook
 
-const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
+const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
 
 const headerSortButton = (column: any, displayName: string) => {
   return (

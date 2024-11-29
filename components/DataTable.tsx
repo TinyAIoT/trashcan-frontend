@@ -112,23 +112,23 @@ export function DataTable<TData, TValue>({
     document.body.removeChild(a);
   };  
 
-  return (
+   return (
     <div>
       {showSearchBar && (
         <div className="flex items-center py-4 px-1">
           <Input
-           placeholder={t("placeholders.search")}
+            placeholder="Search..."
             value={table.getState().globalFilter}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
-        <span className="text-blue-500 info-tooltip">
+          <span className="text-blue-500 info-tooltip">
             <Info className="text-gray-500 ml-4 mr-2" />
-            <span className="info-tooltip-text">{t("tooltips.search")}</span>
+            <span className="info-tooltip-text">Search by name, location, or identifier.</span>
           </span>
           <span className="text-blue-500 info-tooltip">
             <ArrowUpDown className="text-gray-500 ml-4 mr-2" />
-            <span className="info-tooltip-text">{t("tooltips.sort")}</span>
+            <span className="info-tooltip-text">Sort by clicking on the column headers.</span>
           </span>
           { showExportButton && (
             <Button
@@ -137,7 +137,7 @@ export function DataTable<TData, TValue>({
               className="ml-auto"
               onClick={() => makeCSV()}
             >
-           {t("menu.Export to CSV")}
+              Export to CSV
             </Button>
           )}
         </div>
@@ -212,7 +212,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                     {t("menu.loading")}
+                  Loading...
                 </TableCell>
               </TableRow>
             )}
@@ -226,7 +226,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("menu.Previous")}
+          Previous
         </Button>
         <Button
           variant="outline"
@@ -234,7 +234,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-              {t("menu.Next")}
+          Next
         </Button>
       </div>
     </div>

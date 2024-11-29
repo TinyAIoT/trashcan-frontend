@@ -22,7 +22,8 @@ import {useTranslation} from '@/lib/TranslationContext'
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
 
-const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
+const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
+//673b10d6f0e74b4771527ec9
 
 
 const headerSortButton = (column: any, displayname: string) => {
@@ -328,6 +329,7 @@ const RoutePlanning = () => {
           {t("menu.unassign_all_bins")}
         </Button>
       </section>
+      {/* Only render the tabs when all information was fetched */}
       {centerCoordinates && initialZoom && fillThresholds && batteryThresholds && startEndCoordinates ? (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full">
@@ -347,12 +349,24 @@ const RoutePlanning = () => {
                 fillThresholds={fillThresholds}
                 batteryThresholds={batteryThresholds}
                 isRoutePlanning={true}
+                onTrashbinClick={handleTrashbinClick}
                 tripStartEnd={startEndCoordinates}
                 selectedBins={selectedBins}
                 optimizedBins={optimizedBins}
-                showRoute={showRoute} onTrashbinClick={function (trashbin: Trashbin): void {
-                  throw new Error('Function not implemented.');
-                } }              />
+                showRoute={showRoute}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="table">
+            <div className="w-full h-[80vh] overflow-auto">
+              <DataTable
+                columns={columns}
+                data={trashbinData}
+                onRowClick={handleTrashbinClick}
+                selectedRows={selectedBins}
+                showSearchBar={true}
+                showExportButton={false}
+              />
             </div>
           </TabsContent>
         </Tabs>
