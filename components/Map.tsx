@@ -111,11 +111,13 @@ const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: numb
 
   if (markersRef.current) {
     markersRef.current.clearLayers();
+    console.log(markersRef,"1")
   } else {
     markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });    
+    console.log(markersRef,"2")
     if (markersRef.current) {
       mapRef.current.addLayer(markersRef.current);
-      markersRef.current.clearLayers();
+      console.log(markersRef,"3")
     }
   }
 };
@@ -130,7 +132,7 @@ const addMarkersToMap = async (
   isRoutePlanning: boolean,
   onTrashbinClick: (trashbin: Trashbin) => void | undefined,
   markersRef: any
-) => {
+) => { 
   const {
     greenBin,
     greenBinSelected,
@@ -141,7 +143,11 @@ const addMarkersToMap = async (
     greyBin,
     greyBinSelected,
   } = createBinIcons(L);
-
+  const defaultIcon = L.icon({
+    iconUrl: "/images/leaflet/bin_grey_b.png", // Replace with your icon path
+    iconSize: [25, 41], // Adjust the size
+    iconAnchor: [12, 41], // Anchor point
+  });
   // const token = process.env.NEXT_PUBLIC_API_TOKEN;
   const token = localStorage.getItem("authToken");
   const oneWeekAgo = new Date();
@@ -193,10 +199,6 @@ const addMarkersToMap = async (
     return true;
   });
 
-  if (markersRef.current) {
-    markersRef.current.clearLayers(); // Clear existing markers
-  }
-
   const addedMarkers = new Set<string>();
   for (const trashbin of filteredTrashbinData) {
     const coordinateKey = `${trashbin.coordinates[0].toFixed(6)},${trashbin.coordinates[1].toFixed(6)}`;
@@ -230,7 +232,10 @@ const addMarkersToMap = async (
     }
     const getIcon = () => {
       if (isDataMissing || allSensorsHaveOldData) {
-        return greyBinSelected; // Grey if missing data or all sensors have old data
+        if (selectedBins?.some((bin) => bin.identifier === trashbin.identifier)) {
+          return greyBinSelected; // Grey Bin Selected if selected and data is missing or old
+        }
+        return greyBin; // Grey if missing data or all sensors have old data
       }
       if (selectedBins?.some((bin) => bin.identifier === trashbin.identifier)) {
         return trashbin.fillLevel < fillThresholds[0]
@@ -245,7 +250,7 @@ const addMarkersToMap = async (
         ? yellowBin
         : redBin;
     };
-
+    
     const marker = L.marker(
       [trashbin.coordinates[0] ?? 0, trashbin.coordinates[1] ?? 0],
       {
@@ -266,7 +271,10 @@ const addMarkersToMap = async (
     marker.bindPopup(container);
 
     marker.on("mouseover", () => marker.openPopup());
-    marker.on("click", () => onTrashbinClick(trashbin));
+    marker.on("click", () => {onTrashbinClick(trashbin)
+      marker.setIcon (defaultIcon)
+      console.log(getIcon(),"get",defaultIcon,"defaault")
+    });
     marker.on("popupopen", (e: any) => {
       L.DomEvent.on(e.popup._contentNode, "click", () => {
         onTrashbinClick(trashbin);
@@ -304,31 +312,49 @@ const handleRoutingControl = (L: any, showRoute: boolean = false, optimizedBins:
   }
 };
 
-const Map = ({ trashbinData, centerCoordinates, initialZoom = 20, fillThresholds, batteryThresholds, isRoutePlanning, onTrashbinClick, tripStartEnd, selectedBins, optimizedBins, showRoute }: MapProps) => {  
-  const mapRef = useRef<null | L.Map>(null);
 
+const Map = ({
+  trashbinData,
+  centerCoordinates,
+  initialZoom = 20,
+  fillThresholds,
+  batteryThresholds,
+  isRoutePlanning,
+  onTrashbinClick,
+  tripStartEnd,
+  selectedBins,
+  optimizedBins,
+  showRoute,
+}: MapProps) => {
+  const mapRef = useRef<null | L.Map>(null);
   const markersRef = useRef<null | L.MarkerClusterGroup>(null);
   const routingControlRef = useRef<null | L.Routing.Control>(null);
-    //const markersAddedRef = useRef(false); // Track whether markers have been added
-  useEffect(() => {
-    if (typeof window !== 'undefined'&& mapRef.current== null) {
-      // Load the leaflet library and the marker cluster plugin
-      const L = require('leaflet');
-      require('leaflet.markercluster');
-      require('leaflet-routing-machine');
-      
-      initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
 
-      if (mapRef.current && markersRef.current) {
-        markersRef.current.clearLayers();
-        addMarkersToMap(L, trashbinData, fillThresholds, batteryThresholds, selectedBins, isRoutePlanning, onTrashbinClick, markersRef);
-        handleRoutingControl(L, showRoute, optimizedBins, tripStartEnd, mapRef, routingControlRef);
-      }
+  // Map Initialization
+  useEffect(() => {
+    if (typeof window !== "undefined" && mapRef.current == null) {
+      const L = require("leaflet");
+      require("leaflet.markercluster");
+      require("leaflet-routing-machine");
+      initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
+      addMarkersToMap(L,trashbinData,fillThresholds,batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef);
+
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+   
+  }, [showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,  trashbinData,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
+  // Route Handling
+  useEffect(() => {
+    if (typeof window !== "undefined" && mapRef.current) {
+      const L = require("leaflet");
+      require("leaflet.markercluster");
+      require("leaflet-routing-machine");
+      console.log("routeControl Working")
+      handleRoutingControl(L,showRoute,optimizedBins,tripStartEnd,mapRef,routingControlRef);
+    }
+  }, [showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,  trashbinData,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
 
   return <div id="map" className="flex-grow h-full"></div>;
 };
 
 export default Map;
+

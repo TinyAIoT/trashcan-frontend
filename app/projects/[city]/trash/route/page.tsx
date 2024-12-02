@@ -142,6 +142,7 @@ const RoutePlanning = () => {
 
   // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
+    console.log("trashbin click is working")
     setSelectedBins((prevSelected) => {
         if (prevSelected.some((bin) => bin.identifier === trashbin.identifier)) return prevSelected.filter((bin) => bin.identifier !== trashbin.identifier);
         else return [...prevSelected, trashbin];
@@ -188,6 +189,7 @@ const RoutePlanning = () => {
   const handleShowRoute = async () => {
     // To show the route, we need to show the map tab
     setActiveTab('map');
+    console.log("the show route button is working")
     // Fetch optimized route
     const orderedBins = await fetchOptimizedRoute();
     setOptimizedBins(orderedBins);
