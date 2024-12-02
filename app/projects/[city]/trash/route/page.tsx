@@ -22,8 +22,8 @@ import {useTranslation} from '@/lib/TranslationContext'
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
 
-const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
-//673b10d6f0e74b4771527ec9
+const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
+//66fab28bd6afdad80f1d8dca
 
 
 const headerSortButton = (column: any, displayname: string) => {
