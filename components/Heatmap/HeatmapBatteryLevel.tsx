@@ -29,7 +29,7 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
             bin.sensors.map(sensor => ({
               binIdentifier: bin.identifier,
                 promise: api.get(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensor}`,
+                  `/api/v1/history/sensor/${sensor}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token?.replace(/"/g, "")}`,

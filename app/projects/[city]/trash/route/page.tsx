@@ -93,7 +93,7 @@ const RoutePlanning = () => {
         const projectId = localStorage.getItem("projectId");
 
         const allTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -104,7 +104,7 @@ const RoutePlanning = () => {
         const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
         const assignedTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -117,7 +117,7 @@ const RoutePlanning = () => {
         setTrashbinData(unassignedTrashbins);
 
         const projectResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+          `/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -235,7 +235,7 @@ const RoutePlanning = () => {
 
     // Get the currently assigned bins
     const assignedTrashbinsResponse = await api.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+      `/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
       {
         headers: {
           Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -249,7 +249,7 @@ const RoutePlanning = () => {
 
     try {
       const response = await api.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
+        `/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,
           assignedTrashbins: allAssignedBins.map(bin => bin._id),
@@ -276,7 +276,7 @@ const RoutePlanning = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await api.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
+        `/api/v1/trash-collector/assign`,
         {
           trashCollector: COLLECTOR_ID,
           assignedTrashbins: [],

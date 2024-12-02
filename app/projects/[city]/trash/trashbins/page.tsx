@@ -41,7 +41,7 @@ export default function TrashbinsOverview() {
 
   useEffect(() => {
     if (!socket) {
-      const newSocket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+      const newSocket = io(``);
 
       newSocket.on("newData", (data) => {
         if (data.message.fill_level) {
@@ -108,7 +108,7 @@ export default function TrashbinsOverview() {
         const projectId = localStorage.getItem("projectId");
 
         const allTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -119,7 +119,7 @@ export default function TrashbinsOverview() {
           allTrashbinsResponse.data.trashbins;
 
         const assignedTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

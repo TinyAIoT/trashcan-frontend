@@ -69,7 +69,7 @@ export default function Home() {
         const projectId = localStorage.getItem("projectId");
 
         const allTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -80,7 +80,7 @@ export default function Home() {
 
         // Get the currently assigned bins
         const assignedTrashbinsResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -104,7 +104,7 @@ export default function Home() {
         }));
 
         const projectResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+          `/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

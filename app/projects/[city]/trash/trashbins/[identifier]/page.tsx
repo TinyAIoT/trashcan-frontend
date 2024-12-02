@@ -49,7 +49,7 @@ export default function TrashbinDetail({
 
   useEffect(() => {
     if (!socket) {
-      const newSocket: Socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+      const newSocket: Socket = io(``);
 
       newSocket.on('newData', (data) => {
         if(data.message.fill_level) {
@@ -101,7 +101,7 @@ export default function TrashbinDetail({
 
         // Fetch trashbin data
         const response = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
+          `/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -113,7 +113,7 @@ export default function TrashbinDetail({
         // Fetch project settings
         const projectId = localStorage.getItem("projectId");
         const projectResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+          `/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -129,7 +129,7 @@ export default function TrashbinDetail({
         // TODO: this is kind of a shitty solution. Maybe we should first determine what measureType a sensorId has and then do the request
         // Fetch first history data
         const historyResponse0 = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[0]}`,
+          `/api/v1/history/sensor/${sensorIds[0]}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -156,7 +156,7 @@ export default function TrashbinDetail({
         }
         // Fetch second history data
         const historyResponse1 = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[1]}`,
+          `/api/v1/history/sensor/${sensorIds[1]}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -182,7 +182,7 @@ export default function TrashbinDetail({
         }
         // Fetch third history data
         const historyResponse2 = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorIds[2]}`,
+          `/api/v1/history/sensor/${sensorIds[2]}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

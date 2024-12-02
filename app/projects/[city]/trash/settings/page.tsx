@@ -27,7 +27,7 @@ export default function ProjectSettings() {
         const projectId = localStorage.getItem("projectId");
 
         const projectResponse = await api.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+          `/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -180,7 +180,7 @@ export default function ProjectSettings() {
       const projectId = localStorage.getItem("projectId");
 
       await api.patch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+        `/api/v1/project/${projectId}`,
         {
           centerCoords: [mapCenterCoordinates[0], mapCenterCoordinates[1]],
           startEndCoords: [startEndCoordinates[0], startEndCoordinates[1]],

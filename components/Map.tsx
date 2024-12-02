@@ -151,7 +151,7 @@ const addMarkersToMap = async (
   const fetchSensorHistory = async (sensorId: string): Promise<any[]> => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorId}`,
+        `/api/v1/history/sensor/${sensorId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
