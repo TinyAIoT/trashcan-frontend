@@ -123,10 +123,8 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle
-        title={t("editTrashbin.title", {
-          name: trashbin.name,
-          identifier: trashbin.identifier,
-        })}
+        title={t("editTrashbin.title"
+        )}
       />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
