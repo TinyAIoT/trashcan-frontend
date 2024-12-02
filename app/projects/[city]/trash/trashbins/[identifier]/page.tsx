@@ -13,6 +13,7 @@ import LineChart from "@/components/LineChart";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from '@/app/types';
 import { io, Socket } from 'socket.io-client';
+import { useTranslation } from "@/lib/TranslationContext";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -43,6 +44,8 @@ export default function TrashbinDetail({
   const [batteryLevelData, setBatteryLevelData] = useState<DataItem[]>([]);
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const { t } = useTranslation();
+  
 
   useEffect(() => {
     if (!socket) {
@@ -258,54 +261,59 @@ export default function TrashbinDetail({
     const type = localStorage.getItem("projectType");
     return `/projects/${city}/${type}/trashbins/${params.identifier}/edit`;
   }
-
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-between">
-        <PageTitle title={`Trashbin ${trashbinData.name} (${trashbinData.identifier})`} />
+   <PageTitle
+  title={t("trashbin.title")
+    .replace("{{name}}", trashbinData.name || "")
+    .replace("{{identifier}}", trashbinData.identifier || "")}
+/>
+
         <Button asChild className="bg-green-600 text-white">
-          <Link href={getEditUrl()}>Edit Trashbin</Link>
+          <Link href={getEditUrl()}>{t("trashbin.editButton")}</Link>
         </Button>
       </div>
-      { (fillLevelData.length === 0 && batteryLevelData.length === 0) ?
+      {fillLevelData.length === 0 && batteryLevelData.length === 0 ? (
         <div className="h-40px">
           <CardContent>
-            <LoadingComponent text="Loading history..."/>
+            <LoadingComponent text={t("trashbin.loadingHistory")} />
           </CardContent>
-        </div> : 
+        </div>
+      ) : (
         <Tabs defaultValue="visual" className="">
           <TabsList className="w-full">
             <TabsTrigger value="visual" className="w-full">
-              Graphical View
+              {t("trashbin.tabs.graphicalView")}
             </TabsTrigger>
             <TabsTrigger value="table" className="w-full">
-              Table View
+              {t("trashbin.tabs.tableView")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="visual">
-            <section className="grid grid-cols-1  gap-4 transition-all lg:grid-cols-2">
-              { fillLevelData.length > 0 &&
-              <><CardContent>
-                  <p className="p-4 font-semibold">Fill Level</p>
+            <section className="grid grid-cols-1 gap-4 transition-all lg:grid-cols-2">
+              {fillLevelData.length > 0 && (
+                <CardContent>
+                  <p className="p-4 font-semibold">{t("trashbin.fillLevel")}</p>
                   <LineChart
                     historyData={fillLevelData}
                     green={[0, fillThresholds[0]]}
                     yellow={[fillThresholds[0], fillThresholds[1]]}
-                    red={[fillThresholds[1], 100]} />
-              </CardContent></>
-              }
-              { batteryLevelData.length > 0 &&
-              <><CardContent>
-                <p className="p-4 font-semibold">Battery Level</p>
-                
+                    red={[fillThresholds[1], 100]}
+                  />
+                </CardContent>
+              )}
+              {batteryLevelData.length > 0 && (
+                <CardContent>
+                  <p className="p-4 font-semibold">{t("trashbin.batteryLevel")}</p>
                   <LineChart
                     historyData={batteryLevelData}
                     green={[batteryThresholds[0], 100]}
                     yellow={[batteryThresholds[1], batteryThresholds[0]]}
                     red={[0, batteryThresholds[1]]}
                   />
-              </CardContent></>
-              }
+                </CardContent>
+              )}
             </section>
           </TabsContent>
           <TabsContent value="table">
@@ -319,23 +327,36 @@ export default function TrashbinDetail({
             </div>
           </TabsContent>
         </Tabs>
-      }
+      )}
       <section className="">
-            <div className="flex gap-3 items-center">
-              <p className="inline text-lg"><strong className="font-bold">Location:</strong> {trashbinData.location} ({trashbinData.coordinates[0]}, {trashbinData.coordinates[1]})</p>
-              <Button className="bg-green-600 text-white">
-                <Link
-                  href={`https://www.google.com/maps/@${trashbinData.coordinates[0]},${trashbinData.coordinates[1]},z=18?q=${trashbinData.coordinates[0]},${trashbinData.coordinates[1]}`}
-                  target="_blank"
-                >
-                  View on Google Maps
-                </Link>
-              </Button>
-            </div>
-            <p className="text-lg"><strong className="font-bold">Last Emptied:</strong> {trashbinData.lastEmptied ? trashbinData.lastEmptied.toString() : "N/A"}</p>
-            <p className="text-lg"><strong className="font-bold">Signal Strength:</strong> {trashbinData.signalStrength}</p>
-          </section>
-      
+        <div className="flex gap-3 items-center">
+          <p className="inline text-lg">
+            <strong className="font-bold">{t("trashbin.location")}:</strong>{" "}
+            {trashbinData.location} ({trashbinData.coordinates[0]},{" "}
+            {trashbinData.coordinates[1]})
+          </p>
+          <Button className="bg-green-600 text-white">
+            <Link
+              href={`https://www.google.com/maps/@${trashbinData.coordinates[0]},${trashbinData.coordinates[1]},z=18?q=${trashbinData.coordinates[0]},${trashbinData.coordinates[1]}`}
+              target="_blank"
+            >
+              {t("trashbin.viewOnGoogleMaps")}
+            </Link>
+          </Button>
+        </div>
+        <p className="text-lg">
+          <strong className="font-bold">{t("trashbin.lastEmptied")}:</strong>{" "}
+          {trashbinData.lastEmptied
+            ? trashbinData.lastEmptied.toString()
+            : t("trashbin.notAvailable")}
+        </p>
+        <p className="text-lg">
+          <strong className="font-bold">{t("trashbin.signalStrength")}:</strong>{" "}
+          {trashbinData.signalStrength}
+        </p>
+      </section>
     </div>
   );
-}
+};
+
+

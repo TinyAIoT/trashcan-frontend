@@ -5,6 +5,8 @@ import api from '@/lib/axios-api'
 import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
+import {useTranslation} from '@/lib/TranslationContext'
+
 
 export default function ProjectSettings() {
   const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
@@ -16,6 +18,7 @@ export default function ProjectSettings() {
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState(false);
   const [errors, setErrors] = useState({ mapCenter: "", startEnd: "", zoomLevel: "", fillLevelInterval: "", fillThresholds: "", batteryThresholds: ""});
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,14 +218,15 @@ export default function ProjectSettings() {
 
   return (
     <div className="px-1">
-      <PageTitle title="Project Settings" />
+      <PageTitle title={t("menu.project_settings")} />
       <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        {/* Map Center Coordinates */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of city center.</label>
+            <label className="mb-1 text-lg">{t("menu.coordinates_city_center")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">The maps are centered on this coordinate.</span>
+              <span className="info-tooltip-text">{t("menu.coordinates_city_center_info")}</span>
             </span>
           </div>
           <div className="flex">
@@ -239,14 +243,16 @@ export default function ProjectSettings() {
               className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
-          {errors.mapCenter && <p className="text-red-500">{errors.mapCenter}</p>}
+          {errors.mapCenter && <p className="text-red-500">{t(errors.mapCenter)}</p>}
         </div>
+  
+        {/* Start-End Coordinates */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of depot.</label>
+            <label className="mb-1 text-lg">{t("menu.coordinates_depot")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">The route planning takes these coordinates as start and end point.</span>
+              <span className="info-tooltip-text">{t("menu.coordinates_depot_info")}</span>
             </span>
           </div>
           <div className="flex">
@@ -263,14 +269,16 @@ export default function ProjectSettings() {
               className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
-          {errors.startEnd && <p className="text-red-500">{errors.startEnd}</p>}
+          {errors.startEnd && <p className="text-red-500">{t(errors.startEnd)}</p>}
         </div>
+  
+        {/* Zoom Level */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Zoom Level</label>
+            <label className="mb-1 text-lg">{t("menu.zoom_level")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Factor how much the map is zoomed in.</span>
+              <span className="info-tooltip-text">{t("menu.zoom_level_info")}</span>
             </span>
           </div>
           <input
@@ -278,15 +286,17 @@ export default function ProjectSettings() {
             value={zoomLevel}
             onChange={(e) => setZoomLevel(e.target.value)}
             className="border border-gray-300 rounded px-3 py-2 w-[100px]"
-            />
-          {errors.zoomLevel && <p className="text-red-500">{errors.zoomLevel}</p>}
+          />
+          {errors.zoomLevel && <p className="text-red-500">{t(errors.zoomLevel)}</p>}
         </div>
+  
+        {/* Fill Level Interval */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Fill Level Interval</label>
+            <label className="mb-1 text-lg">{t("menu.fill_level_interval")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Over how many hours the fill level change will be computed.</span>
+              <span className="info-tooltip-text">{t("menu.fill_level_interval_info")}</span>
             </span>
           </div>
           <input
@@ -295,78 +305,85 @@ export default function ProjectSettings() {
             onChange={(e) => setFillLevelInterval(e.target.value)}
             className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
-          {errors.fillLevelInterval && <p className="text-red-500">{errors.fillLevelInterval}</p>}
+          {errors.fillLevelInterval && <p className="text-red-500">{t(errors.fillLevelInterval)}</p>}
         </div>
+  
+        {/* Fill Level Thresholds */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Fill Level Thresholds</label>
+            <label className="mb-1 text-lg">{t("menu.fill_level_thresholds")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Basis for color coding throughout the dashboard.</span>
+              <span className="info-tooltip-text">{t("menu.fill_level_thresholds_info")}</span>
             </span>
           </div>
           <div className="flex">
-            <div className="w-1/5 h-12 bg-green-600"/>
+            <div className="w-1/5 h-12 bg-green-600" />
             <input
               type="text"
               value={fillThresholds[0]}
               onChange={(e) => setFillThresholds([e.target.value, fillThresholds[1]])}
               className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
             />
-            <div className="w-1/5 h-12 bg-yellow-400"/>
+            <div className="w-1/5 h-12 bg-yellow-400" />
             <input
               type="text"
               value={fillThresholds[1]}
               onChange={(e) => setFillThresholds([fillThresholds[0], e.target.value])}
               className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
             />
-            <div className="w-1/5 h-12 bg-red-600"/>
+            <div className="w-1/5 h-12 bg-red-600" />
           </div>
-          {errors.fillThresholds && <p className="text-red-500">{errors.fillThresholds}</p>}
+          {errors.fillThresholds && <p className="text-red-500">{t(errors.fillThresholds)}</p>}
         </div>
+  
+        {/* Battery Level Thresholds */}
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Battery Level Thresholds</label>
+            <label className="mb-1 text-lg">{t("menu.battery_level_thresholds")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Basis for color coding throughout the dashboard.</span>
+              <span className="info-tooltip-text">{t("menu.battery_level_thresholds_info")}</span>
             </span>
           </div>
           <div className="flex">
-            <div className="w-1/5 h-12 bg-green-600"/>
+            <div className="w-1/5 h-12 bg-green-600" />
             <input
               type="text"
               value={batteryThresholds[0]}
               onChange={(e) => setBatteryThresholds([e.target.value, batteryThresholds[1]])}
               className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
             />
-            <div className="w-1/5 h-12 bg-yellow-400"/>
+            <div className="w-1/5 h-12 bg-yellow-400" />
             <input
               type="text"
               value={batteryThresholds[1]}
               onChange={(e) => setBatteryThresholds([batteryThresholds[0], e.target.value])}
               className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
             />
-            <div className="w-1/5 h-12 bg-red-600"/>
+            <div className="w-1/5 h-12 bg-red-600" />
           </div>
-          {errors.batteryThresholds && <p className="text-red-500">{errors.batteryThresholds}</p>}
+          {errors.batteryThresholds && <p className="text-red-500">{t(errors.batteryThresholds)}</p>}
         </div>
+  
+        {/* Save and Cancel Buttons */}
         <div className="flex space-x-4">
           <button
             type="submit"
             className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
-            Save Settings
+            {t("menu.save_settings")}
           </button>
           <button
             type="button"
             onClick={handleCancel}
             className="px-4 py-2 bg-red-600 text-white rounded-md w-[200px]"
           >
-            Cancel
+            {t("menu.cancel")}
           </button>
         </div>
       </form>
     </div>
   );
+  
 }

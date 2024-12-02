@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import api from '@/lib/axios-api'
+//import { Map } from '@/components/Map';
 import { LatLngTuple } from 'leaflet';
 import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
@@ -14,12 +15,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
+import {useTranslation} from '@/lib/TranslationContext'
 // import { Input } from "@/components/ui/input";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "66fab28bd6afdad80f1d8dca";
+
+const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
+//673b10d6f0e74b4771527ec9
+
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -78,6 +83,8 @@ const RoutePlanning = () => {
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -303,23 +310,35 @@ const RoutePlanning = () => {
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      <PageTitle title="Route Planning" />
+      <PageTitle title={t("menu.route_planning")} />
       <div className="flex items-center justify-start">
         <Info className="text-gray-500 mr-2" />
-        <p className="text-lg text-gray-500">Select the trashbins to be considered for a route by clicking on the trashbins on the map or table</p>
+        <p className="text-lg text-gray-500">{t("menu.select_bins_instruction")}</p>
       </div>
-      <section className="grid grid-cols-2  gap-4 transition-all lg:grid-cols-4">
-        <Button className="bg-green-600 text-white" onClick={handleShowRoute}>Show Route</Button>
-        <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>Export to Maps</Button>
-        <Button className="bg-green-600 text-white" onClick={assignRoute}>Assign Route</Button>
-        <Button className="bg-red-600 text-white" onClick={unassignAllBins}>Unassign All Bins</Button>
+      <section className="grid grid-cols-2 gap-4 transition-all lg:grid-cols-4">
+        <Button className="bg-green-600 text-white" onClick={handleShowRoute}>
+          {t("menu.show_route")}
+        </Button>
+        <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>
+          {t("menu.export_to_maps")}
+        </Button>
+        <Button className="bg-green-600 text-white" onClick={assignRoute}>
+          {t("menu.assign_route")}
+        </Button>
+        <Button className="bg-red-600 text-white" onClick={unassignAllBins}>
+          {t("menu.unassign_all_bins")}
+        </Button>
       </section>
       {/* Only render the tabs when all information was fetched */}
-      { centerCoordinates && initialZoom && fillThresholds && batteryThresholds && startEndCoordinates ? 
+      {centerCoordinates && initialZoom && fillThresholds && batteryThresholds && startEndCoordinates ? (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger value="map" className="w-full">Map View</TabsTrigger>
-            <TabsTrigger value="table" className="w-full">Table View</TabsTrigger>
+            <TabsTrigger value="map" className="w-full">
+              {t("menu.map_view")}
+            </TabsTrigger>
+            <TabsTrigger value="table" className="w-full">
+              {t("menu.table_view")}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="map">
             <div className="w-full h-[80vh] relative z-0">
@@ -340,65 +359,32 @@ const RoutePlanning = () => {
           </TabsContent>
           <TabsContent value="table">
             <div className="w-full h-[80vh] overflow-auto">
-            <DataTable
-              columns={columns}
-              data={trashbinData}
-              onRowClick={handleTrashbinClick}
-              selectedRows={selectedBins}
-              showSearchBar={true}
-              showExportButton={false}
-            />
+              <DataTable
+                columns={columns}
+                data={trashbinData}
+                onRowClick={handleTrashbinClick}
+                selectedRows={selectedBins}
+                showSearchBar={true}
+                showExportButton={false}
+              />
             </div>
           </TabsContent>
-        </Tabs> :
-        <LoadingComponent text="Loading map..."/>
-      }
-      {/* Commented out, as options are not supported yet */}
-      {/* <div className="flex-col">
-        <h1 className="text-2xl font-bold">Options</h1>
-        <div className="flex items-center mb-3">
-            <p>Assignee: </p>
-            <Select>
-            <SelectTrigger className="w-[180px] ml-2">
-                <SelectValue placeholder="Select Assignee" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="driver_a">Alice</SelectItem>
-                <SelectItem value="driver_b">Bob</SelectItem>
-                <SelectItem value="driver_c">Carol</SelectItem>
-            </SelectContent>
-            </Select>
-        </div>
-          <div className="flex items-center mb-3">
-            <p>Time Constraint: </p>
-            <Input
-                type="number"
-                placeholder="Minutes"
-                className="w-[180px] mx-2"
-                step="30"
-            />
-            <p>Minutes</p>
-        </div>
-        <div className="flex items-center">
-            <p>Optimization Criterion: </p>
-            <Select>
-            <SelectTrigger className="w-[180px] ml-2">
-                <SelectValue placeholder="Select Criterion" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="time">Time</SelectItem>
-                <SelectItem value="distance">Distance</SelectItem>
-            </SelectContent>
-            </Select>
-        </div>
-      </div> */}
+        </Tabs>
+      ) : (
+        <LoadingComponent text={t("menu.loading_map")} />
+      )}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="z-50">
           <DialogHeader>
-            <DialogTitle>Google Maps Link</DialogTitle>
+            <DialogTitle>{t("menu.google_maps_link")}</DialogTitle>
             <DialogDescription>
               <div className="flex items-center justify-between">
-                <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" className="break-all text-blue-500 underline">
+                <a
+                  href={googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="break-all text-blue-500 underline"
+                >
                   {googleMapsLink}
                 </a>
                 <div className="tooltip">
@@ -407,15 +393,16 @@ const RoutePlanning = () => {
                       <Copy />
                     </Button>
                   </CopyToClipboard>
-                  <span className="tooltiptext">Copy</span>
+                  <span className="tooltiptext">{t("menu.copy")}</span>
                 </div>
               </div>
-              </DialogDescription>
+            </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
+
 
 export default RoutePlanning;

@@ -2,15 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import api from '@/lib/axios-api'
+import api from "@/lib/axios-api";
 import { LatLngTuple } from "leaflet";
 import PageTitle from "@/components/PageTitle";
 import Map from "@/components/Map";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from "@/app/types";
+import { useTranslation } from "@/lib/TranslationContext";
 
 
 const MapPage = () => {
+  const { t } = useTranslation(); // Translation hook
   const router = useRouter();
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
@@ -62,7 +64,8 @@ const MapPage = () => {
   return (
     <div className="flex flex-col h-[90vh]">
       <div className="pb-2">
-        <PageTitle title="Map" />
+        {/* Translated title */}
+        <PageTitle title={t("menu.map")} />
       </div>
       {/* Make sure that all information was fetched from the backend before rendering the map */}
       
@@ -75,9 +78,9 @@ const MapPage = () => {
           batteryThresholds={batteryThresholds}
           isRoutePlanning={false}
           onTrashbinClick={redirectToTrashbinDetail}
-        /> :
-        <LoadingComponent text="Loading map..."/>
-      }
+        />
+       : (
+        <LoadingComponent text={t("menu.loading_map")} />    )}
     </div>
   );
 };
