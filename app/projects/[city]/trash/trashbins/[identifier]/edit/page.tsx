@@ -7,6 +7,8 @@ import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
+import { useTranslation } from '@/lib/TranslationContext';
+
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   type TrashBinUpdate = {
@@ -19,6 +21,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   };
   const [trashbin, setTrashbin] = useState<TrashBinUpdate | null>(null);
   const [errors, setErrors] = useState({ name: "", coordinates: "", location: "", image: "" });
+  const { t } = useTranslation();   
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,11 +123,14 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   return (
     <div className="flex flex-col gap-5 w-full">
       <PageTitle
-        title={`Edit Trashbin ${trashbin.name} (${trashbin.identifier})`}
+        title={t("editTrashbin.title", {
+          name: trashbin.name,
+          identifier: trashbin.identifier,
+        })}
       />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
-          <label className="mb-1 text-lg">Name</label>
+          <label className="mb-1 text-lg">{t("editTrashbin.nameLabel")}</label>
           <input
             type="text"
             name="name"
@@ -136,11 +142,12 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         </div>
         <div className="flex flex-col">
           <div className="flex items-center justify-start">
-            <label className="mb-1 text-lg">Coordinates (latitude, longitude) of trashbin.</label>
+            <label className="mb-1 text-lg">{t("editTrashbin.coordinatesLabel")}</label>
             <span className="text-blue-500 info-tooltip">
               <Info className="text-gray-500 ml-4 mr-2" />
-              <span className="info-tooltip-text">Latitude and longitude are the first entry in the list when
-              right-clicking on the map in Google Maps.</span>
+              <span className="info-tooltip-text">
+                {t("editTrashbin.coordinatesTooltip")}
+              </span>
             </span>
           </div>
           <div className="flex">
@@ -177,10 +184,12 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
               step="any"
             />
           </div>
-          {errors.coordinates && (<p className="text-red-500">{errors.coordinates}</p>)}
+          {errors.coordinates && (
+            <p className="text-red-500">{errors.coordinates}</p>
+          )}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 text-lg">Location</label>
+          <label className="mb-1 text-lg">{t("editTrashbin.locationLabel")}</label>
           <input
             type="text"
             name="location"
@@ -190,10 +199,10 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             }
             className="border border-gray-300 rounded px-3 py-2 w-[300px] mr-2"
           />
-          {errors.name && <p className="text-red-500">{errors.name}</p>}
+          {errors.location && <p className="text-red-500">{errors.location}</p>}
         </div>
         <div className="flex flex-col">
-          <label className="mb-1 text-lg">Image URL</label>
+          <label className="mb-1 text-lg">{t("editTrashbin.imageLabel")}</label>
           <input
             type="text"
             name="image"
@@ -203,25 +212,24 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
             }
             className="border border-gray-300 rounded px-3 py-2 w-[600px] mr-2"
           />
-          {errors.location && <p className="text-red-500">{errors.location}</p>}
+          {errors.image && <p className="text-red-500">{errors.image}</p>}
         </div>
         <div className="flex gap-4">
           <Button
             type="submit"
             className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
-            Save
+            {t("editTrashbin.saveButton")}
           </Button>
           <Button
             className="px-4 py-2 bg-red-600 text-white rounded-md w-[200px]"
             onClick={goBack}
           >
-            <Link href="">Cancel</Link>
+            {t("editTrashbin.cancelButton")}
           </Button>
         </div>
       </form>
     </div>
   );
 };
-
 export default EditTrashbinPage;

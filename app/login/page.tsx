@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card";
+import { useTranslation } from "@/lib/TranslationContext"; // Import translation hook
+
 
 function removeLocalData() {
   if (typeof window !== "undefined") {
@@ -15,10 +17,12 @@ function removeLocalData() {
 }
 
 export default function Component() {
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const router = useRouter();
+  const { t } = useTranslation(); // Use translation hook for localization
+
 
   removeLocalData();
 
@@ -40,7 +44,7 @@ export default function Component() {
         router.push("/");
       }
     } catch (error: any) {
-      setErrorMessage(error.response.data.message);
+      setErrorMessage(error.response?.data?.message || "An error occurred");
       setTimeout(() => {
         setErrorMessage(null);
       }, 2000);
@@ -49,48 +53,72 @@ export default function Component() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex justify-center items-center">
-      <Card className="mx-auto max-w-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
-          <CardDescription>
-            Enter your email and password to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {errorMessage && (
-              <div className="p-2 text-red-500 bg-red-100 rounded">
-                {errorMessage}
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission
+    handleLogin(); // Trigger login function explicitly
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      // Simulate a button click by triggering the handleLogin function
+      handleLogin();
+    }
+  };
+
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <Card className="mx-auto max-w-sm">
+          <form onSubmit={handleSubmit}>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold">
+                {t("login.title")}
+              </CardTitle>
+              <CardDescription>
+                {t("login.description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {errorMessage && (
+                  <div className="p-2 text-red-500 bg-red-100 rounded">
+                    {errorMessage}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("login.email")}</Label>
+                  <Input
+                    id="email"
+                    placeholder={t("login.emailPlaceholder")}
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t("login.password")}</Label>
+                  <Input
+                    id="password"
+                    placeholder={t("login.passwordPlaceholder")}
+                    required
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                </div>
+                <Button
+                  className="w-full"
+                  type="button"
+                  onClick={handleLogin}
+                >
+                  {t("login.loginButton")}
+                </Button>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                placeholder="Your email address"
-                required
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                placeholder="Your password"
-                required
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <Button className="w-full" type="submit" onClick={handleLogin}>
-              Login
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+            </CardContent>
+          </form>
+        </Card>
+      </div>
+    );
+  }
