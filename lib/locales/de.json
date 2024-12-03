@@ -67,6 +67,7 @@
     "title": "Mülleimer {{name}} ({{identifier}})",
     "editButton": "Mülleimer bearbeiten",
     "loadingHistory": "Verlauf wird geladen...",
+    "noHistory": "Keine Verlaufsdaten verfügbar",
     "tabs": {
       "graphicalView": "Grafische Ansicht",
       "tableView": "Tabellenansicht"

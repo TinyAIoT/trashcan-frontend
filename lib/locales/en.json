@@ -67,6 +67,7 @@
       "title": "Trashbin {{name}} ({{identifier}})",
       "editButton": "Edit Trashbin",
       "loadingHistory": "Loading history...",
+      "noHistory": "No history data available",
       "tabs": {
         "graphicalView": "Graphical View",
         "tableView": "Table View"
