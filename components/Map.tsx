@@ -111,13 +111,10 @@ const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: numb
 
   if (markersRef.current) {
     markersRef.current.clearLayers();
-    console.log(markersRef,"1")
   } else {
     markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });    
-    console.log(markersRef,"2")
     if (markersRef.current) {
       mapRef.current.addLayer(markersRef.current);
-      console.log(markersRef,"3")
     }
   }
 };
@@ -230,13 +227,16 @@ const addMarkersToMap = async (
         })
       );
     }
-    const getIcon = () => {
+    const getIcon = (trashbin: Trashbin): any => {
       if (isDataMissing || allSensorsHaveOldData) {
+        // Check if the bin is selected
         if (selectedBins?.some((bin) => bin.identifier === trashbin.identifier)) {
           return greyBinSelected; // Grey Bin Selected if selected and data is missing or old
-        }
+        }    
         return greyBin; // Grey if missing data or all sensors have old data
       }
+    
+      // Return appropriate icon based on fill level and selection state
       if (selectedBins?.some((bin) => bin.identifier === trashbin.identifier)) {
         return trashbin.fillLevel < fillThresholds[0]
           ? greenBinSelected
@@ -244,17 +244,19 @@ const addMarkersToMap = async (
           ? yellowBinSelected
           : redBinSelected;
       }
+    
+      // Default bin icons
       return trashbin.fillLevel < fillThresholds[0]
         ? greenBin
         : trashbin.fillLevel < fillThresholds[1]
         ? yellowBin
         : redBin;
     };
-    
+
     const marker = L.marker(
       [trashbin.coordinates[0] ?? 0, trashbin.coordinates[1] ?? 0],
       {
-        icon: getIcon(),
+        icon: getIcon(trashbin),
       }
     );
 
@@ -271,10 +273,28 @@ const addMarkersToMap = async (
     marker.bindPopup(container);
 
     marker.on("mouseover", () => marker.openPopup());
-    marker.on("click", () => {onTrashbinClick(trashbin)
-      marker.setIcon (defaultIcon)
-      console.log(getIcon(),"get",defaultIcon,"defaault")
-    });
+    marker.on("click", () => {
+  // Toggle selection state
+  const isAlreadySelected = selectedBins?.some(
+    (bin) => bin.identifier === trashbin.identifier
+  );
+
+  if (isAlreadySelected) {
+    // Remove bin from selectedBins
+    selectedBins = selectedBins?.filter(
+      (bin) => bin.identifier !== trashbin.identifier
+    );
+  } else {
+    // Add bin to selectedBins
+    selectedBins = [...(selectedBins ?? []), trashbin];
+  }
+
+  // Update the marker's icon
+  marker.setIcon(getIcon(trashbin));
+
+  // Trigger the provided callback
+  onTrashbinClick(trashbin);
+});
     marker.on("popupopen", (e: any) => {
       L.DomEvent.on(e.popup._contentNode, "click", () => {
         onTrashbinClick(trashbin);
@@ -348,7 +368,6 @@ const Map = ({
       const L = require("leaflet");
       require("leaflet.markercluster");
       require("leaflet-routing-machine");
-      console.log("routeControl Working")
       handleRoutingControl(L,showRoute,optimizedBins,tripStartEnd,mapRef,routingControlRef);
     }
   }, [showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,  trashbinData,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
