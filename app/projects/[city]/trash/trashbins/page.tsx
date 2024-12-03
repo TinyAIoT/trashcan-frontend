@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios-api";
+import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -107,7 +107,7 @@ export default function TrashbinsOverview() {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
 
-        const allTrashbinsResponse = await api.get(
+        const allTrashbinsResponse = await axios.get(
           `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
@@ -118,7 +118,7 @@ export default function TrashbinsOverview() {
         var transformedTrashbinData: Trashbin[] =
           allTrashbinsResponse.data.trashbins;
 
-        const assignedTrashbinsResponse = await api.get(
+        const assignedTrashbinsResponse = await axios.get(
           `/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
           {
             headers: {
