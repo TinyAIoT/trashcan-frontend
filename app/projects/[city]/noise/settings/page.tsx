@@ -99,7 +99,7 @@ export default function AppSettings() {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
 
-      await api.patch(
+      await axios.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
         {
           activeTimeInterval: [startHour, endHour],

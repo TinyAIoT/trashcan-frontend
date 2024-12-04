@@ -103,7 +103,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
         longitude: parseFloat(trashbin.coordinates[1]?.toString() || "0"),
       };
 
-      await api.patch(
+      await axios.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${trashbin._id}`,
         payload,
         {
