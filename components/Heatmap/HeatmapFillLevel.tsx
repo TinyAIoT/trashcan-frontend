@@ -1,7 +1,7 @@
 import { Trashbin } from "@/app/types";
 import { Heatmap } from "./Heatmap";
 import React, { useState, useEffect } from "react";
-import api from '@/lib/axios-api'
+import axios from "axios";
 
 type Entry = {
   time: number; // Unix timestamp
@@ -28,7 +28,7 @@ export const HeatmapFillLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashbins
           const historyPromises = trashbins.flatMap(bin => 
             bin.sensors.map(sensor => ({
               binIdentifier: bin.identifier,  // or whatever property holds the name
-                promise: api.get(
+                promise: axios.get(
                   `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensor}`,
                   {
                     headers: {
