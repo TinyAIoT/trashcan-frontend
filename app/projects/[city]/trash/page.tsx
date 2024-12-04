@@ -16,7 +16,6 @@ interface HistoryDataItem {
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
 
 export default function Home() {
   const { t } = useTranslation(); // Translation hook
@@ -80,7 +79,7 @@ export default function Home() {
 
         // Get the currently assigned bins
         const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
