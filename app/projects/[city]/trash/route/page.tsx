@@ -226,12 +226,14 @@ const RoutePlanning = () => {
   const removeBins = () => {
     if (selectedBins.length === 0) return; // No bins to remove 
     // Filter out the selected bins from trashbinData
+
     const updatedTrashbinData = trashbinData.filter(
       (bin) => !selectedBins.some((selectedBin) => selectedBin._id === bin._id)
     );    
     // Update the state to reflect the removal
     setTrashbinData(updatedTrashbinData);
     // Optionally, clear the selected bins to reset selection
+    setShowRoute(false)
     setSelectedBins([]);
   };
   

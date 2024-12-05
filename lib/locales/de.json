@@ -9,7 +9,7 @@
       "loading_map": "Karte wird geladen...",
       "show_route": "Route anzeigen",
       "export_to_maps": "In Google Maps exportieren",
-      "assign_route": "Verstecke den Mülleimer",
+      "assign_route": "Ausgewählte Mülleimer verstecken",
       "unassign_all_bins": "Alle Mülltonnen anzeigen",
       "select_bins_instruction": "Wählen Sie die Mülleimer für die Route aus, indem Sie sie auf der Karte oder Tabelle anklicken",
       "map_view": "Kartenansicht",

@@ -8,7 +8,7 @@
       "show_route": "Show Route",
       "Export to CSV":"Export to CSV",
       "export_to_maps": "Export to Maps",
-      "assign_route": "Hide Bin",
+      "assign_route": "Hide selected bins",
       "unassign_all_bins": "Show All Bins",
       "select_bins_instruction": "Select the trashbins to be considered for a route by clicking on the trashbins on the map or table",
       "map_view": "Map View",

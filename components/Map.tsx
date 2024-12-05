@@ -358,7 +358,6 @@ const Map = ({
       require("leaflet-routing-machine");
       initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
       addMarkersToMap(L,trashbinData,fillThresholds,batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef);
-      console.log("Rendering markers for bins:", trashbinData);
     }
    
   }, [trashbinData,showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
