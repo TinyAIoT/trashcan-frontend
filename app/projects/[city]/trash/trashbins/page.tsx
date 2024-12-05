@@ -146,7 +146,7 @@ export default function TrashbinsOverview() {
       try {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
-
+  
         const allTrashbinsResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
@@ -155,9 +155,9 @@ export default function TrashbinsOverview() {
             },
           }
         );
-        var transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
-
-        // Get the currently assigned bins
+  
+        const transformedTrashbinData: Trashbin[] = allTrashbinsResponse?.data?.trashbins || [];
+  
         const assignedTrashbinsResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
@@ -166,23 +166,24 @@ export default function TrashbinsOverview() {
             },
           }
         );
-        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id);
-
-        // Set the assigned property for each trashbin to true, if its id is in the assignedTrashbins array
-        transformedTrashbinData = transformedTrashbinData.map((item: Trashbin) => {
-          return {
-            ...item,
-            assigned: assignedTrashbins.includes(item._id),
-          };
-        });
-
-        setTrashbinData(transformedTrashbinData);
+  
+        const assignedTrashbins = Array.isArray(assignedTrashbinsResponse?.data?.assignedTrashbins)
+          ? assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id)
+          : [];
+  
+        const updatedTrashbinData = transformedTrashbinData.map((item: Trashbin) => ({
+          ...item,
+          assigned: assignedTrashbins.includes(item._id),
+        }));
+  
+        setTrashbinData(updatedTrashbinData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+  
 
   return (
     <div className="flex flex-col gap-5 w-full">
