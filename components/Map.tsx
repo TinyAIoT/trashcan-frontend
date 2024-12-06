@@ -223,7 +223,7 @@ const addMarkersToMap = async (
         historyData.every((data: { timestamp: Date }) => {
           const lastHistoryDate = new Date(data.timestamp);
        
-          return lastHistoryDate.getTime() < oneWeekAgo.getTime();
+          return lastHistoryDate.getTime() < threeDaysAgo.getTime();
         })
       );
     }
