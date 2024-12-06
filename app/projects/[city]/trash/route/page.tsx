@@ -134,6 +134,7 @@ const RoutePlanning = () => {
         if (prevSelected.some((bin) => bin.identifier === trashbin.identifier)) return prevSelected.filter((bin) => bin.identifier !== trashbin.identifier);
         else return [...prevSelected, trashbin];
     });
+    return true;
   }, []);
 
   // Fetch optimized route from OSRM Trip Service
@@ -261,10 +262,10 @@ const RoutePlanning = () => {
         <p className="text-lg text-gray-500">{t("menu.select_bins_instruction")}</p>
       </div>
       <section className="grid grid-cols-2 gap-4 transition-all lg:grid-cols-4">
-        <Button className="bg-blue-600 text-white" onClick={handleShowRoute}>
+        <Button className="bg-green-600 text-white" onClick={handleShowRoute}>
           {t("menu.show_route")}
         </Button>
-        <Button className="bg-blue-600 text-white" onClick={showGoogleMapsLink}>
+        <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>
           {t("menu.export_to_maps")}
         </Button>
         <Button className="bg-blue-600 text-white" onClick={removeBins}>

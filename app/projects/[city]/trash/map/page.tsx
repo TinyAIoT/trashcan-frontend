@@ -24,6 +24,7 @@ const MapPage = () => {
     const city = localStorage.getItem("cityName");
     const type = localStorage.getItem("projectType");
     router.push(`/projects/${city}/${type}/trashbins/${trashbin.identifier}`);
+    return false;
   };
 
   useEffect(() => {
