@@ -61,91 +61,91 @@ export default function Home() {
     }));
   }, [t]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const projectId = localStorage.getItem("projectId");
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const projectId = localStorage.getItem("projectId");
 
-        const allTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-            },
-          }
-        );
-        let transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
-
-        // Get the currently assigned bins
-        const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-            },
-          }
-        );
-        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map(
-          (item: Trashbin) => item._id
-        );
-
-        // Set the assigned property for each trashbin to true, if its id is in the assignedTrashbins array
-        transformedTrashbinData = transformedTrashbinData.map((item: Trashbin) => ({
-          ...item,
-          assigned: assignedTrashbins.includes(item._id),
-        }));
-        setTrashbinData(transformedTrashbinData);
-
-        setTotalCardData((prev) => ({
-          ...prev,
-          amount: transformedTrashbinData.length.toString(),
-        }));
-
-        const projectResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-            },
-          }
-        );
-
-        setNearlyFullCardData((prev) => {
-          const count = transformedTrashbinData.reduce(
-            (acc, item) =>
-              item.fillLevel > projectResponse.data.project.preferences.fillThresholds[1]
-                ? acc + 1
-                : acc,
-            0
-          );
-          return { ...prev, amount: count.toString() };
-        });
-
-        setLowBatteryCardData((prev) => {
-          const count = transformedTrashbinData.reduce(
-            (acc, item) =>
-              item.batteryLevel < projectResponse.data.project.preferences.batteryThresholds[1]
-                ? acc + 1
-                : acc,
-            0
-          );
-          return { ...prev, amount: count.toString() };
-        });
-
-        setBrokenSensorsCardData((prev) => {
-          const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-          const count = transformedTrashbinData.filter(
-            (item) => new Date(item.updatedAt) < oneWeekAgo
-          ).length;
-          return { ...prev, amount: count.toString() };
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      if (!token || !projectId) {
+        console.error("Token or Project ID is missing");
+        return;
       }
-    };
-    fetchData();
-  }, []);
+
+      const headers = {
+        Authorization: `Bearer ${token.replace(/"/g, "")}`,
+      };
+
+      // Fetch all trashbins
+      const allTrashbinsResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+        { headers }
+      );
+      const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins || [];
+
+      // Fetch assigned trashbins
+      const assignedTrashbinsResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+        { headers }
+      );
+      const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins || [];
+      
+      if (!Array.isArray(transformedTrashbinData) || !Array.isArray(assignedTrashbins)) {
+        throw new Error("Unexpected response structure");
+      }
+
+      // Map the assigned status
+      const updatedTrashbinData = transformedTrashbinData.map((item: Trashbin) => ({
+        ...item,
+        assigned: assignedTrashbins.map((bin: Trashbin) => bin._id).includes(item._id),
+      }));
+
+      setTrashbinData(updatedTrashbinData);
+
+      setTotalCardData((prev) => ({
+        ...prev,
+        amount: updatedTrashbinData.length.toString(),
+      }));
+
+      // Fetch project preferences
+      const projectResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+        { headers }
+      );
+
+      const { fillThresholds, batteryThresholds } = projectResponse.data.project.preferences;
+
+      setNearlyFullCardData((prev) => {
+        const count = updatedTrashbinData.reduce(
+          (acc, item) => (item.fillLevel > fillThresholds[1] ? acc + 1 : acc),
+          0
+        );
+        return { ...prev, amount: count.toString() };
+      });
+
+      setLowBatteryCardData((prev) => {
+        const count = updatedTrashbinData.reduce(
+          (acc, item) => (item.batteryLevel < batteryThresholds[1] ? acc + 1 : acc),
+          0
+        );
+        return { ...prev, amount: count.toString() };
+      });
+
+      setBrokenSensorsCardData((prev) => {
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const count = updatedTrashbinData.filter(
+          (item) => new Date(item.updatedAt) < oneWeekAgo
+        ).length;
+        return { ...prev, amount: count.toString() };
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
   return (
     <div className="flex flex-col gap-5 w-full">

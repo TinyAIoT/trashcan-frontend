@@ -16,14 +16,6 @@ import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 import {useTranslation} from '@/lib/TranslationContext'
-import { map } from 'd3';
-// import { Input } from "@/components/ui/input";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Bins currently always assigned to a single collector
-// Treated like a boolean for now: assigned or not assigned
-
-
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
