@@ -132,9 +132,9 @@ export default function Home() {
       });
 
       setBrokenSensorsCardData((prev) => {
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
         const count = updatedTrashbinData.filter(
-          (item) => new Date(item.updatedAt) < oneWeekAgo
+          (item) => new Date(item.updatedAt) < threeDaysAgo
         ).length;
         return { ...prev, amount: count.toString() };
       });

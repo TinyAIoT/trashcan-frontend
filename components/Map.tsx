@@ -147,8 +147,8 @@ const addMarkersToMap = async (
   });
   // const token = process.env.NEXT_PUBLIC_API_TOKEN;
   const token = localStorage.getItem("authToken");
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
   // Helper function to fetch sensor history
   const fetchSensorHistory = async (sensorId: string): Promise<any[]> => {
