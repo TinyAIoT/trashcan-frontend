@@ -274,27 +274,28 @@ const addMarkersToMap = async (
 
     marker.on("mouseover", () => marker.openPopup());
     marker.on("click", () => {
-  // Toggle selection state
-  const isAlreadySelected = selectedBins?.some(
-    (bin) => bin.identifier === trashbin.identifier
-  );
+      // Trigger the provided callback
+      let selected = onTrashbinClick(trashbin);
+      if (selected) {
+        // Toggle selection state
+        const isAlreadySelected = selectedBins?.some(
+          (bin) => bin.identifier === trashbin.identifier
+        );
 
-  if (isAlreadySelected) {
-    // Remove bin from selectedBins
-    selectedBins = selectedBins?.filter(
-      (bin) => bin.identifier !== trashbin.identifier
-    );
-  } else {
-    // Add bin to selectedBins
-    selectedBins = [...(selectedBins ?? []), trashbin];
-  }
+        if (isAlreadySelected) {
+          // Remove bin from selectedBins
+          selectedBins = selectedBins?.filter(
+            (bin) => bin.identifier !== trashbin.identifier
+          );
+        } else {
+          // Add bin to selectedBins
+          selectedBins = [...(selectedBins ?? []), trashbin];
+        }
 
-  // Update the marker's icon
-  marker.setIcon(getIcon(trashbin));
-
-  // Trigger the provided callback
-  onTrashbinClick(trashbin);
-});
+        // Update the marker's icon
+        marker.setIcon(getIcon(trashbin));
+      }
+    });
     marker.on("popupopen", (e: any) => {
       L.DomEvent.on(e.popup._contentNode, "click", () => {
         onTrashbinClick(trashbin);
@@ -358,10 +359,9 @@ const Map = ({
       require("leaflet-routing-machine");
       initializeMap(L, centerCoordinates, initialZoom, mapRef, markersRef);
       addMarkersToMap(L,trashbinData,fillThresholds,batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef);
-
     }
    
-  }, [showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,  trashbinData,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
+  }, [trashbinData,showRoute, optimizedBins, tripStartEnd,centerCoordinates, initialZoom,fillThresholds, batteryThresholds,selectedBins,isRoutePlanning,onTrashbinClick,markersRef]);
   // Route Handling
   useEffect(() => {
     if (typeof window !== "undefined" && mapRef.current) {

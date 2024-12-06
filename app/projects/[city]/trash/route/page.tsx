@@ -16,15 +16,6 @@ import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 import {useTranslation} from '@/lib/TranslationContext'
-// import { Input } from "@/components/ui/input";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Bins currently always assigned to a single collector
-// Treated like a boolean for now: assigned or not assigned
-
-const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
-//673b10d6f0e74b4771527ec9
-
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -66,6 +57,9 @@ const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 const RoutePlanning = () => {
   // Bins selected by user by clicking on map or table-row
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
+  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
+  const [initialTrashbinData, setInitialTrashbinData] = useState<Trashbin[]>([]);
+
   // Optimized order of bins based on route optimization
   const [optimizedBins, setOptimizedBins] = useState<Trashbin[]>([]);
   // Whether to show the optimized route on the map
@@ -77,7 +71,6 @@ const RoutePlanning = () => {
   // Dialog state for showing the GoogleMaps link
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Trashbin data fetched from the our backend
-  const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [centerCoordinates, setCenterCoordinates] = useState<LatLngTuple | null>(null);
   const [startEndCoordinates, setStartEndCoordinates] = useState<LatLngTuple | null>(null);
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
@@ -100,21 +93,15 @@ const RoutePlanning = () => {
             },
           }
         );
+        const allTrashbins = allTrashbinsResponse.data.trashbins;
 
         const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
 
-        const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
-          {
-            headers: {
-              Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-            },
-          }
-        );
 
-        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins;
+        const assignedTrashbins = allTrashbins;
         const unassignedTrashbins = transformedTrashbinData.filter((bin) => !assignedTrashbins.some((assignedBin: Trashbin) => assignedBin._id === bin._id));
-        setTrashbinData(unassignedTrashbins);
+        setInitialTrashbinData(allTrashbins);
+        setTrashbinData(allTrashbins);
 
         const projectResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
@@ -143,9 +130,11 @@ const RoutePlanning = () => {
   // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {
     setSelectedBins((prevSelected) => {
+      
         if (prevSelected.some((bin) => bin.identifier === trashbin.identifier)) return prevSelected.filter((bin) => bin.identifier !== trashbin.identifier);
         else return [...prevSelected, trashbin];
     });
+    return true;
   }, []);
 
   // Fetch optimized route from OSRM Trip Service
@@ -227,76 +216,33 @@ const RoutePlanning = () => {
   };
 
   // Assigns currently selected bins to a collector
-  const assignRoute = async () => {
-    // If no bins are selected, we cannot assign a route
-    if (selectedBins.length === 0) return;
+  const removeBins = () => {
+    if (selectedBins.length === 0) return; // No bins to remove 
+    // Filter out the selected bins from trashbinData
 
-    const token = localStorage.getItem("authToken");
-
-    // Get the currently assigned bins
-    const assignedTrashbinsResponse = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-        },
-      }
-    );
-    const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins;
-
-    // Create the union of the currently assigned bins and the selected bins
-    const allAssignedBins = [...assignedTrashbins, ...selectedBins];
-
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
-        {
-          trashCollector: COLLECTOR_ID,
-          assignedTrashbins: allAssignedBins.map(bin => bin._id),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-          },
-        }
-      );
-
-      // Reload the page to not show assigned bins anymore
-      if (response.status === 200) {
-        location.reload();
-      }
-    } catch (error) {
-      console.error('Error while assigning route:', error);
-    }
-  }
-
+    const updatedTrashbinData = trashbinData.filter(
+      (bin) => !selectedBins.some((selectedBin) => selectedBin._id === bin._id)
+    );    
+    // Update the state to reflect the removal
+    setTrashbinData(updatedTrashbinData);
+    // Optionally, clear the selected bins to reset selection
+    setShowRoute(false)
+    setSelectedBins([]);
+  };
+  
   // Unassigns all bins
-  const unassignAllBins = async () => {
-
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/assign`,
-        {
-          trashCollector: COLLECTOR_ID,
-          assignedTrashbins: [],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-          },
-        }
-      );
-
-      // Reload the page to show all bins again
-      if (response.status === 200) {
-        location.reload();
-      }
-    } catch (error) {
-      console.error('Error while assigning route:', error);
-    }
-  }
-
+  const showAllBins = () => {
+    // Check if trashbinData already contains all bins
+    if (trashbinData.length === initialTrashbinData.length) {
+     
+      return;
+    } 
+    // Update the state to reflect all bins
+    setTrashbinData(initialTrashbinData);
+    // Optionally, clear the selected bins to reset selection
+    setSelectedBins([]);
+  };
+  
   // Handle the animation for the copy button
   const handleCopy = () => {
     // Find the button by its ID and add the effect class
@@ -322,10 +268,10 @@ const RoutePlanning = () => {
         <Button className="bg-green-600 text-white" onClick={showGoogleMapsLink}>
           {t("menu.export_to_maps")}
         </Button>
-        <Button className="bg-green-600 text-white" onClick={assignRoute}>
+        <Button className="bg-blue-600 text-white" onClick={removeBins}>
           {t("menu.assign_route")}
         </Button>
-        <Button className="bg-red-600 text-white" onClick={unassignAllBins}>
+        <Button className="bg-blue-600 text-white" onClick={showAllBins}>
           {t("menu.unassign_all_bins")}
         </Button>
       </section>
@@ -342,19 +288,21 @@ const RoutePlanning = () => {
           </TabsList>
           <TabsContent value="map">
             <div className="w-full h-[80vh] relative z-0">
-              <Map
-                trashbinData={trashbinData}
-                centerCoordinates={centerCoordinates}
-                initialZoom={initialZoom}
-                fillThresholds={fillThresholds}
-                batteryThresholds={batteryThresholds}
-                isRoutePlanning={true}
-                onTrashbinClick={handleTrashbinClick}
-                tripStartEnd={startEndCoordinates}
-                selectedBins={selectedBins}
-                optimizedBins={optimizedBins}
-                showRoute={showRoute}
-              />
+    `       <Map
+                  key={trashbinData.length} // This ensures the map re-renders when trashbinData changes
+                  trashbinData={trashbinData}
+                  centerCoordinates={centerCoordinates}
+                  initialZoom={initialZoom}
+                  fillThresholds={fillThresholds}
+                  batteryThresholds={batteryThresholds}
+                  isRoutePlanning={true}
+                  onTrashbinClick={handleTrashbinClick}
+                  tripStartEnd={startEndCoordinates}
+                  selectedBins={selectedBins}
+                  optimizedBins={optimizedBins}
+                  showRoute={showRoute}
+                />
+
             </div>
           </TabsContent>
           <TabsContent value="table">

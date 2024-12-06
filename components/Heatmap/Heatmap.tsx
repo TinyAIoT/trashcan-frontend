@@ -26,7 +26,7 @@ export type InteractionData = {
   value: number | null;
 };
 
-const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
+const YAxis = ({ yGroups = [], height }: { yGroups: string[]; height: number }) => {
   const yScale = d3
     .scaleBand<string>()
     .range([0, height - MARGIN.top - MARGIN.bottom])
@@ -34,15 +34,15 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
     .padding(0.1);
 
   const yLabels = yGroups.map((name, i) => {
-    const yPos = yScale(name); // Calculate yPos using yScale with the current group name
+    const yPos = yScale(name);
     if (yPos === undefined) return null; // Guard against undefined yPos
-    const displayText = `${Number(name)-25}-${name}%`;
 
+    const displayText = `${Number(name) - 25}-${name}%`;
     return (
       <text
         key={i}
         x={-5}
-        y={yPos + yScale.bandwidth() / 2}
+        y={yPos + yScale.bandwidth() / 2 || 0} // Ensure yPos is valid
         textAnchor="end"
         dominantBaseline="middle"
         fontSize={9}
@@ -61,16 +61,20 @@ const YAxis = ({ yGroups, height }: { yGroups: string[], height: number }) => {
   );
 };
 
+
 export const Heatmap = ({ data }: HeatmapProps) => {
   const [hoveredCell, setHoveredCell] = useState<InteractionData | null>(null);
   const [scaleBandWidth, setScaleBandWidth] = useState<number>(0);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
 
-  const maxAmount = Math.max(...data.map(obj => obj.amount));
-  const thresholds = [0, Math.ceil(maxAmount/5), Math.ceil(maxAmount*2/5), Math.ceil(maxAmount*3/5), Math.ceil(maxAmount*4/5), Math.ceil(maxAmount)];
-  const colorScale = d3.scaleLinear<string>()
-      .domain(thresholds)
-      .range(COLORS);
+  const maxAmount = data.length ? Math.max(...data.map((obj) => obj.amount)) : 0;
+const thresholds = maxAmount
+  ? [0, Math.ceil(maxAmount / 5), Math.ceil((maxAmount * 2) / 5), Math.ceil((maxAmount * 3) / 5), Math.ceil((maxAmount * 4) / 5), Math.ceil(maxAmount)]
+  : [0, 1, 2, 3, 4, 5];
+const colorScale = d3
+  .scaleLinear<string>()
+  .domain(thresholds)
+  .range(COLORS);
 
   const allYGroups = Array.from(new Set(data.map(d => d.percentage)))
     .sort((a, b) => b - a)
@@ -78,27 +82,36 @@ export const Heatmap = ({ data }: HeatmapProps) => {
 
   // Scroll to the right when the component is mounted to see the latest data
   useEffect(() => {
-    if (scrollableDivRef.current) {
-      scrollableDivRef.current.scrollLeft = scrollableDivRef.current.scrollWidth + 1000;
+    if (!data.length) {
+      setScaleBandWidth(0);
+      return;
     }
-    const dates = data.map(r => new Date(r.time).setHours(0,0,0,0));
+    
+    const dates = data.map((r) => new Date(r.time).setHours(0, 0, 0, 0));
     const startDate = new Date(Math.min(...dates));
     const endDate = new Date(Math.max(...dates));
-    setScaleBandWidth((endDate.getTime()-startDate.getTime())/86400000);
+    
+    // Ensure valid date range before calculating scaleBandWidth
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+      setScaleBandWidth((endDate.getTime() - startDate.getTime()) / 86400000);
+    } else {
+      setScaleBandWidth(0);
+    }
   }, [data]);
-
+  
   return (
     <div className="relative w-full h-[400px]">
     <YAxis yGroups={allYGroups} height={340} />
       <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
-          <Renderer
-            width={scaleBandWidth*40} // TODO: width based on widget width
+        <Renderer
+            width={isNaN(scaleBandWidth) ? 0 : scaleBandWidth * 40} // Avoid NaN
             height={340}
             data={data}
             setHoveredCell={setHoveredCell}
             colorScale={colorScale}
           />
+
           <Tooltip
             interactionData={hoveredCell}
             width={data.length * 2}

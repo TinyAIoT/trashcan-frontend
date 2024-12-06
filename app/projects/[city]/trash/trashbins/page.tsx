@@ -12,8 +12,6 @@ import { io, Socket } from 'socket.io-client';
 
 // Bins currently always assigned to a single collector
 // Treated like a boolean for now: assigned or not assigned
-const COLLECTOR_ID = "673b10d6f0e74b4771527ec9";
-
 const headerSortButton = (column: any, displayname: string) => {
   return (
     <Button
@@ -148,7 +146,7 @@ export default function TrashbinsOverview() {
       try {
         const token = localStorage.getItem("authToken");
         const projectId = localStorage.getItem("projectId");
-
+  
         const allTrashbinsResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
@@ -157,34 +155,35 @@ export default function TrashbinsOverview() {
             },
           }
         );
-        var transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins;
-
-        // Get the currently assigned bins
+  
+        const transformedTrashbinData: Trashbin[] = allTrashbinsResponse?.data?.trashbins || [];
+  
         const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trash-collector/${COLLECTOR_ID}/trashbins`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
             },
           }
         );
-        const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id);
-
-        // Set the assigned property for each trashbin to true, if its id is in the assignedTrashbins array
-        transformedTrashbinData = transformedTrashbinData.map((item: Trashbin) => {
-          return {
-            ...item,
-            assigned: assignedTrashbins.includes(item._id),
-          };
-        });
-
-        setTrashbinData(transformedTrashbinData);
+  
+        const assignedTrashbins = Array.isArray(assignedTrashbinsResponse?.data?.assignedTrashbins)
+          ? assignedTrashbinsResponse.data.assignedTrashbins.map((item: Trashbin) => item._id)
+          : [];
+  
+        const updatedTrashbinData = transformedTrashbinData.map((item: Trashbin) => ({
+          ...item,
+          assigned: assignedTrashbins.includes(item._id),
+        }));
+  
+        setTrashbinData(updatedTrashbinData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+  
 
   return (
     <div className="flex flex-col gap-5 w-full">
