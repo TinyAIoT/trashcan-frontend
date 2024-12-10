@@ -29,7 +29,7 @@ export default function Component() {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/login`,
+        `/api/v1/auth/login`,
         {
           email,
           password,

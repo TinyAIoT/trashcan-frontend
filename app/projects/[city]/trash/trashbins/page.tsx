@@ -148,7 +148,7 @@ export default function TrashbinsOverview() {
         const projectId = localStorage.getItem("projectId");
   
         const allTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -159,7 +159,7 @@ export default function TrashbinsOverview() {
         const transformedTrashbinData: Trashbin[] = allTrashbinsResponse?.data?.trashbins || [];
   
         const assignedTrashbinsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+          `/api/v1/trashbin?project=${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

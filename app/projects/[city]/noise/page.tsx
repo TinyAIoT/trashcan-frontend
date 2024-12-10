@@ -26,7 +26,7 @@ export default function NoiseDashboard() {
         const projectId = localStorage.getItem("projectId");
 
         const projectResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+          `/api/v1/project/${projectId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -55,7 +55,7 @@ export default function NoiseDashboard() {
         }
 
         const historyResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/history/sensor/${sensorId}`,
+          `/api/v1/history/sensor/${sensorId}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,

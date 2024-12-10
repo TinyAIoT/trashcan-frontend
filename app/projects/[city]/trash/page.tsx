@@ -78,14 +78,14 @@ export default function Home() {
 
       // Fetch all trashbins
       const allTrashbinsResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+        `/api/v1/trashbin?project=${projectId}`,
         { headers }
       );
       const transformedTrashbinData: Trashbin[] = allTrashbinsResponse.data.trashbins || [];
 
       // Fetch assigned trashbins
       const assignedTrashbinsResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin?project=${projectId}`,
+        `/api/v1/trashbin?project=${projectId}`,
         { headers }
       );
       const assignedTrashbins = assignedTrashbinsResponse.data.assignedTrashbins || [];
@@ -109,7 +109,7 @@ export default function Home() {
 
       // Fetch project preferences
       const projectResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/${projectId}`,
+        `/api/v1/project/${projectId}`,
         { headers }
       );
 

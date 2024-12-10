@@ -28,7 +28,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
       try {
         const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${params.identifier}`,
+          `/api/v1/trashbin/${params.identifier}`,
           {
             headers: {
               Authorization: `Bearer ${token?.replace(/"/g, "")}`,
@@ -104,7 +104,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
       };
 
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/trashbin/${trashbin._id}`,
+        `/api/v1/trashbin/${trashbin._id}`,
         payload,
         {
           headers: {
