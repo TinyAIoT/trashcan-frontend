@@ -49,7 +49,7 @@ export default function TrashbinDetail({
 
   useEffect(() => {
     if (!socket) {
-      const newSocket: Socket = io(``);
+      const newSocket: Socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
 
       newSocket.on('newData', (data) => {
         if(data.message.fill_level) {
