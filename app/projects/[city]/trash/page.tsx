@@ -73,10 +73,12 @@ export default function Home() {
       }
 
       const headers = {
-        Authorization: `Bearer ${token.replace(/"/g, "")}`,
+        Authorization: `Bearer ${token?.replace(/"/g, "")}`,
       };
 
       // Fetch all trashbins
+      console.log('Project ID:', projectId);
+
       const allTrashbinsResponse = await axios.get(
         `/api/v1/trashbin?project=${projectId}`,
         { headers }
