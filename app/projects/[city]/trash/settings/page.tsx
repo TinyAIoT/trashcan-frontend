@@ -6,6 +6,7 @@ import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
 import {useTranslation} from '@/lib/TranslationContext'
+import { redirect } from "next/navigation";
 
 
 export default function ProjectSettings() {
@@ -47,6 +48,9 @@ export default function ProjectSettings() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          redirect('/login');
+        }
       }
     };
     fetchData();

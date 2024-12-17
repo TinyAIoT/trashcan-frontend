@@ -7,6 +7,7 @@ import { Trashbin } from "@/app/types";
 import React, { useCallback, useState, useEffect } from "react";
 import axios from "axios";;
 import { useTranslation } from "@/lib/TranslationContext"; // Import the translation hook
+import { redirect } from "next/navigation";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -140,6 +141,9 @@ export default function Home() {
       });
     } catch (error) {
       console.error("Error fetching data:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        redirect('/login');
+      }
     }
   };
 
