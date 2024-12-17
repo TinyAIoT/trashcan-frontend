@@ -7,6 +7,7 @@ import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info, Settings } from "lucide-react";
+import { redirect } from "next/navigation";
 
 function redirectToSettings() {
   window.location.href = window.location.href + "/settings";
@@ -73,6 +74,9 @@ export default function NoiseDashboard() {
 
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          redirect('/login');
+        }
       }
     };
 

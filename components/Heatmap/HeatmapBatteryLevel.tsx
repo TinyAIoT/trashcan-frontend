@@ -1,7 +1,8 @@
 import { Trashbin } from "@/app/types";
 import { Heatmap } from "./Heatmap";
 import { useEffect, useState } from "react";
-import axios from "axios";;
+import axios from "axios";import { redirect } from "next/navigation";
+;
 
 type Entry = {
   time: number; // Unix timestamp
@@ -111,6 +112,9 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          redirect('/login');
+        }
       }
     };
     fetchData();

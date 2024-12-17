@@ -16,6 +16,7 @@ import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 import {useTranslation} from '@/lib/TranslationContext'
+import { redirect } from 'next/navigation';
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -122,6 +123,9 @@ const RoutePlanning = () => {
         setBatteryThresholds(preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          redirect('/login');
+        }
       }
     };
     fetchData();

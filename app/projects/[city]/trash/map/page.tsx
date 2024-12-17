@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import axios from "axios";;
 import { LatLngTuple } from "leaflet";
 import PageTitle from "@/components/PageTitle";
@@ -57,6 +57,9 @@ const MapPage = () => {
         setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          redirect('/login');
+        }
       }
     };
     fetchData();
