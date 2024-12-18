@@ -77,8 +77,6 @@ export default function Home() {
       };
 
       // Fetch all trashbins
-      console.log('Project ID:', projectId);
-
       const allTrashbinsResponse = await axios.get(
         `/api/v1/trashbin?project=${projectId}`,
         { headers }
