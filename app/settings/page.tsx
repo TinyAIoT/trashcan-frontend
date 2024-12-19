@@ -17,13 +17,13 @@ export default function Component() {
     window.location.href = '/login';      // Redirect to the login page (where the authToken is cleared)
   }
 
-  // TODO: Make it more robust by fetching the email by API, not storing it in local storage
+  // TODO: Make it more robust by fetching the name by API, not storing it in local storage
   const getEmail = (): string => {
     if (typeof window !== 'undefined') {
-      const email = localStorage.getItem('email'); // Safe to use localStorage here
-      if (email) return email;
+      const name = localStorage.getItem('name'); // Safe to use localStorage here
+      if (name) return name;
     }
-    return 'Email not found';
+    return 'name';
   };
 
   return (
