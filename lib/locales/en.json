@@ -82,9 +82,9 @@
     },
     "login": {
       "title": "Login",
-      "description": "Enter your email and password to login to your account",
-      "email": "Email",
-      "emailPlaceholder": "Your email address",
+      "description": "Enter your name and password to login to your account",
+      "name": "Name",
+      "emailPlaceholder": "Your name",
       "password": "Password",
       "passwordPlaceholder": "Your password",
       "loginButton": "Login"

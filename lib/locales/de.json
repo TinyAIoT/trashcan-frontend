@@ -82,9 +82,9 @@
   },
     "login": {
     "title": "Anmeldung",
-    "description": "Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich bei Ihrem Konto anzumelden",
-    "email": "E-Mail",
-    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "description": "Geben Sie Ihre Name und Ihr Passwort ein, um sich bei Ihrem Konto anzumelden",
+    "name": "Name",
+    "emailPlaceholder": "Ihre Name",
     "password": "Passwort",
     "passwordPlaceholder": "Ihr Passwort",
     "loginButton": "Anmelden"

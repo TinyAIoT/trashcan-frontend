@@ -18,7 +18,7 @@ function removeLocalData() {
 
 export default function Component() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [email, setEmail] = useState<string>("");
+  const [name, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
   const { t } = useTranslation(); // Use translation hook for localization
@@ -31,7 +31,7 @@ export default function Component() {
       const response = await axios.post(
         `/api/v1/auth/login`,
         {
-          email,
+          name,
           password,
         }
       );
@@ -39,7 +39,7 @@ export default function Component() {
       if (response.status === 200) {
         // Save the token in local storage for future requests
         localStorage.setItem("authToken", response.data.token);
-        localStorage.setItem("email", email);
+        localStorage.setItem("name", name);
         // Redirect to the home page
         router.push("/");
       }
@@ -48,8 +48,8 @@ export default function Component() {
       setTimeout(() => {
         setErrorMessage(null);
       }, 2000);
-      // Set the focus to the email input field
-      document.getElementById("email")?.focus();
+      // Set the focus to the name input field
+      document.getElementById("name")?.focus();
     }
   };
 
@@ -85,13 +85,13 @@ export default function Component() {
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t("login.email")}</Label>
+                  <Label htmlFor="name">{t("login.name")}</Label>
                   <Input
-                    id="email"
+                    id="name"
                     placeholder={t("login.emailPlaceholder")}
                     required
-                    type="email"
-                    value={email}
+                    type="name"
+                    value={name}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDown={handleKeyDown}
                   />
