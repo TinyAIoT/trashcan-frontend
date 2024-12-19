@@ -178,11 +178,25 @@ export default function ProjectSettings() {
       setErrors(newErrors);
       return;
     }
-
+    try{
+      const token = localStorage.getItem("authToken");
+    const response = await axios.put(
+      `/api/v1/trashbin/updateFillLevelChanges`, // Adjust the endpoint URL
+      { hours: Number(fillLevelInterval) }, // Pass user input as 'hours'
+      {
+        headers: {
+          Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error updating fill-level changes:", error);
+    alert("Failed to update fill-level changes.");
+  }
     try {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
-
       await axios.patch(
         `/api/v1/project/${projectId}`,
         {
@@ -201,7 +215,7 @@ export default function ProjectSettings() {
           },
         }
       );
-      setUpdated(true);
+       setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);
     }
@@ -374,6 +388,7 @@ export default function ProjectSettings() {
         <div className="flex space-x-4">
           <button
             type="submit"
+            onClick={handleSubmit}
             className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
             {t("menu.save_settings")}
