@@ -134,11 +134,6 @@ export default function SideNavbar() {
           )}
           {dataLinks.length > 0 && (
             <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.data")} {/* Translated heading */}
-                </h2>
-              )}
               <Nav
                 isCollapsed={mobileWidth ? true : isCollapsed}
                 links={dataLinks}
