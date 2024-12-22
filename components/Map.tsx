@@ -101,23 +101,123 @@ const createBinIcons = (L: any) => {
   };
 };
 // Map initialization
-const initializeMap = (L: any, centerCoordinates: LatLngTuple, initialZoom: number, mapRef: any, markersRef: any) => {
+
+export const initializeMap = (
+  L: any,
+  centerCoordinates: LatLngTuple,
+  initialZoom: number,
+  mapRef: any,
+  markersRef: any
+) => {
+  // If no map yet, create one
   if (!mapRef.current) {
     mapRef.current = L.map("map").setView(centerCoordinates, initialZoom);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors"
+      attribution: "© OpenStreetMap contributors",
     }).addTo(mapRef.current);
   }
 
+  // If a MarkerClusterGroup already exists, clear it; otherwise create a new one
   if (markersRef.current) {
     markersRef.current.clearLayers();
   } else {
-    markersRef.current = L.markerClusterGroup({ maxClusterRadius: 40 });    
-    if (markersRef.current) {
-      mapRef.current.addLayer(markersRef.current);
-    }
+    markersRef.current = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      iconCreateFunction: (cluster: any) => {
+        // All markers in this cluster
+        const childMarkers = cluster.getAllChildMarkers();
+        // Tally of bins by color
+        let colorCounts: Record<string, number> = {
+          green: 0,
+          yellow: 0,
+          red: 0,
+          grey: 0,
+        };
+
+        // Identify bin color by inspecting icon file name
+        childMarkers.forEach((marker: any) => {
+          const iconUrl = (marker.options.icon as L.Icon)?.options.iconUrl || "";
+          if (iconUrl.includes("bin_grey")) {
+            colorCounts.grey++;
+          } else if (iconUrl.includes("bin_r")) {
+            colorCounts.red++;
+          } else if (iconUrl.includes("bin_y")) {
+            colorCounts.yellow++;
+          } else if (iconUrl.includes("bin_g")) {
+            colorCounts.green++;
+          } 
+         
+          else if (iconUrl.includes("bin_b")) {  }
+        });
+
+        const totalBins =
+          colorCounts.grey +
+          colorCounts.green +
+          colorCounts.yellow +
+          colorCounts.red;
+        // If for some reason we have zero, fallback to a default grey icon
+        if (totalBins === 0) {
+          return L.divIcon({
+            html: `<div style="background: grey; border-radius: 50%;
+                             width: 40px; height: 40px; line-height: 40px;
+                             text-align: center; color: #fff;">
+                      ${cluster.getChildCount()}
+                   </div>`,
+            className: "my-cluster-icon",
+            iconSize: [40, 40],
+          });
+        }
+
+        // Build the conic gradient segments
+        const colorSlices: Array<[string, number]> = [];
+        if (colorCounts.green > 0) colorSlices.push(["green", colorCounts.green]);
+        if (colorCounts.yellow > 0) colorSlices.push(["yellow", colorCounts.yellow]);
+        if (colorCounts.red > 0) colorSlices.push(["red", colorCounts.red]);
+        if (colorCounts.grey > 0) colorSlices.push(["grey", colorCounts.grey]);
+
+        let currentPercent = 0;
+        const conicSegments: string[] = [];
+
+        // Each color gets a slice in 0–100%
+        colorSlices.forEach(([color, count]) => {
+          const start = (currentPercent / totalBins) * 100;
+          const end = ((currentPercent + count) / totalBins) * 100;
+          conicSegments.push(`${color} ${start}% ${end}%`);
+          currentPercent += count;
+        });
+
+        const conicGradient = `conic-gradient(${conicSegments.join(", ")})`;
+        // Build the HTML
+        const size = 40;
+        const iconHtml = `
+          <div style="
+            width: ${size}px;
+            height: ${size}px;
+            border-radius: 50%;
+            background: ${conicGradient};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+          ">
+            ${cluster.getChildCount()}
+          </div>
+        `;
+        // Return the DivIcon
+        return L.divIcon({
+          html: iconHtml,
+          className: "",
+          iconSize: [size, size],
+        });
+      },
+    });
+
+    // Finally, add the cluster group to the map
+    mapRef.current.addLayer(markersRef.current);
   }
 };
+
 
 // Markers addition
 const addMarkersToMap = async (
