@@ -137,12 +137,6 @@ export const initializeMap = (
         // Identify bin color by inspecting icon file name
         childMarkers.forEach((marker: any) => {
           const iconUrl = (marker.options.icon as L.Icon)?.options.iconUrl || "";
-
-          // Match your actual file names from createBinIcons:
-          //   greenBin -> "bin_g.png" or "bin_g_b.png"
-          //   yellowBin -> "bin_y.png" or "bin_y_b.png"
-          //   redBin -> "bin_r.png" or "bin_r_b.png"
-          //   greyBin -> "bin_grey.png" or "bin_grey_b.png"
           if (iconUrl.includes("bin_grey")) {
             colorCounts.grey++;
           } else if (iconUrl.includes("bin_r")) {
