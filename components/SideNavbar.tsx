@@ -80,7 +80,7 @@ export default function SideNavbar() {
 
   const settingsLinks = [
     {
-      title: t("menu.project"), // Translated text
+      title: t("menu.project_setting"), // Translated text
       href: `/projects/${city}/${type}/settings`,
       icon: Settings2,
       variant: "ghost" as "default" | "ghost",
