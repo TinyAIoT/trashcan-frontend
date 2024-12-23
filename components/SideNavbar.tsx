@@ -145,11 +145,6 @@ export default function SideNavbar() {
         <div>
           {settingsLinks.length > 0 && (
             <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.settings")} {/* Translated heading */}
-                </h2>
-              )}
               <Nav
                 isCollapsed={mobileWidth ? true : isCollapsed}
                 links={settingsLinks}
