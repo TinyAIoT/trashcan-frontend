@@ -8,8 +8,8 @@ import { useTranslation } from "../lib/TranslationContext"; // Import useTransla
 import { useWindowWidth } from "@react-hook/window-size";
 
 import {
-  ChevronRight,
-  ChevronLeft,
+  PanelRightClose,
+  PanelLeftClose,
   LayoutDashboard,
   MapIcon,
   Route,
@@ -102,7 +102,7 @@ export default function SideNavbar() {
             variant="secondary"
             className="rounded-full p-2"
           >
-            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+            {isCollapsed ? <PanelRightClose /> : <PanelLeftClose />}
           </Button>
         </div>
       )}
