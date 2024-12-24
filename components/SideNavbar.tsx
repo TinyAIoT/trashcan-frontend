@@ -120,12 +120,7 @@ export default function SideNavbar() {
       <div className="flex flex-col gap-4 flex-grow justify-between h-full pb-6">
         <div>
           {overviewLinks.length > 0 && (
-            <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.overview")} {/* Translated heading */}
-                </h2>
-              )}
+            <div>            
               <Nav
                 isCollapsed={mobileWidth ? true : isCollapsed}
                 links={overviewLinks}
