@@ -17,7 +17,13 @@ import {
   Settings,
   Settings2,
   CornerLeftUp,
+  MessageSquareReply
 } from "lucide-react";
+
+
+  const handleLogout = () => {
+    window.location.href = '/login';      // Redirect to the login page (where the authToken is cleared)
+  }
 
 export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -86,11 +92,24 @@ export default function SideNavbar() {
       variant: "ghost" as "default" | "ghost",
     },
     {
-      title: t("menu.account"), // Translated text
-      href: "/settings",
-      icon: Settings,
-      variant: "ghost" as "default" | "ghost",
+      title: t("menu.logout"), // Translated text
+      icon: MessageSquareReply,    // Replace with an appropriate logout icon
+      href: '/login',               
+      variant: "ghost" as "default" | "ghost", 
+      custom: (
+        <Button
+          onClick={handleLogout}
+          variant="destructive"
+          className="w-full text-left"
+        >
+          {t("menu.logout")}
+        </Button>
+      )
+      //href: "/settings",
+      //icon: Settings,
+      //variant: "ghost" as "default" | "ghost",
     },
+   
   ];
 
   return (
@@ -117,6 +136,8 @@ export default function SideNavbar() {
           },
         ]}
       />
+       
+  
       <div className="flex flex-col gap-4 flex-grow justify-between h-full pb-6">
         <div>
           {overviewLinks.length > 0 && (
