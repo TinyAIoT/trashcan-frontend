@@ -32,6 +32,8 @@
       "settings": "Einstellungen",
       "trashbins": "Mülleimer",
       "project": "Projekt",
+      "project_setting": "Projekteinstellungen",
+      "logout": "Abmelden",
       "account": "Konto",
       "location": "Ort",
       "last_emptied": "Zuletzt geleert",
