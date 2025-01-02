@@ -174,22 +174,22 @@ export default function ProjectSettings() {
       setErrors(newErrors);
       return;
     }
-    try{
-      const token = localStorage.getItem("authToken");
-    const response = await axios.put(
-      `/api/v1/trashbin/updateFillLevelChanges`, // Adjust the endpoint URL
-      { hours: Number(fillLevelInterval) }, // Pass user input as 'hours'
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace(/"/g, "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  } catch (error) {
-    console.error("Error updating fill-level changes:", error);
-    alert("Failed to update fill-level changes.");
-  }
+  //   try{
+  //     const token = localStorage.getItem("authToken");
+  //   const response = await axios.put(
+  //     `/api/v1/trashbin/updateFillLevelChanges`, // Adjust the endpoint URL
+  //     { hours: Number(fillLevelInterval) }, // Pass user input as 'hours'
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  // } catch (error) {
+  //   console.error("Error updating fill-level changes:", error);
+  //   alert("Failed to update fill-level changes.");
+  // }
     try {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
@@ -221,7 +221,33 @@ export default function ProjectSettings() {
     window.location.href = window.location.href.replace("/settings", "");
     setUpdated(false);
   };
+  const fillLevelChange = async (fillLevelInterval:Number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.put(
+        "/api/v1/trashbin/updateFillLevelChanges",
+        { hours: Number(fillLevelInterval) },
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating fill-level changes:", error);
+      alert("Failed to update fill-level changes.");
+    }
+  };
 
+  // Combined handler: sets state + calls the function
+  const handleChange = async (e:any) => {
+    const newValue = e.target.value;
+    setFillLevelInterval(newValue);
+    
+    // Call the API function with the new value
+    await fillLevelChange(newValue);
+  };
   useEffect(() => {
     if (updated) {
       window.location.href = window.location.href.replace("/settings", "");
@@ -316,7 +342,7 @@ export default function ProjectSettings() {
           <input
             type="text"
             value={fillLevelInterval}
-            onChange={(e) => setFillLevelInterval(e.target.value)}
+            onChange={handleChange}
             className="border border-gray-300 rounded px-3 py-2 w-[100px]"
           />
           {errors.fillLevelInterval && <p className="text-red-500">{t(errors.fillLevelInterval)}</p>}
