@@ -1,5 +1,6 @@
 import { InteractionData } from "./Heatmap";
 import * as d3 from "d3";
+import {useTranslation} from '@/lib/TranslationContext'
 
 type TooltipProps = {
   interactionData: InteractionData | null;
@@ -8,6 +9,8 @@ type TooltipProps = {
 };
 
 export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
+  const { t } = useTranslation();
+
   if (!interactionData) {
     return null;
   }
@@ -21,9 +24,9 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
           top: interactionData.yPos,
         }}
       >
-        <span>Date: {d3.timeFormat('%Y-%m-%d')(new Date(interactionData.xLabel))}</span>
+        <span>{t("menu.Date")} {d3.timeFormat('%Y-%m-%d')(new Date(interactionData.xLabel))}</span>
         <br/>
-        <span>{interactionData.value} bins ({Number(interactionData.yLabel) - 25}-{interactionData.yLabel}%)</span>
+        <span>{interactionData.value} {t("menu.Date")} ({Number(interactionData.yLabel) - 25}-{interactionData.yLabel}%)</span>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 {
     "menu": {
       "current_language": "Current Language",
+      "Date":"Date:",
       "Loading projects...": "Loading Projects...",
       "overview": "overview",
       "route_planning": "Route Planning",
@@ -24,10 +25,10 @@
       "Your Projects":"Your Projects",
       "Distribution of fill levels of all bins":"Distribution of fill levels of all bins",
       "dashboard": "Dashboard",
-      "nearly_full":"nearly_full",
-      "total_number":"total_number",
-      "low_battery":"low_battery",
-      "broken_sensors":"broken_sensors",
+      "nearly_full":"nearly full",
+      "total_number":"total number",
+      "low_battery":"low battery",
+      "broken_sensors":"broken sensors",
       "map": "Map",
       "route": "Route",
       "data": "Data",
@@ -91,7 +92,7 @@
     },
     "page": {
     "logout": "Logout",
-    "comingSoon": "Language and theme settings coming soon!"
+    "comingSoon": "Theme settings coming soon!"
   },
   "editTrashbin": {
     "title": "Edit Trashbin {{name}} ({{identifier}})",
