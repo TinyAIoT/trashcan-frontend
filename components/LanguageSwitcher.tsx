@@ -14,6 +14,8 @@ export default function LanguageSwitcher() {
       // Retrieve the token and project ID from localStorage
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
+      const userId = localStorage.getItem("userId");
+      
   
       if (!token || !projectId) {
         console.error("Token or Project ID is missing");
@@ -30,7 +32,7 @@ export default function LanguageSwitcher() {
       const response = await axios.patch(
         "/api/v1/auth/user",
         {
-          userId: "673b0a16e5e9f708d043dbe0", // Replace with dynamic user ID if available
+          userId: userId, // Replace with dynamic user ID if available
           preferences: {
             language: newLanguage.toUpperCase(), // Send "EN" or "DE"
             themeIsDark: true, // Assuming this value is fixed; replace if dynamic
@@ -38,9 +40,6 @@ export default function LanguageSwitcher() {
         },
         { headers }
       );
-  
-      console.log("API Response:", response.data);
-  
       // Update the local state after a successful API call
       setLanguage(newLanguage);
     } catch (error: any) {
