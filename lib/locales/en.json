@@ -2,6 +2,7 @@
     "menu": {
       "current_language": "Current Language",
       "Date":"Date:",
+      "bin":"Trashbin",
       "Loading projects...": "Loading Projects...",
       "overview": "overview",
       "route_planning": "Route Planning",
