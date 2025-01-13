@@ -2,6 +2,8 @@
     "menu": {
 
       "current_language": "Aktuelle Sprache",
+      "Date":"Datum:",
+      "bin":"Mülleimer",
       "dashboard": "Dashboard",
       "Your Projects":"Ihre Projekte",
       "Export to CSV":"Nach CSV exportieren",
@@ -91,7 +93,7 @@
   },
   "page": {
     "logout": "Abmelden",
-    "comingSoon": "Sprache und Theme-Einstellungen kommen bald!"
+    "comingSoon": "Theme-Einstellungen kommen bald!"
   },
   "editTrashbin": {
     "title": "Mülleimer bearbeiten {{name}} ({{identifier}})",

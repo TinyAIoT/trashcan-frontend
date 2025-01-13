@@ -40,6 +40,8 @@ export default function Component() {
         // Save the token in local storage for future requests
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("name", name);
+        localStorage.setItem("userId", response.data.user.id);
+        
         // Redirect to the home page
         router.push("/");
       }
