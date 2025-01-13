@@ -15,8 +15,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
-import {useTranslation} from '@/lib/TranslationContext'
-import { redirect } from 'next/navigation';
+import {useTranslation} from '@/lib/TranslationContext';
+import { useRouter } from "next/navigation";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -56,6 +56,7 @@ const columns: ColumnDef<Trashbin>[] = [
 const OSRM_SERVER_URL = 'http://router.project-osrm.org';
 
 const RoutePlanning = () => {
+  const router = useRouter();
   // Bins selected by user by clicking on map or table-row
   const [selectedBins, setSelectedBins] = useState<Trashbin[]>([]);
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
@@ -124,7 +125,7 @@ const RoutePlanning = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

@@ -5,11 +5,12 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
-import {useTranslation} from '@/lib/TranslationContext'
-import { redirect } from "next/navigation";
+import {useTranslation} from '@/lib/TranslationContext';
+import { useRouter } from "next/navigation";
 
 
 export default function ProjectSettings() {
+  const router = useRouter();
   const [mapCenterCoordinates, setMapCenterCoordinates] = useState<[string, string]>(["0", "0"]);
   const [startEndCoordinates, setStartEndCoordinates] = useState<[string, string]>(["0", "0"]);
   const [zoomLevel, setZoomLevel] = useState<string>("0");
@@ -49,7 +50,7 @@ export default function ProjectSettings() {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

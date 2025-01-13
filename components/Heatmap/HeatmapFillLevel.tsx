@@ -2,7 +2,7 @@ import { Trashbin } from "@/app/types";
 import { Heatmap } from "./Heatmap";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Entry = {
   time: number; // Unix timestamp
@@ -18,6 +18,7 @@ interface Measurement {
 }
 
 export const HeatmapFillLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashbins}) => {
+  const router = useRouter();
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [realData, setRealData] = useState<Entry[]>([]);
   useEffect(() => {
@@ -112,7 +113,7 @@ export const HeatmapFillLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashbins
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

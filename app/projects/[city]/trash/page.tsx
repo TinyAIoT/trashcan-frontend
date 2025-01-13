@@ -7,7 +7,7 @@ import { Trashbin } from "@/app/types";
 import React, { useCallback, useState, useEffect } from "react";
 import axios from "axios";;
 import { useTranslation } from "@/lib/TranslationContext"; // Import the translation hook
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -19,6 +19,7 @@ interface HistoryDataItem {
 // Treated like a boolean for now: assigned or not assigned
 
 export default function Home() {
+  const router = useRouter();
   const { t } = useTranslation(); // Translation hook
   const [trashbinData, setTrashbinData] = useState<Trashbin[]>([]);
   const [totalCardData, setTotalCardData] = useState<CardProps>({
@@ -142,7 +143,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching data:", error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        redirect('/login');
+        router.push('/login');
       }
     }
   };

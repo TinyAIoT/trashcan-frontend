@@ -5,9 +5,10 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AppSettings() {
+  const router = useRouter();
   const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
   const [noiseThreshold, setNoiseThreshold] = useState<string>("");
   const [confidenceThreshold, setConfidenceThreshold] = useState<string>("");
@@ -41,7 +42,7 @@ export default function AppSettings() {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

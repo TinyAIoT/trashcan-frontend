@@ -14,7 +14,7 @@ import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from '@/app/types';
 import { io, Socket } from 'socket.io-client';
 import { useTranslation } from "@/lib/TranslationContext";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -38,6 +38,7 @@ export default function TrashbinDetail({
 }: {
   params: { identifier: string };
 }) {
+  const router = useRouter();
   const [fillThresholds, setFillThresholds] = useState<[number, number]>([0, 0]);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number]>([0, 0]);
   const [trashbinData, setTrashbinData] = useState<Trashbin | null>();
@@ -210,7 +211,7 @@ export default function TrashbinDetail({
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };
