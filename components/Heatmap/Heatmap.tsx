@@ -8,7 +8,7 @@ import { COLOR_LEGEND_HEIGHT } from "./constants";
 import { ColorLegend } from "./ColorLegend";
 import * as d3 from "d3";
 import { COLORS, MARGIN, THRESHOLDS } from "./constants";
-
+import { useTheme } from "@/lib/ThemeContext"; // Theme hook
 
 type HeatmapProps = {
   data: {
@@ -26,7 +26,7 @@ export type InteractionData = {
   value: number | null;
 };
 
-const YAxis = ({ yGroups = [], height }: { yGroups: string[]; height: number }) => {
+const YAxis = ({ yGroups = [], height, isDarkMode }: { yGroups: string[]; height: number; isDarkMode: boolean}) => {
   const yScale = d3
     .scaleBand<string>()
     .range([0, height - MARGIN.top - MARGIN.bottom])
@@ -46,6 +46,7 @@ const YAxis = ({ yGroups = [], height }: { yGroups: string[]; height: number }) 
         textAnchor="end"
         dominantBaseline="middle"
         fontSize={9}
+        fill={isDarkMode ? "#FFFFFF" : "#000000"} // Apply dynamic color
       >
         {displayText}
       </text>
@@ -75,6 +76,10 @@ const colorScale = d3
   .scaleLinear<string>()
   .domain(thresholds)
   .range(COLORS);
+  
+  //const { isDarkMode = false  } = useTheme(); // Retrieve theme
+  const { theme, toggleTheme } = useTheme();  // Use theme directly
+  const isDarkMode = theme === "dark";  // Check if theme is dark mode
 
   const allYGroups = Array.from(new Set(data.map(d => d.percentage)))
     .sort((a, b) => b - a)
@@ -101,7 +106,7 @@ const colorScale = d3
   
   return (
     <div className="relative w-full h-[400px]">
-    <YAxis yGroups={allYGroups} height={340} />
+    <YAxis yGroups={allYGroups} height={340} isDarkMode={isDarkMode}/>
       <div className="overflow-x-scroll h-[340px] ml-12" ref={scrollableDivRef}>
         <div className="relative">
         <Renderer
@@ -110,6 +115,7 @@ const colorScale = d3
             data={data}
             setHoveredCell={setHoveredCell}
             colorScale={colorScale}
+            isDarkMode={isDarkMode} // Pass dark mode state
           />
 
           <Tooltip

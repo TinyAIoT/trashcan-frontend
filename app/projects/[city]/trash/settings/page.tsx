@@ -234,13 +234,13 @@ export default function ProjectSettings() {
               type="text"
               value={mapCenterCoordinates[0]}
               onChange={(e) => handleMapCenterCoordinateChange("latitude", e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <input
               type="text"
               value={mapCenterCoordinates[1]}
               onChange={(e) => handleMapCenterCoordinateChange("longitude", e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] bg-white text-black dark:bg-gray-800 dark:text-white"
             />
           </div>
           {errors.mapCenter && <p className="text-red-500">{t(errors.mapCenter)}</p>}
@@ -260,13 +260,13 @@ export default function ProjectSettings() {
               type="text"
               value={startEndCoordinates[0]}
               onChange={(e) => handleStartEndCoordinateChange("latitude", e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] mr-2 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <input
               type="text"
               value={startEndCoordinates[1]}
               onChange={(e) => handleStartEndCoordinateChange("longitude", e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+              className="border border-gray-300 rounded px-3 py-2 w-[200px] bg-white text-black dark:bg-gray-800 dark:text-white"
             />
           </div>
           {errors.startEnd && <p className="text-red-500">{t(errors.startEnd)}</p>}
@@ -285,7 +285,7 @@ export default function ProjectSettings() {
             type="text"
             value={zoomLevel}
             onChange={(e) => setZoomLevel(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
+            className="border border-gray-300 rounded px-3 py-2 w-[100px] bg-white text-black dark:bg-gray-800 dark:text-white"
           />
           {errors.zoomLevel && <p className="text-red-500">{t(errors.zoomLevel)}</p>}
         </div>
@@ -303,7 +303,7 @@ export default function ProjectSettings() {
             type="text"
             value={fillLevelInterval}
             onChange={(e) => setFillLevelInterval(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-[100px]"
+            className="border border-gray-300 rounded px-3 py-2 w-[100px] bg-white text-black dark:bg-gray-800 dark:text-white"
           />
           {errors.fillLevelInterval && <p className="text-red-500">{t(errors.fillLevelInterval)}</p>}
         </div>
@@ -323,14 +323,14 @@ export default function ProjectSettings() {
               type="text"
               value={fillThresholds[0]}
               onChange={(e) => setFillThresholds([e.target.value, fillThresholds[1]])}
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <div className="w-1/5 h-12 bg-yellow-400" />
             <input
               type="text"
               value={fillThresholds[1]}
               onChange={(e) => setFillThresholds([fillThresholds[0], e.target.value])}
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <div className="w-1/5 h-12 bg-red-600" />
           </div>
@@ -352,14 +352,14 @@ export default function ProjectSettings() {
               type="text"
               value={batteryThresholds[0]}
               onChange={(e) => setBatteryThresholds([e.target.value, batteryThresholds[1]])}
-              className="border border-gray-300 rounded-l px-3 py-2 w-1/5"
+              className="border border-gray-300 rounded-l px-3 py-2 w-1/5 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <div className="w-1/5 h-12 bg-yellow-400" />
             <input
               type="text"
               value={batteryThresholds[1]}
               onChange={(e) => setBatteryThresholds([batteryThresholds[0], e.target.value])}
-              className="border border-gray-300 rounded-r px-3 py-2 w-1/5"
+              className="border border-gray-300 rounded-r px-3 py-2 w-1/5 bg-white text-black dark:bg-gray-800 dark:text-white"
             />
             <div className="w-1/5 h-12 bg-red-600" />
           </div>
