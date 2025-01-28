@@ -15,14 +15,14 @@ export const Tooltip = ({ interactionData, width, height }: TooltipProps) => {
   return (
     <div className={`absolute top-0 left-0 w-[${width}] h-[${height}] pointer-events-none`}>
       <div
-        className="tooltip tooltip absolute bg-white border border-gray-300 p-2.5 rounded-md pointer-events-none opacity-95"
+        className="tooltip absolute bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 p-2.5 rounded-md pointer-events-none opacity-95"
         style={{
           left: interactionData.xPos - 180,
           top: interactionData.yPos,
         }}
       >
         <span>Date: {d3.timeFormat('%Y-%m-%d')(new Date(interactionData.xLabel))}</span>
-        <br/>
+        <br />
         <span>{interactionData.value} bins ({Number(interactionData.yLabel) - 25}-{interactionData.yLabel}%)</span>
       </div>
     </div>
