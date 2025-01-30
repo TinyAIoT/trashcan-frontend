@@ -14,88 +14,78 @@ import {
   MapIcon,
   Route,
   Trash2Icon,
-  Settings,
   Settings2,
   CornerLeftUp,
-  MessageSquareReply
+  MessageSquareReply,
 } from "lucide-react";
 
-
-  const handleLogout = () => {
-    window.location.href = '/login';      // Redirect to the login page (where the authToken is cleared)
-  }
+const handleLogout = () => {
+  window.location.href = "/login"; // Redirect to login page (authToken cleared)
+};
 
 export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-
   const city = localStorage.getItem("cityName");
   const type = localStorage.getItem("projectType");
-
   const onlyWidth = useWindowWidth();
   const mobileWidth = onlyWidth < 768;
-
   const { t } = useTranslation(); // Translation hook
 
   function toggleSidebar() {
     setIsCollapsed(!isCollapsed);
   }
 
-  // Dynamically translated links
-  const overviewLinks =
+  // Combined navigation links for Overview and Data sections
+  const navigationLinks =
     type === "trash"
       ? [
           {
-            title: t("menu.dashboard"), // Translated text
+            title: t("menu.dashboard"),
             href: `/projects/${city}/${type}`,
             icon: LayoutDashboard,
             variant: "default" as "default" | "ghost",
           },
           {
-            title: t("menu.map"), // Translated text
+            title: t("menu.map"),
             href: `/projects/${city}/${type}/map`,
             icon: MapIcon,
             variant: "ghost" as "default" | "ghost",
           },
           {
-            title: t("menu.route"), // Translated text
+            title: t("menu.route"),
             href: `/projects/${city}/${type}/route`,
             icon: Route,
+            variant: "ghost" as "default" | "ghost",
+          },
+          {
+            title: t("menu.trashbins"),
+            href: `/projects/${city}/${type}/trashbins`,
+            icon: Trash2Icon,
             variant: "ghost" as "default" | "ghost",
           },
         ]
       : [
           {
-            title: t("menu.dashboard"), // Translated text
+            title: t("menu.dashboard"),
             href: `/projects/${city}/${type}`,
             icon: LayoutDashboard,
             variant: "default" as "default" | "ghost",
           },
         ];
 
-  const dataLinks =
-    type === "trash"
-      ? [
-          {
-            title: t("menu.trashbins"), // Translated text
-            href: `/projects/${city}/${type}/trashbins`,
-            icon: Trash2Icon,
-            variant: "ghost" as "default" | "ghost",
-          },
-        ]
-      : [];
-
+  // Settings links
   const settingsLinks = [
     {
-      title: t("menu.project_setting"), // Translated text
+      title: t("menu.project_setting"),
       href: `/projects/${city}/${type}/settings`,
       icon: Settings2,
       variant: "ghost" as "default" | "ghost",
     },
     {
-      title: t("menu.logout"), // Translated text
-      icon: MessageSquareReply,    // Replace with an appropriate logout icon
-      href: '/login',               
-      variant: "ghost" as "default" | "ghost", 
+      title: t("menu.logout"),
+      icon: MessageSquareReply,
+      href: "/login",
+      variant: "ghost" as "default" | "ghost",
       custom: (
         <Button
           onClick={handleLogout}
@@ -104,16 +94,12 @@ export default function SideNavbar() {
         >
           {t("menu.logout")}
         </Button>
-      )
-      //href: "/settings",
-      //icon: Settings,
-      //variant: "ghost" as "default" | "ghost",
+      ),
     },
-   
   ];
 
   return (
-    <div className="relative min-w-[80px] border-r px-3 pb-10 py-6 d-flex flex-column justify-content-between h-screen">
+    <div className="relative min-w-[80px] border-r px-3 pb-10 py-6 flex flex-col justify-between h-screen">
       {!mobileWidth && (
         <div className="absolute right-[-20px] top-7">
           <Button
@@ -125,47 +111,28 @@ export default function SideNavbar() {
           </Button>
         </div>
       )}
+
       <Nav
         isCollapsed={mobileWidth ? true : isCollapsed}
         links={[
           {
-            title: t("menu.project"), // Translated text
+            title: t("menu.project"),
             href: "/projects",
             icon: CornerLeftUp,
             variant: "default",
           },
         ]}
       />
-       
-  
+
       <div className="flex flex-col gap-4 flex-grow justify-between h-full pb-6">
         <div>
-          {overviewLinks.length > 0 && (
-            <div>            
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={overviewLinks}
-              />
-            </div>
-          )}
-          {dataLinks.length > 0 && (
-            <div>
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={dataLinks}
-              />
-            </div>
+          {navigationLinks.length > 0 && (
+            <Nav isCollapsed={mobileWidth ? true : isCollapsed} links={navigationLinks} />
           )}
         </div>
-
         <div>
           {settingsLinks.length > 0 && (
-            <div>
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={settingsLinks}
-              />
-            </div>
+            <Nav isCollapsed={mobileWidth ? true : isCollapsed} links={settingsLinks} />
           )}
         </div>
       </div>
