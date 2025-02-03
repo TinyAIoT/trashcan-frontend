@@ -53,7 +53,7 @@ const columns: ColumnDef<Trashbin>[] = [
 ];
 
 // TODO: We need to host our own OSRM server for production
-const OSRM_SERVER_URL = 'http://router.project-osrm.org';
+const OSRM_SERVER_URL = 'https://router.project-osrm.org';
 
 const RoutePlanning = () => {
   // Bins selected by user by clicking on map or table-row
