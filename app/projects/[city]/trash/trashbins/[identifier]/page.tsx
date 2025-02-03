@@ -14,7 +14,7 @@ import LoadingComponent from "@/components/LoadingComponent";
 import { Trashbin } from '@/app/types';
 import { io, Socket } from 'socket.io-client';
 import { useTranslation } from "@/lib/TranslationContext";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface HistoryDataItem {
   timestamp: Date;
@@ -46,6 +46,7 @@ export default function TrashbinDetail({
   const [history, setHistory] = useState<HistoryDataItem[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const { t } = useTranslation();
+  const router = useRouter();
   
 
   useEffect(() => {
@@ -210,7 +211,7 @@ export default function TrashbinDetail({
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

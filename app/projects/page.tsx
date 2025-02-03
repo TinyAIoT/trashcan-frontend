@@ -6,7 +6,7 @@ import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import LoadingComponent from "@/components/LoadingComponent";
 import { useTranslation } from "@/lib/TranslationContext"; // Import translation hook
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface Project {
   _id: string;
@@ -35,6 +35,7 @@ function saveProjectDataLocally(project: any) {
 export default function Projects() {
   const { t } = useTranslation(); // Use translation hook for localization
   const [projectData, setProjectData] = useState<Project[] | null>(null);
+  const router = useRouter();
 
   // Remove any project data that might be stored locally when navigating back to the projects page
   removeProjectDataLocally();
@@ -65,9 +66,10 @@ export default function Projects() {
 
         setProjectData(transformedData);
       } catch (error) {
-        console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
+        } else {
+          console.error("Error fetching data:", error);
         }
       }
     };
