@@ -120,6 +120,6 @@ export const HeatmapBatteryLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashb
       }
     };
     fetchData();
-  }, [trashbins]);
+  }, [trashbins, router]);
   return <Heatmap data={realData} />
 };

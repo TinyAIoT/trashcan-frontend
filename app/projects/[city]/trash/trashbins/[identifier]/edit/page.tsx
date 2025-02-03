@@ -48,7 +48,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
     };
 
     fetchData();
-  }, [params.identifier]);
+  }, [params.identifier,router]);
 
   const goBack = () => {
     window.history.back();

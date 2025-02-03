@@ -130,7 +130,7 @@ const RoutePlanning = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {

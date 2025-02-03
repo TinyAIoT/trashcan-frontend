@@ -118,6 +118,6 @@ export const HeatmapFillLevel: React.FC<{ trashbins: Trashbin[] }> = ({trashbins
       }
     };
     fetchData();
-  }, [trashbins]);
+  }, [trashbins, router]);
   return (<Heatmap data={realData} />);
 };

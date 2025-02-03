@@ -82,7 +82,7 @@ export default function NoiseDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   if (loading) return <LoadingComponent/>;
 

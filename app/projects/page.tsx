@@ -74,7 +74,7 @@ export default function Projects() {
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col gap-5 w-full">

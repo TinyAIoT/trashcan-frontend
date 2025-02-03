@@ -20,6 +20,7 @@ export default function ProjectSettings() {
   const [updated, setUpdated] = useState(false);
   const [errors, setErrors] = useState({ mapCenter: "", startEnd: "", zoomLevel: "", fillLevelInterval: "", fillThresholds: "", batteryThresholds: ""});
   const { t } = useTranslation();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +55,7 @@ export default function ProjectSettings() {
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleMapCenterCoordinateChange = (key: string, value: string): void => {
     // Check if value contains something else than numbers or dots

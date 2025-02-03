@@ -185,7 +185,7 @@ export default function TrashbinsOverview() {
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
   
 
   return (

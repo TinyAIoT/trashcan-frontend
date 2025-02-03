@@ -63,7 +63,7 @@ const MapPage = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col h-[90vh]">

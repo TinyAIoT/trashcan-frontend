@@ -48,7 +48,7 @@ export default function AppSettings() {
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();

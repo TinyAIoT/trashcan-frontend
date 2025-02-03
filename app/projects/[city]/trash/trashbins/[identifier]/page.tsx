@@ -217,7 +217,7 @@ export default function TrashbinDetail({
     };
 
     fetchData();
-  }, [params.identifier]);
+  }, [params.identifier,router]);
 
   // Combine fillLevel and batteryLevel data to one object to display in the table
   useEffect(() => {
