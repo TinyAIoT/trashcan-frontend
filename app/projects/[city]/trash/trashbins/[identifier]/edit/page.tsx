@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
 import { useTranslation } from '@/lib/TranslationContext';
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 
 const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
@@ -22,7 +22,8 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
   };
   const [trashbin, setTrashbin] = useState<TrashBinUpdate | null>(null);
   const [errors, setErrors] = useState({ name: "", coordinates: "", location: "", image: "" });
-  const { t } = useTranslation();   
+  const { t } = useTranslation();  
+  const router = useRouter(); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,7 +42,7 @@ const EditTrashbinPage = ({ params }: { params: { identifier: string } }) => {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

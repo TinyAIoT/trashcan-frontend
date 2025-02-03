@@ -16,7 +16,7 @@ import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 import {useTranslation} from '@/lib/TranslationContext'
-import { redirect } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -77,6 +77,7 @@ const RoutePlanning = () => {
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
+  const router = useRouter();
 
   const { t } = useTranslation();
 
@@ -124,7 +125,7 @@ const RoutePlanning = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };

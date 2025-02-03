@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useState, useEffect } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import { DataTable } from "@/components/DataTable";
@@ -180,7 +180,7 @@ export default function TrashbinsOverview() {
       } catch (error) {
         console.error("Error fetching data:", error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          redirect('/login');
+          router.push('/login');
         }
       }
     };
