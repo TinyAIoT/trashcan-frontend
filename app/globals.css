@@ -289,3 +289,7 @@ html.dark body {
 html.dark .input::placeholder {
   color: hsl(var(--muted-foreground)); /* Match dark mode style */
 }
+
+.p-4 {
+  padding: 0 !important;
+}
