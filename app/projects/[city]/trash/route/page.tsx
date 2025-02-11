@@ -16,6 +16,7 @@ import LoadingComponent from '@/components/LoadingComponent';
 import { Trashbin } from '@/app/types';
 import { Copy, Info } from 'lucide-react';
 import {useTranslation} from '@/lib/TranslationContext'
+import { useRouter } from "next/navigation";
 
 const headerSortButton = (column: any, displayname: string) => {
   return (
@@ -52,7 +53,7 @@ const columns: ColumnDef<Trashbin>[] = [
 ];
 
 // TODO: We need to host our own OSRM server for production
-const OSRM_SERVER_URL = 'http://router.project-osrm.org';
+const OSRM_SERVER_URL = 'https://router.project-osrm.org';
 
 const RoutePlanning = () => {
   // Bins selected by user by clicking on map or table-row
@@ -76,6 +77,7 @@ const RoutePlanning = () => {
   const [initialZoom, setInitialZoom] = useState<number | null>(null);
   const [fillThresholds, setFillThresholds] = useState<[number, number] | null>(null);
   const [batteryThresholds, setBatteryThresholds] = useState<[number, number] | null>(null);
+  const router = useRouter();
 
   const { t } = useTranslation();
 
@@ -122,10 +124,13 @@ const RoutePlanning = () => {
         setBatteryThresholds(preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   // Add trashbin if not already selected, otherwise remove it
   const handleTrashbinClick = useCallback((trashbin: Trashbin) => {

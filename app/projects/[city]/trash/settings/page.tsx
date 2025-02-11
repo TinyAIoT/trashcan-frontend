@@ -6,6 +6,7 @@ import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
 import {useTranslation} from '@/lib/TranslationContext'
+import { useRouter } from "next/navigation";
 
 
 export default function ProjectSettings() {
@@ -19,6 +20,7 @@ export default function ProjectSettings() {
   const [updated, setUpdated] = useState(false);
   const [errors, setErrors] = useState({ mapCenter: "", startEnd: "", zoomLevel: "", fillLevelInterval: "", fillThresholds: "", batteryThresholds: ""});
   const { t } = useTranslation();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,10 +49,13 @@ export default function ProjectSettings() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleMapCenterCoordinateChange = (key: string, value: string): void => {
     // Check if value contains something else than numbers or dots
@@ -174,11 +179,25 @@ export default function ProjectSettings() {
       setErrors(newErrors);
       return;
     }
-
+    try{
+      const token = localStorage.getItem("authToken");
+    const response = await axios.put(
+      `/api/v1/trashbin/updateFillLevelChanges`, // Adjust the endpoint URL
+      { hours: Number(fillLevelInterval) }, // Pass user input as 'hours'
+      {
+        headers: {
+          Authorization: `Bearer ${token?.replace(/"/g, "")}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error updating fill-level changes:", error);
+    alert("Failed to update fill-level changes.");
+  }
     try {
       const token = localStorage.getItem("authToken");
       const projectId = localStorage.getItem("projectId");
-
       await axios.patch(
         `/api/v1/project/${projectId}`,
         {
@@ -197,7 +216,7 @@ export default function ProjectSettings() {
           },
         }
       );
-      setUpdated(true);
+       setUpdated(true);
     } catch (error) {
       console.error("Error updating settings:", error);
     }
@@ -370,6 +389,7 @@ export default function ProjectSettings() {
         <div className="flex space-x-4">
           <button
             type="submit"
+            onClick={handleSubmit}
             className="px-4 py-2 bg-green-600 text-white rounded-md w-[200px]"
           >
             {t("menu.save_settings")}

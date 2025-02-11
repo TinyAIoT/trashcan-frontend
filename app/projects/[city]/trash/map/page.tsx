@@ -57,10 +57,13 @@ const MapPage = () => {
         setBatteryThresholds(projectResponse.data.project.preferences.batteryThresholds);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col h-[90vh]">

@@ -7,6 +7,7 @@ import { CardContent } from "@/components/Card";
 import NoiseChart from "@/components/NoiseChart";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 function redirectToSettings() {
   window.location.href = window.location.href + "/settings";
@@ -18,6 +19,7 @@ export default function NoiseDashboard() {
   const [noiseThreshold, setNoiseThreshold] = useState<number>(0);
   const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,11 +75,14 @@ export default function NoiseDashboard() {
 
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   if (loading) return <LoadingComponent/>;
 

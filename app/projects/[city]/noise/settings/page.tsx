@@ -5,6 +5,7 @@ import axios from "axios";
 import PageTitle from "@/components/PageTitle";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Info } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AppSettings() {
   const [activeTimeInterval, setActiveTimeInterval] = useState<[string, string]>(["", ""]);
@@ -13,6 +14,7 @@ export default function AppSettings() {
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState(false);
   const [errors, setErrors] = useState({ noiseThreshold: "", confidenceThreshold: "", activeTimeInterval: "" });
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,11 +41,14 @@ export default function AppSettings() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();

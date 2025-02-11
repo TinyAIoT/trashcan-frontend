@@ -2,6 +2,8 @@
     "menu": {
 
       "current_language": "Aktuelle Sprache",
+      "Date":"Datum:",
+      "bin":"Mülleimer",
       "dashboard": "Dashboard",
       "Your Projects":"Ihre Projekte",
       "Export to CSV":"Nach CSV exportieren",
@@ -84,16 +86,16 @@
   },
     "login": {
     "title": "Anmeldung",
-    "description": "Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich bei Ihrem Konto anzumelden",
-    "email": "E-Mail",
-    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "description": "Geben Sie Ihre Name und Ihr Passwort ein, um sich bei Ihrem Konto anzumelden",
+    "name": "Name",
+    "emailPlaceholder": "Ihre Name",
     "password": "Passwort",
     "passwordPlaceholder": "Ihr Passwort",
     "loginButton": "Anmelden"
   },
   "page": {
     "logout": "Abmelden",
-    "comingSoon": "Sprache und Theme-Einstellungen kommen bald!"
+    "comingSoon": "Theme-Einstellungen kommen bald!"
   },
   "editTrashbin": {
     "title": "Mülleimer bearbeiten {{name}} ({{identifier}})",

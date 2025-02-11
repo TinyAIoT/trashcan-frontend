@@ -179,10 +179,13 @@ export default function TrashbinsOverview() {
         setTrashbinData(updatedTrashbinData);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/login');
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [router]);
   
 
   return (
