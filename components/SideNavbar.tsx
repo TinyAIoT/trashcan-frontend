@@ -8,93 +8,101 @@ import { useTranslation } from "../lib/TranslationContext"; // Import useTransla
 import { useWindowWidth } from "@react-hook/window-size";
 
 import {
-  ChevronRight,
-  ChevronLeft,
+  PanelRightClose,
+  PanelLeftClose,
   LayoutDashboard,
   MapIcon,
   Route,
   Trash2Icon,
-  Settings,
   Settings2,
   CornerLeftUp,
+  MessageSquareReply,
 } from "lucide-react";
+
+// Handle logout functionality
+const handleLogout = () => {
+  window.location.href = "/login"; // Redirect to login page (authToken cleared)
+};
 
 export default function SideNavbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-
+  const [currentPath, setCurrentPath] = useState<string>(""); // Track current path manually
+  const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode status
   const city = localStorage.getItem("cityName");
   const type = localStorage.getItem("projectType");
-
   const onlyWidth = useWindowWidth();
   const mobileWidth = onlyWidth < 768;
-
   const { t } = useTranslation(); // Translation hook
+
+  // Track the initial load and set the current path & dark mode status
+  useEffect(() => {
+    setCurrentPath(window.location.pathname); // Set current path
+    const darkModeClass = document.documentElement.classList.contains("dark");
+    setIsDarkMode(darkModeClass); // Check if dark mode is enabled
+  }, []);
 
   function toggleSidebar() {
     setIsCollapsed(!isCollapsed);
   }
 
-  // Dynamically translated links
-  const overviewLinks =
+  // Combined navigation links for Overview and Data sections
+  const navigationLinks =
     type === "trash"
       ? [
           {
-            title: t("menu.dashboard"), // Translated text
+            title: t("menu.dashboard"),
             href: `/projects/${city}/${type}`,
             icon: LayoutDashboard,
-            variant: "default" as "default" | "ghost",
           },
           {
-            title: t("menu.map"), // Translated text
+            title: t("menu.map"),
             href: `/projects/${city}/${type}/map`,
             icon: MapIcon,
-            variant: "ghost" as "default" | "ghost",
           },
           {
-            title: t("menu.route"), // Translated text
+            title: t("menu.route"),
             href: `/projects/${city}/${type}/route`,
             icon: Route,
-            variant: "ghost" as "default" | "ghost",
+          },
+          {
+            title: t("menu.trashbins"),
+            href: `/projects/${city}/${type}/trashbins`,
+            icon: Trash2Icon,
           },
         ]
       : [
           {
-            title: t("menu.dashboard"), // Translated text
+            title: t("menu.dashboard"),
             href: `/projects/${city}/${type}`,
             icon: LayoutDashboard,
-            variant: "default" as "default" | "ghost",
           },
         ];
 
-  const dataLinks =
-    type === "trash"
-      ? [
-          {
-            title: t("menu.trashbins"), // Translated text
-            href: `/projects/${city}/${type}/trashbins`,
-            icon: Trash2Icon,
-            variant: "ghost" as "default" | "ghost",
-          },
-        ]
-      : [];
-
+  // Settings links
   const settingsLinks = [
     {
-      title: t("menu.project"), // Translated text
+      title: t("menu.project_setting"),
       href: `/projects/${city}/${type}/settings`,
       icon: Settings2,
-      variant: "ghost" as "default" | "ghost",
     },
     {
-      title: t("menu.account"), // Translated text
-      href: "/settings",
-      icon: Settings,
-      variant: "ghost" as "default" | "ghost",
+      title: t("menu.logout"),
+      icon: MessageSquareReply,
+      href: "/login",
+      custom: (
+        <Button
+          onClick={handleLogout}
+          variant="destructive"
+          className="w-full text-left"
+        >
+          {t("menu.logout")}
+        </Button>
+      ),
     },
   ];
 
   return (
-    <div className="relative min-w-[80px] border-r px-3 pb-10 py-6 d-flex flex-column justify-content-between h-screen">
+    <div className="relative min-w-[80px] border-r px-3 pb-10 py-6 flex flex-col justify-between h-screen">
       {!mobileWidth && (
         <div className="absolute right-[-20px] top-7">
           <Button
@@ -102,64 +110,41 @@ export default function SideNavbar() {
             variant="secondary"
             className="rounded-full p-2"
           >
-            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+            {isCollapsed ? <PanelRightClose /> : <PanelLeftClose />}
           </Button>
         </div>
       )}
+
       <Nav
         isCollapsed={mobileWidth ? true : isCollapsed}
-        links={[
-          {
-            title: t("menu.project"), // Translated text
-            href: "/projects",
-            icon: CornerLeftUp,
-            variant: "default",
-          },
-        ]}
+        links={[{ title: t("menu.project"), href: "/projects", icon: CornerLeftUp, variant: "default" }]}
       />
+
       <div className="flex flex-col gap-4 flex-grow justify-between h-full pb-6">
         <div>
-          {overviewLinks.length > 0 && (
-            <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.overview")} {/* Translated heading */}
-                </h2>
-              )}
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={overviewLinks}
-              />
-            </div>
-          )}
-          {dataLinks.length > 0 && (
-            <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.data")} {/* Translated heading */}
-                </h2>
-              )}
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={dataLinks}
-              />
-            </div>
+          {navigationLinks.length > 0 && (
+            <Nav
+              isCollapsed={mobileWidth ? true : isCollapsed}
+              links={navigationLinks.map((link) => ({
+                ...link,
+                className:
+                  currentPath === link.href
+                    ? isDarkMode
+                      ? "bg-white text-black" // Dark mode: white background and black text for active
+                      : "bg-blue-600 text-white" // Light mode: blue background and white text for active
+                    : isDarkMode
+                    ? "text-white hover:bg-gray-700 hover:text-white" // Dark mode hover
+                    : "text-black hover:bg-gray-200 hover:text-black", // Light mode hover
+              }))}
+            />
           )}
         </div>
-
         <div>
           {settingsLinks.length > 0 && (
-            <div>
-              {!isCollapsed && !mobileWidth && (
-                <h2 className="text-lg text-gray-600 font-seibold text-center">
-                  {t("menu.settings")} {/* Translated heading */}
-                </h2>
-              )}
-              <Nav
-                isCollapsed={mobileWidth ? true : isCollapsed}
-                links={settingsLinks}
-              />
-            </div>
+            <Nav
+              isCollapsed={mobileWidth ? true : isCollapsed}
+              links={settingsLinks}
+            />
           )}
         </div>
       </div>
