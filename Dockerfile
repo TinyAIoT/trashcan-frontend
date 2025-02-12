@@ -21,7 +21,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ARG DOCKER_TAG
 ENV NEXT_PUBLIC_APP_VERSION=$DOCKER_TAG
 
-RUN NEXT_PUBLIC_BACKEND_URL="http://localhost:5001" npm run build
+RUN NEXT_PUBLIC_BACKEND_URL=http://localhost:5001 npm run build
 
 # Production image, copy all the files and run next
 FROM node:16-alpine3.16 AS runner
