@@ -13,7 +13,7 @@ jobs:
       - name: Purge Pull Request Image
         uses: vlaurin/action-ghcr-prune@v0.4.0
         with:
-          token: ${{ secrets.GHCR_TOKEN}}
+          token: ${{ secrets.GITHUB_TOKEN}}
           organization: ${{ github.repository_owner}}
           container: ${{ github.event.repository.name }}
           tag-regex: pr-${{github.event.pull_request.number}}$
