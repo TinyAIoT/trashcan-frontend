@@ -3,8 +3,8 @@ FROM node:16-alpine3.16 AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json package.lock ./
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM node:16-alpine3.16 AS builder
@@ -22,7 +22,7 @@ ARG DOCKER_TAG
 ENV NEXT_PUBLIC_APP_VERSION=$DOCKER_TAG
 
 RUN npx prisma generate
-RUN NEXT_PUBLIC_BACKEND_URL="http://localhost:5001" yarn build
+RUN NEXT_PUBLIC_BACKEND_URL="http://localhost:5001" npm run build
 
 # Production image, copy all the files and run next
 FROM node:16-alpine3.16 AS runner
