@@ -50,9 +50,17 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
     if (dimensions.width === 0 || dimensions.height === 0) return;
     if (!mainChartRef.current) return;
 
-    const margin = { top: 5, right: 5, bottom: 130, left: 40 }; // Increased bottom margin
+    
+    const margin = { top: 5, right: 5, bottom: 130, left: 90 }; // Increase left margin
+
+    
+
     const height = dimensions.height - margin.top - margin.bottom;
-    const fullWidth = dimensions.width - margin.left - margin.right;
+    //const fullWidth = dimensions.width - margin.left - margin.right;
+
+    
+    //const height = Math.max(dimensions.height - margin.top - margin.bottom, 400); // Ensure a decent height
+    const fullWidth = Math.max(dimensions.width - margin.left - margin.right, 800); // Ensure a minimum width
 
     d3.select(mainChartRef.current).selectAll("*").remove();
 
@@ -177,6 +185,19 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .append("g")
       .attr("transform", `translate(${margin.left - 1},${margin.top})`)
       .call(yAxis);
+      // Remove the domain (the line) from the static y-axis
+      d3.select(yAxisRef.current).select(".domain").remove();
+      
+      // Remove the static ticks (labels and tick marks)
+     d3.select(yAxisRef.current).selectAll(".tick").remove(); 
+
+
+    // Step 2: Render Y-Axis LINE inside the scrollable chart (Moves with scroll)
+    svg.append("g")
+    .attr("class", "y-axis")
+    .attr("transform", `translate(-1, 0)`) // Move slightly left for alignment
+    .call(yAxis);
+    
 
   }, [dimensions, historyData, green, yellow, red]);
 
@@ -188,12 +209,37 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
   }, [dimensions]);
 
   return (
-    <div className="relative w-full h-[400px]">
+    /*<div className="relative w-full h-[400px]">
       <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
       <div className="overflow-x-scroll h-full ml-10" ref={scrollableDivRef}>
         <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
       </div>
     </div>
+   */
+///<div className="relative w-full h-[500px] flex">
+///{/* Fixed Y-Axis */}
+///<svg ref={yAxisRef} className="absolute left-0 top-0 z-10 bg-white"></svg>  
+
+///{/* Scrollable Chart */}
+///<div className="overflow-x-scroll h-full flex-1 ml-[60px]" ref={scrollableDivRef}>  
+  ///<svg ref={mainChartRef} className="block h-full"></svg>  
+///</div>
+///</div>
+
+////<div className="relative w-full h-[500px]"> {/* Increased height */}
+/*<svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
+<div className="overflow-x-scroll h-full ml-10 w-[90vw]" ref={scrollableDivRef}>
+ <svg ref={mainChartRef} className="block h-full min-w-[1000px] -ml-10"></svg>
+</div>
+</div>
+*/
+<div className="relative w-full h-[500px]"> {/* Increase height */}
+  <svg ref={yAxisRef} className="absolute left-0 top-0 h-full"></svg>
+  <div className="overflow-x-scroll h-full ml-10 bg-transparent" ref={scrollableDivRef}>
+    <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
+  </div>
+</div>
+
   );
 };
 
