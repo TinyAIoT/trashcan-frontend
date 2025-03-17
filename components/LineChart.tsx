@@ -209,37 +209,12 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
   }, [dimensions]);
 
   return (
-    /*<div className="relative w-full h-[400px]">
-      <svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
-      <div className="overflow-x-scroll h-full ml-10" ref={scrollableDivRef}>
+    <div className="relative w-full h-[500px]"> {/* Increase height */}
+      <svg ref={yAxisRef} className="absolute left-0 top-0 h-full"></svg>
+      <div className="overflow-x-scroll h-full ml-10 bg-transparent" ref={scrollableDivRef}>
         <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
       </div>
     </div>
-   */
-///<div className="relative w-full h-[500px] flex">
-///{/* Fixed Y-Axis */}
-///<svg ref={yAxisRef} className="absolute left-0 top-0 z-10 bg-white"></svg>  
-
-///{/* Scrollable Chart */}
-///<div className="overflow-x-scroll h-full flex-1 ml-[60px]" ref={scrollableDivRef}>  
-  ///<svg ref={mainChartRef} className="block h-full"></svg>  
-///</div>
-///</div>
-
-////<div className="relative w-full h-[500px]"> {/* Increased height */}
-/*<svg ref={yAxisRef} className="absolute left-0 top-0"></svg>
-<div className="overflow-x-scroll h-full ml-10 w-[90vw]" ref={scrollableDivRef}>
- <svg ref={mainChartRef} className="block h-full min-w-[1000px] -ml-10"></svg>
-</div>
-</div>
-*/
-<div className="relative w-full h-[500px]"> {/* Increase height */}
-  <svg ref={yAxisRef} className="absolute left-0 top-0 h-full"></svg>
-  <div className="overflow-x-scroll h-full ml-10 bg-transparent" ref={scrollableDivRef}>
-    <svg ref={mainChartRef} className="block h-full -ml-10"></svg>
-  </div>
-</div>
-
   );
 };
 
