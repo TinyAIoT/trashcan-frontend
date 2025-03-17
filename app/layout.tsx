@@ -1,5 +1,7 @@
 "use client";
 
+import { ThemeProvider, useTheme } from "@/lib/ThemeContext";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { Inter } from "next/font/google";
 import { TranslationProvider } from "../lib/TranslationContext";
 import "../app/globals.css"
@@ -7,6 +9,8 @@ import { cn } from "../lib/utils";
 import SideNavbar from "@/components/SideNavbar";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useEffect, useState } from "react";
+//import { useTheme } from "@/lib/ThemeContext";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,6 +48,14 @@ export default function RootLayout({
 
   const [loading, setLoading] = useState(true);
 
+  // Add mounted state
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted to true after client-side rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     overrideHistoryMethods();
     const storedToken = localStorage.getItem("authToken");
@@ -76,24 +88,37 @@ export default function RootLayout({
     };
   }, []);
 
-  return (
-    <html lang="en">
+  const { theme } = useTheme(); // Get theme context
+
+   // Prevent rendering until mounted to avoid hydration errors
+   if (!mounted) {
+    return null; // Return nothing until mounted
+  }
+
+return (
+  <ThemeProvider> 
+    <html lang="en" data-theme={theme}>
       <head>
         <title>TinyAIoT Dashboard</title>
       </head>
       <body
         className={cn(
-          "min-h-screen w-full bg-white text-black flex ",
+          `min-h-screen w-full flex ${
+            theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+          }`,
           inter.className,
           {
             "debug-screens": process.env.NODE_ENV === "development",
           }
         )}
       >
+
+      
         <TranslationProvider>
           {/* Language Switcher in the Header */}
           <header className="flex justify-end p-4 bg-gray-100">
             <LanguageSwitcher />
+            <ThemeSwitcher />
           </header>
           {showNavigation && (
             <div className="h-screen">
@@ -102,7 +127,9 @@ export default function RootLayout({
           )}
           <main className="p-8 w-full">{children}</main>
         </TranslationProvider>
+     
       </body>
     </html>
+  </ThemeProvider>
   );
 }

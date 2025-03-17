@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import ResizeObserver from "resize-observer-polyfill";
 import * as d3 from "d3";
+import { useTheme } from "../lib/ThemeContext"; // Adjusted import path for ThemeContext
 
 interface DataItem {
   timestamp: Date;
@@ -26,9 +27,10 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
   const mainChartRef = useRef<SVGSVGElement>(null);
   const scrollableDivRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const { theme } = useTheme();
 
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
+    const resizeObserver = new ResizeObserver((entries) => {
       if (!entries || entries.length === 0) return;
       const { width, height } = entries[0].contentRect;
       setDimensions({ width, height });
@@ -89,8 +91,9 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .tickFormat((domainValue) => d3.timeFormat('%Y-%m-%d %H:%M')(domainValue as Date))
       .ticks(10);
 
-    svg.append('g')
-      .attr('transform', `translate(0,${height})`)
+    svg
+      .append("g")
+      .attr("transform", `translate(0,${height})`)
       .call(xAxis)
       .selectAll('text')
       .attr('transform', 'rotate(-45)') // Rotate text to avoid overlap
@@ -106,7 +109,8 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("fill", "green")
       .attr("opacity", 0.15);
 
-    svg.append("rect")
+    svg
+        .append("rect")
       .attr("x", 0)
       .attr("y", y(yellow[1]))
       .attr("width", fullWidth)
@@ -114,7 +118,8 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("fill", "yellow")
       .attr("opacity", 0.15);
 
-    svg.append("rect")
+    svg
+      .append("rect")
       .attr("x", 0)
       .attr("y", y(red[1]))
       .attr("width", fullWidth)
@@ -122,14 +127,16 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("fill", "red")
       .attr("opacity", 0.15);
 
-    svg.append("path")
+    svg
+      .append("path")
       .datum(sortedData)
       .attr("fill", "none")
       .attr("stroke", "black")
       .attr("stroke-width", 1.5)
       .attr("d", line);
 
-    svg.selectAll(".dot")
+    svg
+      .selectAll(".dot")
       .data(sortedData)
       .enter()
       .append("circle")
@@ -140,7 +147,9 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .attr("cy", d => y(d.measurement))
       .attr("r", 3);
 
-    const tooltip = d3.select('body').append('div')
+    const tooltip = d3
+      .select('body')
+      .append('div')
       .attr('class', 'tooltip')
       .style('position', 'absolute')
       .style('background', '#fff')
@@ -150,7 +159,8 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
       .style('pointer-events', 'none')
       .style('opacity', 0);
 
-    svg.selectAll('.dot-overlay')
+    svg
+      .selectAll('.dot-overlay')
       .data(sortedData)
       .enter().append('circle')
       .attr('class', 'dot-overlay')
@@ -167,10 +177,8 @@ const LineChart: React.FC<LineChartProps> = ({ historyData, green, yellow, red }
           .style('left', `${event.pageX - 260}px`)
           .style('top', `${event.pageY + 10}px`);
       })
-      .on('mouseout', () => {
-        tooltip.transition()
-          .duration(500)
-          .style('opacity', 0);
+      .on("mouseout", () => {
+        tooltip.transition().duration(500).style("opacity", 0);
       });
 
     // Y-Axis
